@@ -2,29 +2,31 @@
 #include <SparkFun_TB6612.h>
 #include <Wire.h>
 
-#define AIN1 12
-#define BIN1 7
-#define AIN2 4
-#define BIN2 8
-#define PWMA 5
-#define PWMB 6
-#define STBY 9
+#define AIN1 9
+#define AIN2 10
+#define PWMA 11
 #define ENC1A 2
-#define ENC1B 10 
+#define ENC1B 12
+#define BIN1 7
+#define BIN2 6
+#define PWMB 5
 #define ENC2A 3
 #define ENC2B 13
+#define STBY 8
 
-byte slave_address = 7;
+byte slave_address = 4;
 
 const double radius = 2;    // radius of the wheel in inches
 const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
-const int res = 16;         // number of encoder counts per single turn
+const int res = 64;         // number of encoder counts per single turn
 
 const int offsetLeft = -1;
 const int offsetRight = 1;
 Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
 Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
+int leftBaseSpeed = 255;
+int rightBaseSpeed = 225;
 
 
 Encoder encLeft(ENC1A, ENC1B);
@@ -37,12 +39,20 @@ void setup() {
   
   Serial.begin(9600);
   Serial.println("Encoder Test:");
-
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+//long leftPos = 0;
+//long rightPos = 0;
 
+void loop() {
+  forward(30);
+  delay(1000);
+  backward(30);
+  delay(1000);
+  right(90);
+  delay(1000);
+  left(90);
+  delay(1000);
 }
 
 void receiveEvent(int howMany) 
@@ -70,166 +80,144 @@ void receiveEvent(int howMany)
 
 void forward(int x)
 {
-  int leftPos = 0;
-  int rightPos = 0;
-  int leftBaseSpeed = 255;
-  int rightBaseSpeed = 255;
+  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  int rightPos = offsetRight*encRight.read()/(cpr/res);
+  int leftDir = 1;
+  int rightDir = 1;
   
   int steps = x/(2*PI*radius)*res; 
-  int leftGoal = steps;
-  int rightGoal = steps;
-  int leftSpeed = leftBaseSpeed;
-  int rightSpeed = rightBaseSpeed;
+  int leftGoal = leftPos + leftDir*steps;
+  int rightGoal = rightPos + rightDir*steps;
+  int leftSpeed = leftDir*leftBaseSpeed;
+  int rightSpeed = rightDir*rightBaseSpeed;
 
   while (leftPos < leftGoal || rightPos < rightGoal)
   {
     // TODO: Need some LED action here
     // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = abs(offsetLeft*encLeft.read()/(cpr/res));
-    rightPos = abs(offsetRight*encRight.read()/(cpr/res));
-    
-    rpmControl(leftSpeed, rightSpeed, leftPos, rightPos, leftBaseSpeed, rightBaseSpeed);
-    
-    if (leftPos >= leftGoal){
-        motorLeft.brake();
-    }
-    
-    if (rightPos >= rightGoal){
-        motorRight.brake();
-    }   
+    leftPos = offsetLeft*encLeft.read()/(cpr/res);
+    rightPos = offsetRight*encRight.read()/(cpr/res);
+    Serial.print("Left encoder: ");
+    Serial.println(leftPos);
+    Serial.print("Right encoder: ");
+    Serial.println(rightPos);
      
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
   }
+
+  motorLeft.brake();
+  motorRight.brake();
 }
 
 void backward(int x)
 {
-  int leftPos = 0;
-  int rightPos = 0;
-  int leftBaseSpeed = -255;
-  int rightBaseSpeed = -255;
+  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  int rightPos = offsetRight*encRight.read()/(cpr/res);
+  int leftDir = -1;
+  int rightDir = -1;
   
   int steps = x/(2*PI*radius)*res; 
-  int leftGoal = steps;
-  int rightGoal = steps;
-  int leftSpeed = leftBaseSpeed;
-  int rightSpeed = rightBaseSpeed;
+  int leftGoal = leftPos + leftDir*steps;
+  int rightGoal = rightPos + rightDir*steps;
+  int leftSpeed = leftDir*leftBaseSpeed;
+  int rightSpeed = rightDir*rightBaseSpeed;
 
-  while (leftPos < leftGoal || rightPos < rightGoal)
+  while (leftPos > leftGoal || rightPos > rightGoal)
   {
     // TODO: Need some LED action here
     // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = abs(offsetLeft*encLeft.read()/(cpr/res));
-    rightPos = abs(offsetRight*encRight.read()/(cpr/res));
-    
-    rpmControl(leftSpeed, rightSpeed, leftPos, rightPos, leftBaseSpeed, rightBaseSpeed);
-    
-    if (leftPos >= leftGoal){
-        motorLeft.brake();
-    }
-    
-    if (rightPos >= rightGoal){
-        motorRight.brake();
-    }   
+    leftPos = offsetLeft*encLeft.read()/(cpr/res);
+    rightPos = offsetRight*encRight.read()/(cpr/res);
      
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
   }
+  motorLeft.brake();
+  motorRight.brake();
 }
 
 void left(int deg)
 {
-  int leftPos = 0;
-  int rightPos = 0;
-  int leftBaseSpeed = 255;
-  int rightBaseSpeed = -255;
+  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  int rightPos = offsetRight*encRight.read()/(cpr/res);
+  int leftDir = -1;
+  int rightDir = 1;
 
   int steps = axel/radius/720*deg*res; 
-  int leftGoal = steps;
-  int rightGoal = steps;
-  int leftSpeed = leftBaseSpeed;
-  int rightSpeed = rightBaseSpeed;
+  int leftGoal = leftPos + leftDir*steps;
+  int rightGoal = rightPos + rightDir*steps;
+  int leftSpeed = leftDir*leftBaseSpeed;
+  int rightSpeed = rightDir*rightBaseSpeed;
 
-  while (leftPos < leftGoal || rightPos < rightGoal)
+  while (leftPos > leftGoal || rightPos < rightGoal)
   {
     // TODO: Need some LED action here
     // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = abs(offsetLeft*encLeft.read()/(cpr/res));
-    rightPos = abs(offsetRight*encRight.read()/(cpr/res));
-    
-    rpmControl(leftSpeed, rightSpeed, leftPos, rightPos, leftBaseSpeed, rightBaseSpeed);
-    
-    if (leftPos >= leftGoal){
-        motorLeft.brake();
-    }
-    
-    if (rightPos >= rightGoal){
-        motorRight.brake();
-    }   
-     
+    leftPos = offsetLeft*encLeft.read()/(cpr/res);
+    rightPos = offsetRight*encRight.read()/(cpr/res);
+        
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
   }
+
+  motorLeft.brake();
+  motorRight.brake();
 }
 
 void right(int deg)
 {
-  int leftPos = 0;
-  int rightPos = 0;
-  int leftBaseSpeed = -255;
-  int rightBaseSpeed = 255;
+  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  int rightPos = offsetRight*encRight.read()/(cpr/res);
+  int leftDir = 1;
+  int rightDir = -1;
 
   int steps = axel/radius/720*deg*res; 
-  int leftGoal = steps;
-  int rightGoal = steps;
-  int leftSpeed = leftBaseSpeed;
-  int rightSpeed = rightBaseSpeed;
+  int leftGoal = leftPos + leftDir*steps;
+  int rightGoal = rightPos + rightDir*steps;
+  int leftSpeed = leftDir*leftBaseSpeed;
+  int rightSpeed = rightDir*rightBaseSpeed;
 
-  while (leftPos < leftGoal || rightPos < rightGoal)
+  while (leftPos < leftGoal || rightPos > rightGoal)
   {
     // TODO: Need some LED action here
     // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = abs(offsetLeft*encLeft.read()/(cpr/res));
-    rightPos = abs(offsetRight*encRight.read()/(cpr/res));
+    leftPos = offsetLeft*encLeft.read()/(cpr/res);
+    rightPos = offsetRight*encRight.read()/(cpr/res);
+    Serial.print("Left encoder: ");
+    Serial.println(leftPos);
+    Serial.print("Right encoder: ");
+    Serial.println(rightPos);
     
-    rpmControl(leftSpeed, rightSpeed, leftPos, rightPos, leftBaseSpeed, rightBaseSpeed);
-    
-    if (leftPos >= leftGoal){
-        motorLeft.brake();
-    }
-    
-    if (rightPos >= rightGoal){
-        motorRight.brake();
-    }   
-     
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
   }
+  motorLeft.brake();
+  motorRight.brake();
 }
 
 void rpmControl(int &leftSpeed, int &rightSpeed, int posLeft, int posRight, int leftBaseSpeed, int rightBaseSpeed)
 {
-  int pwmDrop = 10;
+  int pwmDrop = 5;
   int mag = posLeft - posRight;
+  int signLeft = leftBaseSpeed / abs(leftBaseSpeed);
+  int signRight = rightBaseSpeed / abs(rightBaseSpeed);
   
   if (posLeft > posRight)
   {
-    int signLeft = leftBaseSpeed / abs(leftBaseSpeed);
     leftSpeed = leftBaseSpeed - signLeft*mag*pwmDrop; 
     rightSpeed = rightBaseSpeed;
   }
 
   else if (posRight > posLeft)
   {
-    int signRight = rightBaseSpeed / abs(rightBaseSpeed);
     leftSpeed = leftBaseSpeed;
     rightSpeed = rightSpeed - signRight*mag*pwmDrop; 
   }
 
   else 
   {
-    leftSpeed = leftBaseSpeed;
-    rightSpeed = rightBaseSpeed;
+    leftSpeed = signLeft*leftBaseSpeed;
+    rightSpeed = signRight*rightBaseSpeed;
   }
 }
