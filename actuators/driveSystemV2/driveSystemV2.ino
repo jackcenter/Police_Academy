@@ -14,7 +14,7 @@
 #define ENC2B 13
 #define STBY 8
 
-byte slave_address = 4;
+byte slave_address = 7;
 
 const double radius = 2;    // radius of the wheel in inches
 const double axel = 10;     // distance between wheels
@@ -45,37 +45,51 @@ void setup() {
 //long rightPos = 0;
 
 void loop() {
-  forward(30);
-  delay(1000);
-  backward(30);
-  delay(1000);
-  right(90);
-  delay(1000);
-  left(90);
-  delay(1000);
+//  forward(30);
+//  delay(1000);
+//  backward(30);
+//  delay(1000);
+//  right(90);
+//  delay(1000);
+//  left(90);
+//  delay(1000);
 }
 
 void receiveEvent(int howMany) 
 {
-  // needs to receive a character command for direction then an integer command for distance/angle
-  char cmd = Wire.read();
-  // Need to read a value and a distance
-  int val = Wire.read();
+  int numOfBytes = Wire.available();
+  int val = 30;
 
-  switch (cmd){
-    case 'f':
-      forward(val);
-      break;
-    case 'b':
-      backward(val);
-      break;
-    case 'l':
-      left(val);
-      break;
-    case 'r':
-      right(val);
-      break;
-  }
+  Serial.print("len:");
+  Serial.println(numOfBytes);
+  // needs to receive a character command for direction then an integer command for distance/angle
+  char cmd = char(Wire.read());
+  // Need to read a value and a distance
+//  int val = Wire.read();
+
+  char action = Wire.read();
+
+//  for(int i=1; i<numOfBytes-1; i++){
+//    
+//    action = Wire.read();
+//    Serial.print(data);
+//  }
+
+  
+  switch (action){
+      case 'f':
+        forward(val);
+        break;
+      case 'b':
+        backward(val);
+        break;
+      case 'l':
+        left(val);
+        break;
+      case 'r':
+        right(val);
+        break;
+    }
 }
 
 void forward(int x)
