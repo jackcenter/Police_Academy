@@ -2,6 +2,7 @@
 #include <SparkFun_TB6612.h>
 #include <Wire.h>
 
+//2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13
 #define AIN1 9
 #define AIN2 10
 #define PWMA 11
