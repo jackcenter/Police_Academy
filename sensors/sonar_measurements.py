@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-GPIO.setmode(GPIO.BCM)
+
 
 def main():
     trig_pins, echo_pins, units = setup()
@@ -10,6 +10,8 @@ def main():
     
     
 def setup():
+    GPIO.setmode(GPIO.BCM)
+
     units = 'in'    # 'cm'
     TRIG_1 = 18
     ECHO_1 = 19
@@ -32,6 +34,7 @@ def setup():
     time.sleep(2)
     
     return TRIG_PINS, ECHO_PINS, units
+
 
 def get_sonar_readings(trig_pins, echo_pins, units):
     distances = list()
