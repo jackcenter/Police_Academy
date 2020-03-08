@@ -2,7 +2,13 @@ import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM)
 
-
+def main():
+    trig_pins, echo_pins, units = setup()
+    distances = get_sonar_readings(trig_pins, echo_pins, units)
+    print("Measurements: {0}, {1}, {2}".format(distances[0], distances[1], distances[2]))
+    GPIO.cleanup()
+    
+    
 def setup():
     units = 'in'    # 'cm'
     TRIG_1 = 18
@@ -27,18 +33,18 @@ def setup():
     
     return TRIG_PINS, ECHO_PINS, units
 
-def main():
-    trig_pins, echo_pins, units = setup()
-
+def get_sonar_readings(trig_pins, echo_pins, units):
+    distances = list()
+    
     for trigger, echo in zip(trig_pins, echo_pins):
         send_pulse(trigger)
         pulse_duration = get_pulse_duration(echo)
-        distance = convert_duration_to_distance(pulse_duration, units)
-        print("Distance {0}: {1} {2}".format(trigger, distance, units))
+        distances.append(convert_duration_to_distance(pulse_duration, units))
         time.sleep(0.03)
-    GPIO.cleanup()
-
-
+    
+    return distances
+    
+    
 def send_pulse(trig: int, duration=0.00001):
     GPIO.output(trig, True)
     time.sleep(duration)
