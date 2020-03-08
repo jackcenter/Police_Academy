@@ -20,6 +20,8 @@ def main():
 
         bytesToSend = ConvertStringToBytes(r)
         bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
+        if r == 'q':
+            exit_program = True
 
     distances = sonar.get_sonar_readings(trig_pins, echo_pins, units)
     print("Measurements: {0}, {1}, {2}".format(distances[0], distances[1], distances[2]))
