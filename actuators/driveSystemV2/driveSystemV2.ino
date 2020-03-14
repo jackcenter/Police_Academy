@@ -1,6 +1,9 @@
 #include <Encoder.h>
 #include <SparkFun_TB6612.h>
 #include <Wire.h>
+#include<ros.h>
+#include<ArduinoHardware.h>
+#include<geometry_msgs/Twist.h>
 
 //2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13
 #define AIN1 9
@@ -15,6 +18,31 @@
 #define ENC2B 13
 #define STBY 8
 
+
+double w_r=0, w_l=0;
+double wheel_rad = 2;
+double wheel_sep = 10;
+
+ros::NodeHandle nh;
+int lowSpeed = 50;
+int highSpeed =200;
+
+double speed_ang =0, speed_lin = 0;
+
+
+void cb(const geometry_msgs::Twist& msg) {
+  speed_ang = msg.angular.z;
+  speed_lin = msg.linear.x;
+  w_r = (speed_lin/wheel_rad)+((speed_ang*wheel_sep)/(2.0*wheel_rad));
+  w_l = (speed_lin/wheel_rad)-((speed_ang*wheel_sep)/(2.0*wheel_rad)); 
+}
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel",&cb);
+
+void Motors_init();
+void MotorL(int Pulse_Width1);
+void MotorR(int Pulse_Width2);
+
+
 byte slave_address = 7;
 
 const double radius = 2;    // radius of the wheel in inches
@@ -26,8 +54,8 @@ const int offsetLeft = -1;
 const int offsetRight = 1;
 Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
 Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
-int leftBaseSpeed = 255;
-int rightBaseSpeed = 225;
+int leftBaseSpeed = 150;
+int rightBaseSpeed = 150;
 
 
 Encoder encLeft(ENC1A, ENC1B);
@@ -38,43 +66,42 @@ void setup() {
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);
   
-  Serial.begin(9600);
-  Serial.println("Encoder Test:");
+//  Serial.begin(9600);
+//  Serial.println("Encoder Test:");
+  nh.initNode();
+  nh.subscribe(sub);
+  
+   
 }
 
 //long leftPos = 0;
 //long rightPos = 0;
 
 void loop() {
-//  forward(30);
-//  delay(1000);
-//  backward(30);
-//  delay(1000);
-//  right(90);
-//  delay(1000);
-//  left(90);
-//  delay(1000);
+
+
+  if( (w_l*10)>0 && (w_r*10)>0) forward(10);
+  else if( (w_l*10)<0 && (w_r*10)<0) backward(10);
+  else if( (w_l*10)>0 && (w_r*10)<0) left(10);
+  else if( (w_l*10)<0 && (w_r*10)>0) right(10);
+
+  nh.spinOnce();
+
 }
+
+
+
 
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
   int val = 30;
 
-  Serial.print("len:");
-  Serial.println(numOfBytes);
+//  Serial.print("len:");
+//  Serial.println(numOfBytes);
   // needs to receive a character command for direction then an integer command for distance/angle
   char cmd = char(Wire.read());
-  // Need to read a value and a distance
-//  int val = Wire.read();
-
   char action = Wire.read();
-
-//  for(int i=1; i<numOfBytes-1; i++){
-//    
-//    action = Wire.read();
-//    Serial.print(data);
-//  }
 
   
   switch (action){
@@ -112,11 +139,11 @@ void forward(int x)
     // TODO: Check if the RPM needs to be ramped up or down
     leftPos = offsetLeft*encLeft.read()/(cpr/res);
     rightPos = offsetRight*encRight.read()/(cpr/res);
-    Serial.print("Left encoder: ");
-    Serial.println(leftPos);
-    Serial.print("Right encoder: ");
-    Serial.println(rightPos);
-     
+//    Serial.print("Left encoder: ");
+//    Serial.println(leftPos);
+//    Serial.print("Right encoder: ");
+//    Serial.println(rightPos);
+//     
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
   }
@@ -199,10 +226,10 @@ void right(int deg)
     // TODO: Check if the RPM needs to be ramped up or down
     leftPos = offsetLeft*encLeft.read()/(cpr/res);
     rightPos = offsetRight*encRight.read()/(cpr/res);
-    Serial.print("Left encoder: ");
-    Serial.println(leftPos);
-    Serial.print("Right encoder: ");
-    Serial.println(rightPos);
+//    Serial.print("Left encoder: ");
+//    Serial.println(leftPos);
+//    Serial.print("Right encoder: ");
+//    Serial.println(rightPos);
     
     motorLeft.drive(leftSpeed);
     motorRight.drive(rightSpeed);
