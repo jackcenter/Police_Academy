@@ -33,7 +33,7 @@ def limit(inputVal,limits):
         output[i]=val
 
     return output
-    ##############################################################################
+    ###############################################################################
 
 
 
@@ -303,13 +303,13 @@ while True:
                 cv2.imshow('image',np.hstack([imgBGR,thresh, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 
             except KeyboardInterrupt:
-        		raise
-        	except cv2.error as e:
+                raise
+            except cv2.error as e:
         
-        		print("Here it is \n",str(e), "\n")
-        		if similar(str(e), " /home/pi/opencv-3.3.0/modules/imgproc/src/imgwarp.cpp:3483: error: (-215) ssize.width > 0 && ssize.height > 0 in function resize")>.8:
-        			print("\n\n\n\n Your video appears to have ended\n\n\n")
-        		break
+                print("Here it is \n",str(e), "\n")
+                if similar(str(e), " /home/pi/opencv-3.3.0/modules/imgproc/src/imgwarp.cpp:3483: error: (-215) ssize.width > 0 && ssize.height > 0 in function resize")>.8:
+                    print("\n\n\n\n Your video appears to have ended\n\n\n")
+                break
                     
             
             
