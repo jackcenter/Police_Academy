@@ -211,19 +211,21 @@ while True:
             
             
             
-####################### ADDED FOR COLOR DETECTION CWM #######################
-                ##### dump professor's file in here ... ? ######    
-            
-#            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-#            lower_green = np.array([40, 10, 200])
-#            upper_green = np.array([120, 245, 255])
-#
-#            mask = cv2.inRange(hsv, lower_green, upper_green)
-#            result = cv2.bitwise_and(frame, frame, mask=mask)   
-#            cv2.imshow('mask', mask)
-#            cv2.imshow('result', result)
-            
 
+            ####################### ADDED FOR COLOR DETECTION CWM #######################
+                        ##### dump professor's file in here ... ? ######    
+                    
+            #            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            #            lower_green = np.array([40, 10, 200])
+            #            upper_green = np.array([120, 245, 255])
+            #
+            #            mask = cv2.inRange(hsv, lower_green, upper_green)
+            #            result = cv2.bitwise_and(frame, frame, mask=mask)   
+            #            cv2.imshow('mask', mask)
+            #            cv2.imshow('result', result)
+            
+            
+            
             
     		imgInit = frame
     
