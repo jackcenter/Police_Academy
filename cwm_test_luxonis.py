@@ -155,9 +155,9 @@ entries_prev = []
 ################## ADDED FOR COLOR DETECTION CWM ####################
 cv2.namedWindow('image')
 thrs=50
-cv2.createTrackbar('Hue', 'image', 61, 179, nothing)
-cv2.createTrackbar('Sat', 'image', 235, 255, nothing)
-cv2.createTrackbar('Val', 'image', 255, 255, nothing)
+cv2.createTrackbar('Hue', 'image', 80, 179, nothing)
+cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
+cv2.createTrackbar('Val', 'image', 222, 255, nothing)
 cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing) 
 
  #sets how much to blur
@@ -268,8 +268,8 @@ while True:
     
                 cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
                 
-                if cnts == None:
-                    print("cnts = None!")
+                if cnts is None:
+                    print("cnts is NoneType!")
                 else:
             
                     areas=int(len(cnts))
