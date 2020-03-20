@@ -15,8 +15,6 @@ from depthai_helpers import utils
 
 
 
-
-
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
@@ -99,7 +97,7 @@ config = {
     # If "left" is used, it must be in the first position.
     # To test depth use:
     #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
-    'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_sipp', "max_fps": 3.0}],
+    'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
     #'streams': ['metaout', 'previewout'],
     'depth':
     {
@@ -557,6 +555,7 @@ while True:
             cv2.imshow(packet.stream_name, frame_bgr)
         elif packet.stream_name.startswith('depth'):
             frame = packet.getData()
+            print(frame)
 
             if len(frame.shape) == 2:
                 if frame.dtype == np.uint8: # grayscale
@@ -564,7 +563,11 @@ while True:
                     cv2.putText(frame, "fps: " + str(frame_count_prev[packet.stream_name]), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
                     cv2.imshow(packet.stream_name, frame)
                 else: # uint16
+                    #print("frame before integer division")
+                    #print(frame)
                     frame = (65535 // frame).astype(np.uint8)
+                    #print("frame after integer division")
+                    #print(frame)
                     #colorize depth map, comment out code below to obtain grayscale
                     frame = cv2.applyColorMap(frame, cv2.COLORMAP_HOT)
                     # frame = cv2.applyColorMap(frame, cv2.COLORMAP_JET)
