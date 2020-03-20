@@ -160,6 +160,17 @@ cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
 cv2.createTrackbar('Val', 'image', 222, 255, nothing)
 cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing) 
 
+## red ball mask areas
+#im_red_ball_mask_1 = cv2.inRange(im_hsv, (0, 100, 0), (10, 255, 255))
+#im_red_ball_mask_2 = cv2.inRange(im_hsv, (170, 100, 0), (180, 255, 255)) 
+
+#green mask area centered around 
+# (80, 127, 222)
+
+
+
+
+
  #sets how much to blur
 filt=39
 exitNow=0
