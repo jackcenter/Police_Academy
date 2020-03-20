@@ -256,6 +256,9 @@ while True:
                 red1 = [[[upper_red1[0]-((upper_red1[0]-lower_red1[0])/2),upper_red1[1]-((upper_red1[1]-lower_red1[1])/2),upper_red1[2]-((upper_red1[2]-lower_red1[2])/2)]]]
                 red2 = [[[upper_red2[0]-((upper_red2[0]-lower_red2[0])/2),upper_red2[1]-((upper_red2[1]-lower_red2[1])/2),upper_red2[2]-((upper_red2[2]-lower_red2[2])/2)]]]
                 green = [[[upper_green[0]-((upper_green[0]-lower_green[0])/2),upper_green[1]-((upper_green[1]-lower_green[1])/2),upper_green[2]-((upper_green[2]-lower_green[2])/2)]]]
+                red1=np.array(red1, dtype="uint8")
+                red2=np.array(red2, dtype="uint8")
+                green=np.array(green, dtype="uint8")
                 redColor1 = cv2.cvtColor(red1, cv2.COLOR_HSV2BGR)##Tr
                 redColor2 = cv2.cvtColor(red2, cv2.COLOR_HSV2BGR)##Tr
                 greenColor = cv2.cvtColor(green, cv2.COLOR_HSV2BGR)##Tr
@@ -265,8 +268,8 @@ while True:
                 
                 
                 gmask=np.uint8(cv2.inRange(img,lower_green,upper_green))
-                rmask1==np.uint8(cv2.inRange(img,lower_red1,upper_red1))
-                rmask2==np.uint8(cv2.inRange(img,lower_red2,upper_red2))
+                rmask1=np.uint8(cv2.inRange(img,lower_red1,upper_red1))
+                rmask2=np.uint8(cv2.inRange(img,lower_red2,upper_red2))
                 rmask = rmask1+rmask2
                 #print("mask")
                 #print(mask)
@@ -332,18 +335,18 @@ while True:
 #                        pass
                     
                 
-                    ccr1=(int(redColor1[0][0][0]),int(redColor1[0][0][1]),int(redColor1[0][0][2]))
-                    ccr2=(int(redColor2[0][0][0]),int(redColor2[0][0][1]),int(redColor2[0][0][2]))
-                    ccg=(int(greenColor[0][0][0]),int(greenColor[0][0][1]),int(greenColor[0][0][2]))
-                    
-                    cv2.circle(imgBGR, (25, 25), 20, ccr1, -1)
-                    cv2.circle(imgBGR, (50, 25), 20, ccr2, -1)
-                    cv2.circle(imgBGR, (25, 50), 20, ccg, -1)
-        
-                    visBGR=cv2.cvtColor(vis, cv2.COLOR_HSV2BGR) 
-                    thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-                    
-                    cv2.imshow('image',np.hstack([imgBGR,thresh, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
+                ccr1=(int(redColor1[0][0][0]),int(redColor1[0][0][1]),int(redColor1[0][0][2]))
+                ccr2=(int(redColor2[0][0][0]),int(redColor2[0][0][1]),int(redColor2[0][0][2]))
+                ccg=(int(greenColor[0][0][0]),int(greenColor[0][0][1]),int(greenColor[0][0][2]))
+                
+                cv2.circle(imgBGR, (25, 25), 20, ccr1, -1)
+                cv2.circle(imgBGR, (50, 25), 20, ccr2, -1)
+                cv2.circle(imgBGR, (25, 50), 20, ccg, -1)
+    
+                visBGR=cv2.cvtColor(vis, cv2.COLOR_HSV2BGR) 
+                thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+                
+                cv2.imshow('image',np.hstack([imgBGR,thresh, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
 #                    cv2.imshow('image',np.hstack([imgBGR, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 
             except KeyboardInterrupt:
