@@ -358,47 +358,6 @@ while True:
                 x_green_avg = np.mean(green_locations[1])
                 y_green_avg = np.mean(green_locations[0])
      
-
-                
-                rcnts = cv2.findContours(rthresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
-                gcnts = cv2.findContours(gthresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
-                
-                if rcnts or gcnts is None:
-                    # print("cnts is NoneType!")
-                    pass
-                else:
-            
-                    r_areas=int(len(rcnts))
-                    g_areas=int(len(gcnts))
-                    
-                    rsplotch = np.zeros((1,r_areas),dtype=np.uint8)
-                    gsplotch = np.zeros((1,g_areas),dtype=np.uint8)
-                    
-                    # loop over the contours
-                    try:    
-                        for i,c in enumerate(rcnts,0):
-                        
-                            M = cv2.moments(c)
-                            rsplotch[0][i] = int(M["m00"])
-                        try:
-                            max1=np.argmax(rsplotch)
-                        except:
-                            max1=-1
-                        
-                        original=rvis.copy()
-                        if max1>-1:
-                            M = cv2.moments(rcnts[max1])
-                            cX = int(M["m10"] / M["m00"])
-                            cY = int(M["m01"] / M["m00"])
-        
-        
-                            
-                            cv2.drawContours(rvis, [rcnts[max1]], -1, (255, 0, 0), 2)
-                    except:
-                        pass
-                    
-                
-                    
                 
                 ccr1=(int(redColor1[0][0][0]),int(redColor1[0][0][1]),int(redColor1[0][0][2]))
                 ccr2=(int(redColor2[0][0][0]),int(redColor2[0][0][1]),int(redColor2[0][0][2]))
@@ -485,7 +444,7 @@ while True:
                 new_entries_prev.append(entries_prev[index_of_max_confidence])
             
 
-            # iterate threw pre-saved entries & draw rectangle & text on image:
+            # iterate through pre-saved entries & draw rectangle & text on image:
             for e in new_entries_prev:
                 # the lower confidence threshold - the more we get false positives
                 if e[0]['confidence'] > 0.5:
