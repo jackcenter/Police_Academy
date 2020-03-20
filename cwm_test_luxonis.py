@@ -280,7 +280,8 @@ while True:
                 cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
                 
                 if cnts is None:
-                    print("cnts is NoneType!")
+                    # print("cnts is NoneType!")
+                    pass
                 else:
             
                     areas=int(len(cnts))
@@ -318,7 +319,8 @@ while True:
                     visBGR=cv2.cvtColor(vis, cv2.COLOR_HSV2BGR) 
                     thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
                     
-                    cv2.imshow('image',np.hstack([imgBGR,thresh, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
+                    # cv2.imshow('image',np.hstack([imgBGR,thresh, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
+                    cv2.imshow('image',np.hstack([imgBGR, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 
             except KeyboardInterrupt:
                 raise
@@ -335,11 +337,6 @@ while True:
 ###########################################################################
             
             
-            
-
-            
-            
-            
 
             img_h = frame.shape[0]
             img_w = frame.shape[1]
@@ -350,7 +347,7 @@ while True:
             for e in entries_prev:
                 confidences.append(e[0]['confidence'])
                 
-            print(confidences)
+            # print(confidences)
             
             new_entries_prev = entries_prev
             
