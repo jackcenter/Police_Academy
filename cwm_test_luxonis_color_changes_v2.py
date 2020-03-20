@@ -97,7 +97,8 @@ config = {
     # If "left" is used, it must be in the first position.
     # To test depth use:
     #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
-    'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
+    #'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
+    'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'metaout', "max_fps": 3.0}],
     #'streams': ['metaout', 'previewout'],
     'depth':
     {
@@ -174,9 +175,11 @@ r2LowVal = 135
 r2UpHue = 179
 r2UpSat = 255
 r2UpVal = 255
-gLowHue = 40
-gLowSat = 120
-gLowVal = 70
+gLowHue = 30
+gLowSat = 50
+gLowVal = 60
+# gLowSat = 120
+# gLowVal = 70
 gUpHue = 70
 gUpSat = 245
 gUpVal = 255
@@ -186,7 +189,7 @@ gUpVal = 255
 #cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
 #cv2.createTrackbar('Val', 'image', 222, 255, nothing)
 
-
+'''
 cv2.createTrackbar('filterThresh', 'r1_sliders', thresholdValue, 100, nothing)
 cv2.createTrackbar('r1LowHue', 'r1_sliders', r1LowHue, 179, nothing)
 cv2.createTrackbar('r1LowSat', 'r1_sliders', r1LowSat, 255, nothing)
@@ -206,7 +209,7 @@ cv2.createTrackbar('gLowVal', 'g_sliders', gLowVal, 255, nothing)
 cv2.createTrackbar('gUpHue', 'g_sliders', gUpHue, 179, nothing)
 cv2.createTrackbar('gUpSat', 'g_sliders', gUpSat, 255, nothing)
 cv2.createTrackbar('gUpVal', 'g_sliders', gUpVal, 255, nothing)
-
+'''
 
 ## red ball mask areas
 #red_mask_1 = cv2.inRange(im_hsv, (0, 120, 70), (10, 255, 255))
@@ -302,7 +305,8 @@ while True:
 #                sat = cv2.getTrackbarPos('Sat', 'image')
 #                val = cv2.getTrackbarPos('Val', 'image')
 
-                
+                '''
+                thresholdValue = cv2.getTrackbarPos('filterThresh', 'r1_sliders')
                 r1LowHue = cv2.getTrackbarPos('r1LowHue', 'r1_sliders')
                 r1LowSat = cv2.getTrackbarPos('r1LowSat', 'r1_sliders')
                 r1LowVal = cv2.getTrackbarPos('r1LowVal', 'r1_sliders')
@@ -321,7 +325,7 @@ while True:
                 gUpHue = cv2.getTrackbarPos('gUpHue', 'g_sliders')
                 gUpSat = cv2.getTrackbarPos('gUpSat', 'g_sliders')
                 gUpVal = cv2.getTrackbarPos('gUpVal', 'g_sliders')
-                
+                '''
 
                 lower_red1 = np.array([r1LowHue, r1LowSat, r1LowVal])
                 upper_red1 = np.array([r1UpHue, r1UpSat, r1UpVal])
@@ -392,15 +396,20 @@ while True:
                 #print("blurred")
                 #print(blurred)
     
-                thresholdValue = cv2.getTrackbarPos('filterThresh', 'r1_sliders')
                 
+#                 thresholdValue = cv2.getTrackbarPos('filterThresh', 'r1_sliders')
                 rthresh = cv2.threshold(rblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
                 gthresh = cv2.threshold(gblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
                 
                 red_locations = np.where(rthresh == [255])
                 green_locations = np.where(gthresh == [255])
-                print(red_locations)
-                print(green_locations)
+                
+#                 x_red_avg = np.mean(red_locations[0])
+#                 y_red_avg = np.mean(red_locations[1])
+#                 x_green_avg = np.mean(green_locations[0])
+#                 y_green_avg = np.mean(green_locations[1])
+                
+
                 
                 
                 #print("thresh")
@@ -460,6 +469,25 @@ while True:
                 
                 rthresh = cv2.cvtColor(rthresh, cv2.COLOR_GRAY2BGR)
                 gthresh = cv2.cvtColor(gthresh, cv2.COLOR_GRAY2BGR)
+                
+                
+                if green_locations[0].size != 0:
+                    green_left   = np.amin(green_locations[1])
+                    green_right  = np.amax(green_locations[1])
+                    green_top    = np.amin(green_locations[0])
+                    green_bottom = np.amax(green_locations[0])
+                    gvisBGR = cv2.rectangle(gvisBGR, (green_left, green_top), (green_right, green_bottom), (0, 255, 0), 2)
+                    gvisBGR = cv2.putText(gvisBGR, 'GOOD GUY', (green_left, green_top-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+
+                    
+                if red_locations[0].size != 0:
+                    red_left   = np.amin(red_locations[1])
+                    red_right  = np.amax(red_locations[1])
+                    red_top    = np.amin(red_locations[0])
+                    red_bottom = np.amax(red_locations[0])
+                    rvisBGR = cv2.rectangle(rvisBGR, (red_left, red_top), (red_right, red_bottom), (0, 0, 255), 2)
+                    rvisBGR = cv2.putText(rvisBGR, 'BAD GUY', (red_left, red_top-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    
                 
                 cv2.imshow('r_image',np.hstack([r_imgBGR, rthresh, rvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 cv2.imshow('g_image',np.hstack([g_imgBGR, gthresh, gvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
@@ -555,7 +583,7 @@ while True:
             cv2.imshow(packet.stream_name, frame_bgr)
         elif packet.stream_name.startswith('depth'):
             frame = packet.getData()
-            print(frame)
+            #print(frame)
 
             if len(frame.shape) == 2:
                 if frame.dtype == np.uint8: # grayscale
