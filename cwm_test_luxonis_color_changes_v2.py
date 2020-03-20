@@ -164,8 +164,8 @@ thrs=50
 # set default slider values
 thresholdValue = 15
 r1LowHue = 0
-r1LowSat = 160
-r1LowVal = 120
+r1LowSat = 145
+r1LowVal = 145
 r1UpHue = 10
 r1UpSat = 255
 r1UpVal = 255
@@ -180,7 +180,7 @@ gLowSat = 50
 gLowVal = 60
 # gLowSat = 120
 # gLowVal = 70
-gUpHue = 70
+gUpHue = 85
 gUpSat = 245
 gUpVal = 255
 
@@ -404,10 +404,13 @@ while True:
                 red_locations = np.where(rthresh == [255])
                 green_locations = np.where(gthresh == [255])
                 
-#                 x_red_avg = np.mean(red_locations[0])
-#                 y_red_avg = np.mean(red_locations[1])
-#                 x_green_avg = np.mean(green_locations[0])
-#                 y_green_avg = np.mean(green_locations[1])
+                x_red_avg = np.mean(red_locations[1])
+                y_red_avg = np.mean(red_locations[0])
+                x_green_avg = np.mean(green_locations[1])
+                y_green_avg = np.mean(green_locations[0])
+                
+#                 red_loc_string = "x = " + str(round(x_red_avg)) + ", \n y = " + str(round(y_red_avg))
+#                 green_loc_string = "x = " + str(round(x_green_avg)) + ", \n y = " + str(round(y_green_avg))
                 
 
                 
@@ -478,6 +481,10 @@ while True:
                     green_bottom = np.amax(green_locations[0])
                     gvisBGR = cv2.rectangle(gvisBGR, (green_left, green_top), (green_right, green_bottom), (0, 255, 0), 2)
                     gvisBGR = cv2.putText(gvisBGR, 'GOOD GUY', (green_left, green_top-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                    gvisBGR = cv2.putText(gvisBGR, "Center:", (green_left, green_bottom+15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                    gvisBGR = cv2.putText(gvisBGR, "x = " + str(round(x_green_avg)), (green_left, green_bottom+30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    gvisBGR = cv2.putText(gvisBGR, "y = " + str(round(y_green_avg)), (green_left, green_bottom+45), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+
 
                     
                 if red_locations[0].size != 0:
@@ -487,7 +494,12 @@ while True:
                     red_bottom = np.amax(red_locations[0])
                     rvisBGR = cv2.rectangle(rvisBGR, (red_left, red_top), (red_right, red_bottom), (0, 0, 255), 2)
                     rvisBGR = cv2.putText(rvisBGR, 'BAD GUY', (red_left, red_top-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    rvisBGR = cv2.putText(rvisBGR, "Center:", (red_left, red_bottom+15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    rvisBGR = cv2.putText(rvisBGR, "x = " + str(round(x_red_avg)), (red_left, red_bottom+30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    rvisBGR = cv2.putText(rvisBGR, "y = " + str(round(y_red_avg)), (red_left, red_bottom+45), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
                     
+                    
+
                 
                 cv2.imshow('r_image',np.hstack([r_imgBGR, rthresh, rvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 cv2.imshow('g_image',np.hstack([g_imgBGR, gthresh, gvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
