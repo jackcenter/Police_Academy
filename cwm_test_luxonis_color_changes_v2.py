@@ -153,47 +153,51 @@ entries_prev = []
 
 
 ################## ADDED FOR COLOR DETECTION CWM ####################
-cv2.namedWindow('image')
+cv2.namedWindow('g_image')
+cv2.namedWindow('r_image')
 cv2.namedWindow('sliders')
 thrs=50
 #cv2.createTrackbar('Hue', 'image', 80, 179, nothing)
 #cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
 #cv2.createTrackbar('Val', 'image', 222, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 179, nothing)
-cv2.createTrackbar('filterThresh', 'sliders', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 179, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 255, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
-cv2.createTrackbar('filterThresh', 'image', 1, 100, nothing)
+cv2.createTrackbar('filterThresh', 'sliders', 1, 100, nothing)
+cv2.createTrackbar('r1LowHue', 'sliders', 0, 179, nothing)
+cv2.createTrackbar('r1LowSat', 'sliders', 120, 255, nothing)
+cv2.createTrackbar('r1LowVal', 'sliders', 70, 255, nothing)
+cv2.createTrackbar('r1UpHue', 'sliders', 10, 179, nothing)
+cv2.createTrackbar('r1UpSat', 'sliders', 255, 255, nothing)
+cv2.createTrackbar('r1UpVal', 'sliders', 255, 255, nothing)
+cv2.createTrackbar('r2LowHue', 'sliders', 170, 179, nothing)
+cv2.createTrackbar('r2LowSat', 'sliders', 120, 255, nothing)
+cv2.createTrackbar('r2LowVal', 'sliders', 70, 255, nothing)
+cv2.createTrackbar('r2UpHue', 'sliders', 179, 179, nothing)
+cv2.createTrackbar('r2UpSat', 'sliders', 255, 255, nothing)
+cv2.createTrackbar('r2UpVal', 'sliders', 255, 255, nothing)
+cv2.createTrackbar('gLowHue', 'sliders', 40, 179, nothing)
+cv2.createTrackbar('gLowSat', 'sliders', 120, 255, nothing)
+cv2.createTrackbar('gLowVal', 'sliders', 70, 255, nothing)
+cv2.createTrackbar('gUpHue', 'sliders', 120, 179, nothing)
+cv2.createTrackbar('gUpSat', 'sliders', 245, 255, nothing)
+cv2.createTrackbar('gUpVal', 'sliders', 255, 255, nothing)
 
 
 ## red ball mask areas
 #red_mask_1 = cv2.inRange(im_hsv, (0, 120, 70), (10, 255, 255))
-#red_mask_2 = cv2.inRange(im_hsv, (170, 120, 70), (180, 255, 255)) 
-lower_red1 = np.array([0, 120, 100])
-upper_red1 = np.array([10, 255, 255])
+#red_mask_2 = cv2.inRange(im_hsv, (170, 120, 70), (179, 255, 255)) 
 
-lower_red2 = np.array([170, 120, 100])
-upper_red2 = np.array([180, 255, 255])
+#lower_red1 = np.array([0, 120, 100])
+#upper_red1 = np.array([10, 255, 255])
+#lower_red2 = np.array([170, 120, 100])
+#upper_red2 = np.array([179, 255, 255])
+
 #green mask area centered around 
 # (80, 127, 222)
-lower_green = np.array([55, 120, 70])
-upper_green = np.array([105, 255, 255])
 #green_mask = cv2.inRange(im_hsv, (55, 120, 70), (105, 255, 255)) 
+#    lower_green = np.array([40, 10, 200])
+#    upper_green = np.array([120, 245, 255])
 
+#lower_green = np.array([55, 120, 70])
+#upper_green = np.array([105, 255, 255])
 
 
  #sets how much to blur
@@ -261,6 +265,8 @@ while True:
                 imgInit = frame
                 
                 imgBGR = cv2.resize(imgInit,(300, 300),cv2.INTER_AREA)
+                r_imgBGR = imgBGR.copy()
+                g_imgBGR = imgBGR.copy()
                 img=cv2.cvtColor(imgBGR, cv2.COLOR_BGR2HSV)
                 #print("img")
                 #print(img)
@@ -270,6 +276,24 @@ while True:
 #                val = cv2.getTrackbarPos('Val', 'image')
 
                 
+                r1LowHue = cv2.getTrackbarPos('r1LowHue', 'sliders')
+                r1LowSat = cv2.getTrackbarPos('r1LowSat', 'sliders')
+                r1LowVal = cv2.getTrackbarPos('r1LowVal', 'sliders')
+                r1UpHue = cv2.getTrackbarPos('r1UpHue', 'sliders')
+                r1UpSat = cv2.getTrackbarPos('r1UpSat', 'sliders')
+                r1UpVal = cv2.getTrackbarPos('r1UpVal', 'sliders')
+                r2LowHue = cv2.getTrackbarPos('r2LowHue', 'sliders')
+                r2LowSat = cv2.getTrackbarPos('r2LowSat', 'sliders')
+                r2LowVal = cv2.getTrackbarPos('r2LowVal', 'sliders')
+                r2UpHue = cv2.getTrackbarPos('r2UpHue', 'sliders')
+                r2UpSat = cv2.getTrackbarPos('r2UpSat', 'sliders')
+                r2UpVal = cv2.getTrackbarPos('r2UpVal', 'sliders')
+                gLowHue = cv2.getTrackbarPos('gLowHue', 'sliders')
+                gLowSat = cv2.getTrackbarPos('gLowSat', 'sliders')
+                gLowVal = cv2.getTrackbarPos('gLowVal', 'sliders')
+                gUpHue = cv2.getTrackbarPos('gUpHue', 'sliders')
+                gUpSat = cv2.getTrackbarPos('gUpSat', 'sliders')
+                gUpVal = cv2.getTrackbarPos('gUpVal', 'sliders')
                 
 
                 lower_red1 = np.array([r1LowHue, r1LowSat, r1LowVal])
@@ -341,7 +365,7 @@ while True:
                 #print("blurred")
                 #print(blurred)
     
-                thresholdValue = cv2.getTrackbarPos('filterThresh', 'image')
+                thresholdValue = cv2.getTrackbarPos('filterThresh', 'sliders')
                 rthresh = cv2.threshold(rblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
                 gthresh = cv2.threshold(gblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
                 #print("thresh")
@@ -392,9 +416,9 @@ while True:
                 ccr2=(int(redColor2[0][0][0]),int(redColor2[0][0][1]),int(redColor2[0][0][2]))
                 ccg=(int(greenColor[0][0][0]),int(greenColor[0][0][1]),int(greenColor[0][0][2]))
                 
-                cv2.circle(imgBGR, (25, 25), 20, ccr1, -1)
-                cv2.circle(imgBGR, (50, 25), 20, ccr2, -1)
-                cv2.circle(imgBGR, (25, 50), 20, ccg, -1)
+                cv2.circle(r_imgBGR, (25, 25), 20, ccr1, -1)
+                cv2.circle(r_imgBGR, (70, 25), 20, ccr2, -1)
+                cv2.circle(g_imgBGR, (25, 25), 20, ccg, -1)
     
                 rvisBGR=cv2.cvtColor(rvis, cv2.COLOR_HSV2BGR)
                 gvisBGR=cv2.cvtColor(gvis, cv2.COLOR_HSV2BGR)
@@ -402,7 +426,8 @@ while True:
                 rthresh = cv2.cvtColor(rthresh, cv2.COLOR_GRAY2BGR)
                 gthresh = cv2.cvtColor(gthresh, cv2.COLOR_GRAY2BGR)
                 
-                cv2.imshow('image',np.hstack([imgBGR, rthresh, rvisBGR, gthresh, gvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
+                cv2.imshow('r_image',np.hstack([r_imgBGR, rthresh, rvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
+                cv2.imshow('g_image',np.hstack([g_imgBGR, gthresh, gvisBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 cv2.imshow('sliders')
 #                    cv2.imshow('image',np.hstack([imgBGR, visBGR])) #np.hstack([original, vis]))#np.hstack([thresh, gray2]))
                 
@@ -415,7 +440,6 @@ while True:
                     print("\n\n\n\n Your video appears to have ended\n\n\n")
                 break
                     
-            
             
             
 ###########################################################################
