@@ -161,28 +161,53 @@ cv2.namedWindow('g_sliders')
 # white blank image
 blank_image = 255 * np.ones(shape=[10, 256, 3], dtype=np.uint8)
 thrs=50
+
+# set default slider values
+thresholdValue = 15
+r1LowHue = 0
+r1LowSat = 160
+r1LowVal = 120
+r1UpHue = 10
+r1UpSat = 255
+r1UpVal = 255
+r2LowHue = 170
+r2LowSat = 160
+r2LowVal = 135
+r2UpHue = 179
+r2UpSat = 255
+r2UpVal = 255
+gLowHue = 40
+gLowSat = 120
+gLowVal = 70
+gUpHue = 70
+gUpSat = 245
+gUpVal = 255
+
+
 #cv2.createTrackbar('Hue', 'image', 80, 179, nothing)
 #cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
 #cv2.createTrackbar('Val', 'image', 222, 255, nothing)
-cv2.createTrackbar('filterThresh', 'r1_sliders', 15, 100, nothing)
-cv2.createTrackbar('r1LowHue', 'r1_sliders', 0, 179, nothing)
-cv2.createTrackbar('r1LowSat', 'r1_sliders', 160, 255, nothing)
-cv2.createTrackbar('r1LowVal', 'r1_sliders', 120, 255, nothing)
-cv2.createTrackbar('r1UpHue', 'r1_sliders', 10, 179, nothing)
-cv2.createTrackbar('r1UpSat', 'r1_sliders', 255, 255, nothing)
-cv2.createTrackbar('r1UpVal', 'r1_sliders', 255, 255, nothing)
-cv2.createTrackbar('r2LowHue', 'r2_sliders', 170, 179, nothing)
-cv2.createTrackbar('r2LowSat', 'r2_sliders', 160, 255, nothing)
-cv2.createTrackbar('r2LowVal', 'r2_sliders', 135, 255, nothing)
-cv2.createTrackbar('r2UpHue', 'r2_sliders', 179, 179, nothing)
-cv2.createTrackbar('r2UpSat', 'r2_sliders', 255, 255, nothing)
-cv2.createTrackbar('r2UpVal', 'r2_sliders', 255, 255, nothing)
-cv2.createTrackbar('gLowHue', 'g_sliders', 40, 179, nothing)
-cv2.createTrackbar('gLowSat', 'g_sliders', 120, 255, nothing)
-cv2.createTrackbar('gLowVal', 'g_sliders', 70, 255, nothing)
-cv2.createTrackbar('gUpHue', 'g_sliders', 70, 179, nothing)
-cv2.createTrackbar('gUpSat', 'g_sliders', 245, 255, nothing)
-cv2.createTrackbar('gUpVal', 'g_sliders', 255, 255, nothing)
+
+
+cv2.createTrackbar('filterThresh', 'r1_sliders', thresholdValue, 100, nothing)
+cv2.createTrackbar('r1LowHue', 'r1_sliders', r1LowHue, 179, nothing)
+cv2.createTrackbar('r1LowSat', 'r1_sliders', r1LowSat, 255, nothing)
+cv2.createTrackbar('r1LowVal', 'r1_sliders', r1LowVal, 255, nothing)
+cv2.createTrackbar('r1UpHue', 'r1_sliders', r1UpHue, 179, nothing)
+cv2.createTrackbar('r1UpSat', 'r1_sliders', r1UpSat, 255, nothing)
+cv2.createTrackbar('r1UpVal', 'r1_sliders', r1UpVal, 255, nothing)
+cv2.createTrackbar('r2LowHue', 'r2_sliders', r2LowHue, 179, nothing)
+cv2.createTrackbar('r2LowSat', 'r2_sliders', r2LowSat, 255, nothing)
+cv2.createTrackbar('r2LowVal', 'r2_sliders', r2LowVal, 255, nothing)
+cv2.createTrackbar('r2UpHue', 'r2_sliders', r2UpHue, 179, nothing)
+cv2.createTrackbar('r2UpSat', 'r2_sliders', r2UpSat, 255, nothing)
+cv2.createTrackbar('r2UpVal', 'r2_sliders', r2UpVal, 255, nothing)
+cv2.createTrackbar('gLowHue', 'g_sliders', gLowHue, 179, nothing)
+cv2.createTrackbar('gLowSat', 'g_sliders', gLowSat, 255, nothing)
+cv2.createTrackbar('gLowVal', 'g_sliders', gLowVal, 255, nothing)
+cv2.createTrackbar('gUpHue', 'g_sliders', gUpHue, 179, nothing)
+cv2.createTrackbar('gUpSat', 'g_sliders', gUpSat, 255, nothing)
+cv2.createTrackbar('gUpVal', 'g_sliders', gUpVal, 255, nothing)
 
 
 ## red ball mask areas
@@ -370,8 +395,16 @@ while True:
                 #print(blurred)
     
                 thresholdValue = cv2.getTrackbarPos('filterThresh', 'r1_sliders')
+                
                 rthresh = cv2.threshold(rblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
                 gthresh = cv2.threshold(gblurred, thresholdValue, 255, cv2.THRESH_BINARY)[1]
+                
+                red_locations = np.where(rthresh == [255])
+                green_locations = np.where(gthresh == [255])
+                print(red_locations)
+                print(green_locations)
+                
+                
                 #print("thresh")
                 #print(thresh)
                 
