@@ -19,12 +19,14 @@ def main():
     while not exit:
         r = input('Enter something, "q" to quit"')
         print(r)
-        os.system("python3 sensors/sonar_measurements.py")
+
         bytesToSend = ConvertStringToBytes(r)
         bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
 
         if r == 'q':
             exit = True
+
+        os.system("python3 sensors/sonar_measurements.py")
 
 
 def ConvertStringToBytes(src):
