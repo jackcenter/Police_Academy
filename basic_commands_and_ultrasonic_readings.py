@@ -2,7 +2,6 @@ import smbus
 import time
 import os
 
-from sensors import sonar_measurements
 
 def main():
     # display system info
@@ -13,15 +12,14 @@ def main():
     slave_address = 0x07
     i2c_cmd = 0x01
 
-    os.system("python sensors/sonar_measurements.py")
+
     # loop to send message
     exit = False
 
     while not exit:
         r = input('Enter something, "q" to quit"')
         print(r)
-        sonar_measurements
-
+        os.system("python3 sensors/sonar_measurements.py")
         bytesToSend = ConvertStringToBytes(r)
         bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
 
