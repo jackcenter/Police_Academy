@@ -59,16 +59,19 @@ void loop() {
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-  int val = 30;
+  int val = 10;
 
   Serial.print("len:");
   Serial.println(numOfBytes);
   // needs to receive a character command for direction then an integer command for distance/angle
-  char cmd = char(Wire.read());
+  // char cmd = char(Wire.read());
+
   // Need to read a value and a distance
 //  int val = Wire.read();
-
+  Wire.read();
   char action = Wire.read();
+  // Serial.print(cmd);
+  Serial.print(action);
 
 //  for(int i=1; i<numOfBytes-1; i++){
 //    

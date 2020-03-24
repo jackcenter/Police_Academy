@@ -40,5 +40,5 @@ while not exit:
     bytesToSend = ConvertStringToBytes(r)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
     
-    if r=='q':
-        exit=True
+    if r == 'q':
+        exit = True
