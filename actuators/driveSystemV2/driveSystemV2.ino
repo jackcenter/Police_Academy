@@ -90,7 +90,6 @@ void receiveEvent(int howMany)
       case 'r':
         right(val);
         break;
-      case
     }
 }
 
