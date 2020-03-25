@@ -69,6 +69,8 @@ void receiveEvent(int howMany)
   // Need to read a value and a distance
 //  int val = Wire.read();
   Wire.read();
+
+  
   char action = Wire.read();
   // Serial.print(cmd);
   Serial.print(action);
