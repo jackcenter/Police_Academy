@@ -26,13 +26,22 @@ const int offsetLeft = -1;
 const int offsetRight = 1;
 Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
 Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
-int leftBaseSpeed = 255;
-int rightBaseSpeed = 225;
+
+int leftSpeed;              // PWM 0-255
+int rightSpeed;             // PWM 0-255
+long leftPos;               // Encoder value
+long rightPos;              // Encoder value
 
 Encoder encLeft(ENC1A, ENC1B);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
+  leftSpeed = 50;
+  leftPos = 0;
+  
+  rightSpeed = 50;
+  rightPos = 0;
+  
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);
@@ -41,192 +50,86 @@ void setup() {
   Serial.println("Encoder Test:");
 }
 
-//long leftPos = 0;
-//long rightPos = 0;
-
 void loop() {
-
+  motorLeft.drive(leftSpeed);
+  motorRight.drive(rightSpeed);
+  readEncoders();
+  delay(100);
 }
 
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
 
-  
-  int val = 10;
-
   Serial.print("len:");
   Serial.println(numOfBytes);
-  // needs to receive a character command for direction then an integer command for distance/angle
-  char cmd = char(Wire.read());
-  // Need to read a value and a distance
-//  int val = Wire.read();
-
-  char action = Wire.read();
-
-//  for(int i=1; i<numOfBytes-1; i++){
-//    
-//    action = Wire.read();
-//    Serial.print(data);
-//  }
-
+  Wire.read();            // throws away first byte
   
-  switch (action){
-      case 'f':
-        forward(val);
-        break;
-      case 'b':
-        backward(val);
-        break;
-      case 'l':
-        left(val);
-        break;
-      case 'r':
-        right(val);
-        break;
-    }
+  char actionLeft = (int)Wire.read();
+  char actionRight = (int)Wire.read();
+  Serial.print(actionLeft + ", " + actionRight);
+
+  accelerateMotor(leftSpeed, actionLeft);
+  accelerateMotor(rightSpeed, actionRight);
+}  
+
+void serialEvent()
+{
+ // while (Serial.available()) {
+  int numOfBytes = Serial.available();
+  Serial.print("len:");
+  Serial.println(numOfBytes);
+  char inputLeft = (char)Serial.read();
+  char inputRight = (char)Serial.read();
+  Serial.read();
+
+  int actionLeft = convertInput(inputLeft, 5);
+  int actionRight = convertInput(inputRight, 5);
+
+  Serial.println(actionLeft);
+  Serial.println(actionRight);
+
+  accelerateMotor(leftSpeed, actionLeft);
+  accelerateMotor(rightSpeed, actionRight);
+
+  Serial.println(leftSpeed);
+  Serial.println(rightSpeed);
+  //}
 }
 
-void forward(int left, int right)
+int convertInput(char input, int multiple)
 {
-  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  int rightPos = offsetRight*encRight.read()/(cpr/res);
-  int leftDir = 1;
-  int rightDir = 1;
+  int conversion = 0;
   
-  int steps = x/(2*PI*radius)*res; 
-  int leftGoal = leftPos + leftDir*steps;
-  int rightGoal = rightPos + rightDir*steps;
-  int leftSpeed = leftDir*leftBaseSpeed;
-  int rightSpeed = rightDir*rightBaseSpeed;
-
-  while (leftPos < leftGoal || rightPos < rightGoal)
-  {
-    // TODO: Need some LED action here
-    // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = offsetLeft*encLeft.read()/(cpr/res);
-    rightPos = offsetRight*encRight.read()/(cpr/res);
-    Serial.print("Left encoder: ");
-    Serial.println(leftPos);
-    Serial.print("Right encoder: ");
-    Serial.println(rightPos);
-     
-    motorLeft.drive(leftSpeed);
-    motorRight.drive(rightSpeed);
+  if (input == 'q'){
+    conversion = multiple;
   }
 
-  motorLeft.brake();
-  motorRight.brake();
+  else if (input == 'a'){
+    conversion = 0;
+  }
+
+  else if (input == 'z'){
+    conversion = -multiple;
+  }
+
+  return conversion;
 }
 
-void backward(int x)
+void accelerateMotor(int &currentSpeed, int accel)
 {
-  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  int rightPos = offsetRight*encRight.read()/(cpr/res);
-  int leftDir = -1;
-  int rightDir = -1;
-  
-  int steps = x/(2*PI*radius)*res; 
-  int leftGoal = leftPos + leftDir*steps;
-  int rightGoal = rightPos + rightDir*steps;
-  int leftSpeed = leftDir*leftBaseSpeed;
-  int rightSpeed = rightDir*rightBaseSpeed;
-
-  while (leftPos > leftGoal || rightPos > rightGoal)
-  {
-    // TODO: Need some LED action here
-    // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = offsetLeft*encLeft.read()/(cpr/res);
-    rightPos = offsetRight*encRight.read()/(cpr/res);
-     
-    motorLeft.drive(leftSpeed);
-    motorRight.drive(rightSpeed);
-  }
-  motorLeft.brake();
-  motorRight.brake();
+  // currentSpeed is the current PWM setting
+  // accel is the PWM increment
+  // TODO: need to add error checking if commanded beyond 0-255
+  currentSpeed += accel;
 }
 
-void left(int deg)
+void readEncoders()
 {
-  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  int rightPos = offsetRight*encRight.read()/(cpr/res);
-  int leftDir = -1;
-  int rightDir = 1;
-
-  int steps = axel/radius/720*deg*res; 
-  int leftGoal = leftPos + leftDir*steps;
-  int rightGoal = rightPos + rightDir*steps;
-  int leftSpeed = leftDir*leftBaseSpeed;
-  int rightSpeed = rightDir*rightBaseSpeed;
-
-  while (leftPos > leftGoal || rightPos < rightGoal)
-  {
-    // TODO: Need some LED action here
-    // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = offsetLeft*encLeft.read()/(cpr/res);
-    rightPos = offsetRight*encRight.read()/(cpr/res);
-        
-    motorLeft.drive(leftSpeed);
-    motorRight.drive(rightSpeed);
-  }
-
-  motorLeft.brake();
-  motorRight.brake();
-}
-
-void right(int deg)
-{
-  int leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  int rightPos = offsetRight*encRight.read()/(cpr/res);
-  int leftDir = 1;
-  int rightDir = -1;
-
-  int steps = axel/radius/720*deg*res; 
-  int leftGoal = leftPos + leftDir*steps;
-  int rightGoal = rightPos + rightDir*steps;
-  int leftSpeed = leftDir*leftBaseSpeed;
-  int rightSpeed = rightDir*rightBaseSpeed;
-
-  while (leftPos < leftGoal || rightPos > rightGoal)
-  {
-    // TODO: Need some LED action here
-    // TODO: Check if the RPM needs to be ramped up or down
-    leftPos = offsetLeft*encLeft.read()/(cpr/res);
-    rightPos = offsetRight*encRight.read()/(cpr/res);
-    Serial.print("Left encoder: ");
-    Serial.println(leftPos);
-    Serial.print("Right encoder: ");
-    Serial.println(rightPos);
-    
-    motorLeft.drive(leftSpeed);
-    motorRight.drive(rightSpeed);
-  }
-  motorLeft.brake();
-  motorRight.brake();
-}
-
-void rpmControl(int &leftSpeed, int &rightSpeed, int posLeft, int posRight, int leftBaseSpeed, int rightBaseSpeed)
-{
-  int pwmDrop = 5;
-  int mag = posLeft - posRight;
-  int signLeft = leftBaseSpeed / abs(leftBaseSpeed);
-  int signRight = rightBaseSpeed / abs(rightBaseSpeed);
-  
-  if (posLeft > posRight)
-  {
-    leftSpeed = leftBaseSpeed - signLeft*mag*pwmDrop; 
-    rightSpeed = rightBaseSpeed;
-  }
-
-  else if (posRight > posLeft)
-  {
-    leftSpeed = leftBaseSpeed;
-    rightSpeed = rightSpeed - signRight*mag*pwmDrop; 
-  }
-
-  else 
-  {
-    leftSpeed = signLeft*leftBaseSpeed;
-    rightSpeed = signRight*rightBaseSpeed;
-  }
+  leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  rightPos = offsetRight*encRight.read()/(cpr/res);
+  Serial.print("Left encoder: ");
+  Serial.println(leftPos);
+  Serial.print("Right encoder: ");
+  Serial.println(rightPos);
 }
