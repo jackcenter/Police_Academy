@@ -23,6 +23,10 @@ def setup():
     TRIG_PINS = [TRIG_1, TRIG_2, TRIG_3]
     ECHO_PINS = [ECHO_1, ECHO_2, ECHO_3]
     
+    # TRIG_PINS = [TRIG_3]
+    # ECHO_PINS = [ECHO_3]
+    
+
     print("Distance Measurement in Progress")
     
     for trig, echo in zip(TRIG_PINS, ECHO_PINS):
@@ -40,9 +44,12 @@ def get_sonar_readings(trig_pins, echo_pins, units):
     distances = list()
     
     for trigger, echo in zip(trig_pins, echo_pins):
+        print(trigger)
         send_pulse(trigger)
         pulse_duration = get_pulse_duration(echo)
+        print(pulse_duration )
         distances.append(convert_duration_to_distance(pulse_duration, units))
+        # print(disatnces)
         time.sleep(0.03)
     
     return distances
@@ -57,9 +64,11 @@ def send_pulse(trig: int, duration=0.00001):
 def get_pulse_duration(echo: int):
     while GPIO.input(echo) == 0:
         pulse_start = time.time()
+        # print( pulse_start)
 
     while GPIO.input(echo) == 1:
         pulse_end = time.time()
+        print()
 
     pulse_duration = pulse_end - pulse_start
     return pulse_duration
