@@ -36,10 +36,10 @@ Encoder encLeft(ENC1A, ENC1B);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
-  leftSpeed = 50;
+  leftSpeed = 0;
   leftPos = 0;
   
-  rightSpeed = 50;
+  rightSpeed = 0;
   rightPos = 0;
   
   // Start I2C Bus as Slave
@@ -53,7 +53,7 @@ void setup() {
 void loop() {
   motorLeft.drive(leftSpeed);
   motorRight.drive(rightSpeed);
-  readEncoders();
+//  readEncoders();
   delay(100);
 }
 
@@ -64,68 +64,65 @@ void receiveEvent(int howMany)
   Serial.print("len:");
   Serial.println(numOfBytes);
   Wire.read();            // throws away first byte
-  
-  char actionLeft = (int)Wire.read();
-  char actionRight = (int)Wire.read();
-  Serial.print(actionLeft + ", " + actionRight);
-
-  accelerateMotor(leftSpeed, actionLeft);
-  accelerateMotor(rightSpeed, actionRight);
-}  
-
-void serialEvent()
-{
- // while (Serial.available()) {
-  int numOfBytes = Serial.available();
-  Serial.print("len:");
-  Serial.println(numOfBytes);
 
   if (numOfBytes == 3){
-  { 
-    char inputLeft = (char)Serial.read();
-    char inputRight = (char)Serial.read();
-    Serial.read();
-  
-    int actionLeft = convertInput(inputLeft, 5);
-    int actionRight = convertInput(inputRight, 5);
-  
-    Serial.println(actionLeft);
-    Serial.println(actionRight);
-  
-    accelerateMotor(leftSpeed, actionLeft);
-    accelerateMotor(rightSpeed, actionRight);
-  
-    Serial.println(leftSpeed);
-    Serial.println(rightSpeed);
+    commandMotorSpeed();
   }
-
-  else if (numOfBytes == 4){
-    Serial.read();
-    char inputLeft = (char)Serial.read();
-    char inputRight = (char)Serial.read();
-    Serial.read();
-
-    accelerateMotorToValue
+  
+  else {
+    writeEncoderValues();
   }
 }
 
-int convertInput(char input, int multiple)
+void commandMotorSpeed(){ 
+  char u1_in = (int)Wire.read();
+  char u2_in = (int)Wire.read();
+  Serial.print(u1_in + ", " + u2_in);
+
+  // get integers from Serial command
+  int u1 = convertInput(u1_in);
+  int u2 = convertInput(u2_in);
+
+  // convert input into acceleration for each motor [right, left]
+  int omega_dot1[] = {u1, u1};
+  int rem = u2%2;
+  int omega_dot2[] = {u2/2 + rem, -u2/2};
+  int* omega_dot = add_arrays(omega_dot1, omega_dot2);
+
+//  for(int i = 0; i < 2; i++)
+//  {
+//    Serial.println(omega_dot[i]);
+//  }
+
+  accelerateMotor(rightSpeed, omega_dot[0]);
+  accelerateMotor(leftSpeed, omega_dot[1]);
+
+  Serial.println(rightSpeed);
+  Serial.println(leftSpeed);
+}  
+
+void writeEncoderValues(){
+  Wire.read();    // throws away value
+  readEncoders();
+}
+
+int convertInput(char input)
 {
-  int conversion = 0;
+  int value = input - '0';
+  value += -3;
+  return value;
+}
+
+int* add_arrays(int a[], int b[])
+{
+  static int c[2];
+  int i;
   
-  if (input == 'q'){
-    conversion = multiple;
+  for (i = 0; i < 2; ++i){
+    c[i] = a[i] + b[i];
   }
 
-  else if (input == 'a'){
-    conversion = 0;
-  }
-
-  else if (input == 'z'){
-    conversion = -multiple;
-  }
-
-  return conversion;
+  return c;
 }
 
 void accelerateMotor(int &currentSpeed, int accel)
@@ -134,6 +131,14 @@ void accelerateMotor(int &currentSpeed, int accel)
   // accel is the PWM increment
   // TODO: need to add error checking if commanded beyond 0-255
   currentSpeed += accel;
+
+  if (currentSpeed > 255){
+    currentSpeed = 255;
+  }
+
+  else if (currentSpeed < 0){
+    currentSpeed = 0;
+  }
 }
 
 void readEncoders()
