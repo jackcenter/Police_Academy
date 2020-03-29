@@ -58,7 +58,7 @@ def main():
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         distance = get_sonar_readings(trig_pin, echo_pin, units)
-        # print(distance)
+        print(distance)
         range_msg.header.stamp = rospy.Time.now()
         range_msg.range = distance
 

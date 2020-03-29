@@ -1,6 +1,11 @@
 #include <Encoder.h>
 #include <SparkFun_TB6612.h>
 #include <Wire.h>
+#include <ros.h>
+#include <ros/time.h>
+#include <std_msgs/UInt16.h>
+#include <sensor_msgs/Range.h>
+
 
 //2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13
 #define AIN1 9
@@ -32,70 +37,134 @@ int rightSpeed;             // PWM 0-255
 long leftPos;               // Encoder value
 long rightPos;              // Encoder value
 
+double frontD=0.0;
+double rightD=0.0;
+double leftD=0.0;
+
+ros::NodeHandle nh;
+
+void cb_front(const sensor_msgs::Range& range_front) {
+  frontD = range_front.range;
+}
+
+void cb_right(const sensor_msgs::Range& range_right) {
+  rightD = range_right.range;
+}
+
+void cb_left(const sensor_msgs::Range& range_left) {
+  leftD = range_left.range; 
+}
+
+ros::Subscriber<sensor_msgs::Range> sub_front("ultrasonic_front", &cb_front);
+ros::Subscriber<sensor_msgs::Range> sub_right("ultrasonic_right", &cb_right);
+ros::Subscriber<sensor_msgs::Range> sub_left("ultrasonic_left", &cb_left);
+
 Encoder encLeft(ENC1A, ENC1B);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
-  leftSpeed = 50;
+  leftSpeed = 150;
   leftPos = 0;
   
-  rightSpeed = 50;
+  rightSpeed = 150;
   rightPos = 0;
+
+  motorLeft.drive(50);
+  motorRight.drive(50);
+  
+  nh.initNode();
+  
   
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
-  Wire.onReceive(receiveEvent);
+//  Wire.onReceive(receiveEvent);
   
-  Serial.begin(9600);
-  Serial.println("Encoder Test:");
+//  Serial.begin(9600);
+//  Serial.println("Encoder Test:");
 }
 
 void loop() {
-  motorLeft.drive(leftSpeed);
-  motorRight.drive(rightSpeed);
-  readEncoders();
+
+  nh.subscribe(sub_front);
+  nh.subscribe(sub_right);
+  nh.subscribe(sub_left);
+
+  if(  ((leftD)>0.0 && (leftD)<8.0) && ((rightD)>0.0 && (rightD)<7.0) )  
+  {
+    motorLeft.drive(200);
+    motorRight.drive(200);
+  }
+  
+  else if( leftD>8.0 && leftD<15.0)
+  {
+    if(leftSpeed > 0 && leftSpeed < 230) {
+    if(rightSpeed > 0 && rightSpeed < 230){
+//      motorLeft.drive(leftSpeed-50);
+//      motorRight.drive(rightSpeed+50);
+      motorLeft.brake();
+      motorRight.drive(200);
+      }
+  
+    }
+  }
+  else if(rightD>8.0  && rightD<15.0)
+  {
+    if(leftSpeed > 0 && leftSpeed < 230) {
+    if(rightSpeed > 0 && rightSpeed < 230){
+//      motorLeft.drive(rightSpeed-50);
+//      motorRight.drive(leftSpeed+50);
+        motorLeft.drive(200);
+      motorRight.brake();
+      }
+  
+    }
+  }
+  else 
+  {
+    motorLeft.drive(0);
+    motorRight.drive(0);
+  }
+
+  nh.spinOnce();
+//  readEncoders();/
   delay(100);
 }
 
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-
-  Serial.print("len:");
-  Serial.println(numOfBytes);
   Wire.read();            // throws away first byte
   
   char actionLeft = (int)Wire.read();
   char actionRight = (int)Wire.read();
-  Serial.print(actionLeft + ", " + actionRight);
 
   accelerateMotor(leftSpeed, actionLeft);
   accelerateMotor(rightSpeed, actionRight);
 }  
 
-void serialEvent()
-{
- // while (Serial.available()) {
-  int numOfBytes = Serial.available();
-  Serial.print("len:");
-  Serial.println(numOfBytes);
-  char inputLeft = (char)Serial.read();
-  char inputRight = (char)Serial.read();
-  Serial.read();
-
-  int actionLeft = convertInput(inputLeft, 5);
-  int actionRight = convertInput(inputRight, 5);
-
-  Serial.println(actionLeft);
-  Serial.println(actionRight);
-
-  accelerateMotor(leftSpeed, actionLeft);
-  accelerateMotor(rightSpeed, actionRight);
-
-  Serial.println(leftSpeed);
-  Serial.println(rightSpeed);
-  //}
-}
+//void serialEvent()
+//{
+// // while (Serial.available()) {
+//  int numOfBytes = Serial.available();
+////  Serial.print("len:");
+////  Serial.println(numOfBytes);
+////  char inputLeft = (char)Serial.read();
+////  char inputRight = (char)Serial.read();
+////  Serial.read();
+//
+//  int actionLeft = convertInput(inputLeft, 5);
+//  int actionRight = convertInput(inputRight, 5);
+//
+////  Serial.println(actionLeft);
+////  Serial.println(actionRight);
+//
+//  accelerateMotor(leftSpeed, actionLeft);
+//  accelerateMotor(rightSpeed, actionRight);
+//
+////  Serial.println(leftSpeed);
+////  Serial.println(rightSpeed);
+//  //}
+//}
 
 int convertInput(char input, int multiple)
 {
@@ -128,8 +197,4 @@ void readEncoders()
 {
   leftPos = offsetLeft*encLeft.read()/(cpr/res);
   rightPos = offsetRight*encRight.read()/(cpr/res);
-  Serial.print("Left encoder: ");
-  Serial.println(leftPos);
-  Serial.print("Right encoder: ");
-  Serial.println(rightPos);
 }
