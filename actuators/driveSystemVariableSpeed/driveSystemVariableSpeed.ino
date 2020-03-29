@@ -142,6 +142,7 @@ void receiveEvent(int howMany)
   accelerateMotor(rightSpeed, actionRight);
 }  
 
+<<<<<<< HEAD
 //void serialEvent()
 //{
 // // while (Serial.available()) {
@@ -165,6 +166,43 @@ void receiveEvent(int howMany)
 ////  Serial.println(rightSpeed);
 //  //}
 //}
+=======
+void serialEvent()
+{
+ // while (Serial.available()) {
+  int numOfBytes = Serial.available();
+  Serial.print("len:");
+  Serial.println(numOfBytes);
+
+  if (numOfBytes == 3){
+  { 
+    char inputLeft = (char)Serial.read();
+    char inputRight = (char)Serial.read();
+    Serial.read();
+  
+    int actionLeft = convertInput(inputLeft, 5);
+    int actionRight = convertInput(inputRight, 5);
+  
+    Serial.println(actionLeft);
+    Serial.println(actionRight);
+  
+    accelerateMotor(leftSpeed, actionLeft);
+    accelerateMotor(rightSpeed, actionRight);
+  
+    Serial.println(leftSpeed);
+    Serial.println(rightSpeed);
+  }
+
+  else if (numOfBytes == 4){
+    Serial.read();
+    char inputLeft = (char)Serial.read();
+    char inputRight = (char)Serial.read();
+    Serial.read();
+
+    accelerateMotorToValue
+  }
+}
+>>>>>>> 0a51eb50b55dda46b0bb4eea8ede80eb6308b96d
 
 int convertInput(char input, int multiple)
 {
