@@ -43,10 +43,10 @@ Encoder encLeft(ENC1A, ENC1B);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
-    rightSpeed = 75;
+  rightSpeed = 0;
   rightPos = 0;
   
-  leftSpeed = 50;
+  leftSpeed = 0;
   leftPos = 0;
 
   // Start I2C Bus as Slave
@@ -62,7 +62,6 @@ void loop() {
   motorLeft.drive(leftSpeed);
   motorRight.drive(rightSpeed);
   readEncoders();
-  delay(100);
 }
 
 void receiveEvent(int howMany) 
@@ -81,8 +80,8 @@ void receiveEvent(int howMany)
     char u2_in = (int)Wire.read();
   
     // get integers from wire command
-    int u1 = convertInput(u1_in);
-    int u2 = convertInput(u2_in);
+    int u1 = adjustInput(u1_in);
+    int u2 = adjustInput(u2_in);
 
     Serial.print(" u1: ");
     Serial.println(u1);
@@ -103,30 +102,36 @@ void receiveEvent(int howMany)
     Serial.println(rightSpeed);
     Serial.print(" Left speed:     ");
     Serial.println(leftSpeed);
-    Serial.print(" Right position: ");
-    Serial.println(rightPos);
-    Serial.print(" Left position:  ");
-    Serial.println(leftPos);
-    Serial.println();
   }  
 }
 
 void sendEvent()
 {
+
   int numOfBytes = Wire.available();
+  Serial.print("len: ");
   Serial.println(numOfBytes);
   byte side = Wire.read();
   Serial.println(side);
 
   if (side == 0){
+      readEncoders();
       buffer.longNumber = rightPos;
       Wire.write(buffer.longBytes, 4);
   }
 
   else if (side == 1){
+      readEncoders();
       buffer.longNumber = leftPos;
       Wire.write(buffer.longBytes, 4);
   }
+
+  readEncoders();
+  Serial.print(" Right position: ");
+  Serial.println(rightPos);
+  Serial.print(" Left position:  ");
+  Serial.println(leftPos);
+  Serial.println();
 }
   
 void writeEncoderValues(){
@@ -142,6 +147,12 @@ void writeEncoderValues(){
 int convertInput(char input)
 {
   int value = input - '0';
+  value += -3;
+  return value;
+}
+
+int adjustInput(int value)
+{
   value += -3;
   return value;
 }
