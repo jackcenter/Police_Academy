@@ -30,6 +30,8 @@ def main():
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
 
+        set_range(u_int, -3, 3)
+
         print("Command: ")
         print(u)
         print(u_int)
@@ -102,6 +104,14 @@ def get_state_estimate():
 def ConvertInputToBytes(src):
     converted = [src[0] + 3, src[1] + 3]
     return converted
+
+
+def set_range(array, lower, upper):
+    for i in array:
+        if i < lower:
+            i = lower
+        elif i > upper:
+            i = upper
 
 
 if __name__ == '__main__':
