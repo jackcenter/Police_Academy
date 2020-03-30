@@ -113,9 +113,20 @@ void receiveEvent(int howMany)
 
 void sendEvent()
 {
-  Wire.read();
-  buffer.longNumber = leftPos;
-  Wire.write(buffer.longBytes, 4);
+  int numOfBytes = Wire.available();
+  Serial.println(numOfBytes);
+  byte side = Wire.read();
+  Serial.println(side);
+
+  if (side == 0){
+      buffer.longNumber = rightPos;
+      Wire.write(buffer.longBytes, 4);
+  }
+
+  else if (side == 1){
+      buffer.longNumber = leftPos;
+      Wire.write(buffer.longBytes, 4);
+  }
 }
   
 void writeEncoderValues(){

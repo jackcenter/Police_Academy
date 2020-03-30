@@ -52,6 +52,9 @@ while not exit:
 
     bytesToSend = ConvertStringToBytes(r)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
+
+    time.sleep(.01)
+
     data_bytes_r = bus.read_i2c_block_data(slave_address, 0, 4)
     data_bytes_l = bus.read_i2c_block_data(slave_address, 1, 4)
     data_int_r = bytes_to_int(data_bytes_r)
