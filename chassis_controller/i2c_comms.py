@@ -37,7 +37,12 @@ def read_from_slave(address, command, i2cbus):
 
     except:
         pass
-
+def bytes_to_int(bytes):
+    result = 0
+    bytes.reverse()
+    for b in bytes:
+        result = result * 256 + int(b)
+    return result
 
 # loop to send message
 exit = False
@@ -47,7 +52,9 @@ while not exit:
 
     bytesToSend = ConvertStringToBytes(r)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
-    data = bus.read_byte_data(slave_address, 1)
+    data_bytes = bus.read_i2c_block_data(slave_address, 0, 4)
+    data_int = bytes_to_int(data_bytes) 
+    print(data_int)
 
     if r == 'q':
         exit = True
