@@ -11,11 +11,13 @@ bus = smbus.SMBus(1)
 slave_address = 0x07
 i2c_cmd = 0x01
 
+
 def ConvertStringToBytes(src):
     converted = []
     for b in src:
         converted.append(ord(b))
     return converted
+
 
 def read_from_slave(address, command, i2cbus):
     data = ""
