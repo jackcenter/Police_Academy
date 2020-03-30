@@ -9,7 +9,7 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 1      # velocity
+    u1_ref = 1     # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
@@ -23,7 +23,7 @@ def main():
 
     time_start = time.time()
     time_elapsed = 0
-    while time_elapsed < 25:
+    while time_elapsed < 5:
         print("State Estimate:")
         time.sleep(0.1)
         state = state_estimate.get_state()
@@ -40,9 +40,7 @@ def main():
 
         
         bytesToSend = ConvertInputToBytes(u_int)
-        print(bytesToSend)
-        print(type(bytesToSend[0]))
-        # time.sleep(0.01)
+        time.sleep(0.1)
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 

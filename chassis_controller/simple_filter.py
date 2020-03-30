@@ -58,11 +58,19 @@ class Filter:
         """
         self.k0 = self.k1
         self.k1 = time.time()
-
+        
+        time.sleep(0.01)
         data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
+        time.sleep(0.01)
         data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
+        print("encoder values: ")
+        print(data_bytes_r)
+        print(data_bytes_l)
         data_int_r = self.bytes_to_int(data_bytes_r)
         data_int_l = self.bytes_to_int(data_bytes_l)
+        print("encoder values: ")
+        print(data_int_r)
+        print(data_int_l)
 
         self.encod_k0 = self.encod_k1
         self.encod_k1 = [data_int_r, data_int_l]
