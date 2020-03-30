@@ -33,6 +33,7 @@ def main():
         # bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         print("Command")
         print(u)
+        print(u.astype(int))
         i += 1
 
 
