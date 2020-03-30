@@ -1,51 +1,94 @@
-# import smbus
+import smbus
 import time
 import os
-
+import numpy as np
 from simple_filter import Filter
 
 
 def main():
-    # bus = smbus.SMBus(1)
+    bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
     u1_ref = 1      # velocity
     u2_ref = 0      # heading
-    u_ref = [u1_ref, u2_ref]
+    u_ref = np.array([u1_ref, u2_ref])
 
-    kp = 1
-    ki = 0.01
-    kd = 0.1
+    kp = .5
+    ki = 0.005
+    kd = 0.01
 
-    state_estimate = Filter(1, slave_address)
-    time.sleep(1)
-    print(state_estimate.get_state_test())
+    state_estimate = Filter(bus, slave_address)
+    controller = PID(kp, ki, kd, 2)
 
-    u = run_pid(u_ref, kp, ki, kd, state_estimate)
-    bytesToSend = ConvertInputToBytes(u)
-    # bus.write_i2c_block_data(slave_address, 0, bytesToSend)
+    i = 0
+    while i < 5:
+        time.sleep(1)
+        print("State Estimate:")
+        state = state_estimate.get_state_test()
+        print(state)
+
+        u = controller.run_pid(u_ref, state)
+
+        # bytesToSend = ConvertInputToBytes(u)
+        # bus.write_i2c_block_data(slave_address, 0, bytesToSend)
+        print("Command")
+        print(u)
+        i += 1
 
 
-def run_pid(ref, kp, ki, kd, state):
-    """
-    current state is just motor speeds: w_r, w_l
-    :param ref:
-    :return:
-    """
-    u1_ref = ref[0]
-    u2_ref = ref[1]
+class PID:
+    def __init__(self, kp, ki, kd, dim):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
 
-    state = get_state_estimate()
-    w_r = state[0]
-    w_l = state[1]
+        self.e = np.zeros(dim)
+        self.e_sum = np.zeros(dim)
+        self.e_k0 = np.array(dim)
 
-    u1 = (w_r + w_l)/2
-    u2 = w_r - w_l
+        self.k0 = time.time()
+        self.k1 = time.time()
 
-    e1 = u1_ref - u1
-    e2 = u2_ref - u2
+    def run_pid(self, ref, state):
+        """
+        current state is just motor speeds: w_r, w_l
+        :param ref:
+        :param state:
+        :return:
+        """
+        self.k1 = time.time()
 
-    return 0, 0
+        u1_ref = ref[0]
+        u2_ref = ref[1]
+
+        w_r = state[0]
+        w_l = state[1]
+
+        u1 = (w_r + w_l)/2
+        u2 = w_r - w_l
+
+        e1 = u1_ref - u1
+        e2 = u2_ref - u2
+        self.e = np.array([e1, e2])
+        print(self.e)
+
+        # Proportional ====================================
+        u_p = self.kp * self.e
+
+        # Integral ========================================
+        for e in self.e:
+            if e > 1:
+                self.e_sum += e
+        u_i = self.ki * self.e_sum
+
+        # Derivative ======================================
+        e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
+        self.e_k0 = self.e
+        u_d = self.kd*e_dot
+
+        u = u_p + u_i + u_d
+
+        return u
 
 
 def get_state_estimate():

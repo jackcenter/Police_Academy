@@ -59,13 +59,13 @@ class Filter:
         self.k0 = self.k1
         self.k1 = time.time()
 
-        # data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
-        # data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
-        # data_int_r = self.bytes_to_int(data_bytes_r)
-        # data_int_l = self.bytes_to_int(data_bytes_l)
+        data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
+        data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
+        data_int_r = self.bytes_to_int(data_bytes_r)
+        data_int_l = self.bytes_to_int(data_bytes_l)
 
-        # self.encod_k0 = self.encod_k1
-        # self.encod_k1 = [data_int_r, data_int_l]
+        self.encod_k0 = self.encod_k1
+        self.encod_k1 = [data_int_r, data_int_l]
 
     def update_encoder_values_test(self):
         self.k0 = self.k1
