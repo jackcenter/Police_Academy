@@ -43,12 +43,12 @@ Encoder encLeft(ENC1A, ENC1B);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
-  leftSpeed = 0;
-  leftPos = 0;
-  
-  rightSpeed = 0;
+    rightSpeed = 75;
   rightPos = 0;
   
+  leftSpeed = 50;
+  leftPos = 0;
+
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);

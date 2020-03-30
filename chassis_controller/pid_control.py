@@ -9,32 +9,35 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 1      # velocity
+    u1_ref = 2      # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
-    kp = .5
-    ki = 0.005
-    kd = 0.01
+    kp = 1
+    ki = 0.01
+    kd = 0.1
 
     state_estimate = Filter(bus, slave_address)
     controller = PID(kp, ki, kd, 2)
 
     i = 0
     while i < 5:
-        time.sleep(1)
+        time.sleep(.1)
         print("State Estimate:")
         state = state_estimate.get_state()
         print(state)
 
         u = controller.run_pid(u_ref, state)
+        u_int = u.astype(int)
 
-        # bytesToSend = ConvertInputToBytes(u)
-        # bus.write_i2c_block_data(slave_address, 0, bytesToSend)
-        print("Command")
+        print("Command: ")
         print(u)
-        print(u.astype(int))
+        print(u_int)
         i += 1
+
+        time.sleep(.1)
+        bytesToSend = ConvertInputToBytes(u_int)
+        bus.write_i2c_block_data(slave_address, 0, bytesToSend)
 
 
 class PID:
