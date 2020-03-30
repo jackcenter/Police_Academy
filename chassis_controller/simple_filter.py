@@ -58,10 +58,8 @@ class Filter:
         """
         self.k0 = self.k1
         self.k1 = time.time()
-        
-        time.sleep(0.01)
+
         data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
-        time.sleep(0.01)
         data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
         print("encoder values: ")
         print(data_bytes_r)

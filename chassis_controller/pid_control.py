@@ -38,7 +38,6 @@ def main():
         print(u)
         print(u_int)
 
-        
         bytesToSend = ConvertInputToBytes(u_int)
         time.sleep(0.1)
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
@@ -114,7 +113,6 @@ def set_range(array, lower, upper):
     new_array[new_array > upper] = upper
         
     return new_array
-    
 
 
 if __name__ == '__main__':
