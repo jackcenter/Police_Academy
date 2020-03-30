@@ -2,6 +2,12 @@
 #include <SparkFun_TB6612.h>
 #include <Wire.h>
 
+union Buffer
+{
+    long longNumber;
+    byte longBytes[4];
+};
+
 //2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13
 #define AIN1 9
 #define AIN2 10
@@ -16,6 +22,7 @@
 #define STBY 8
 
 byte slave_address = 7;
+Buffer buffer;
 
 const double radius = 2;    // radius of the wheel in inches
 const double axel = 10;     // distance between wheels
@@ -45,6 +52,7 @@ void setup() {
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);
+  Wire.onRequest(sendEvent);
   
   Serial.begin(9600);
   Serial.println("Encoder Test:");
@@ -53,57 +61,71 @@ void setup() {
 void loop() {
   motorLeft.drive(leftSpeed);
   motorRight.drive(rightSpeed);
-//  readEncoders();
+  readEncoders();
   delay(100);
 }
 
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-
-  Serial.print("len:");
+  if (numOfBytes == 1){
+    return;
+  }
+  
+  Serial.print("Command, len: ");
   Serial.println(numOfBytes);
   Wire.read();            // throws away first byte
 
   if (numOfBytes == 3){
-    commandMotorSpeed();
-  }
+    char u1_in = (int)Wire.read();
+    char u2_in = (int)Wire.read();
   
-  else {
-    writeEncoderValues();
-  }
+    // get integers from wire command
+    int u1 = convertInput(u1_in);
+    int u2 = convertInput(u2_in);
+
+    Serial.print(" u1: ");
+    Serial.println(u1);
+    Serial.print(" u2: ");
+    Serial.println(u2);
+    Serial.println();
+  
+    // convert input into acceleration for each motor [right, left]
+    int omega_dot1[] = {u1, u1};
+    int rem = u2%2;
+    int omega_dot2[] = {u2/2 + rem, -u2/2};
+    int* omega_dot = add_arrays(omega_dot1, omega_dot2);
+  
+    accelerateMotor(rightSpeed, omega_dot[0]);
+    accelerateMotor(leftSpeed, omega_dot[1]);
+
+    Serial.print(" Right speed:    ");
+    Serial.println(rightSpeed);
+    Serial.print(" Left speed:     ");
+    Serial.println(leftSpeed);
+    Serial.print(" Right position: ");
+    Serial.println(rightPos);
+    Serial.print(" Left position:  ");
+    Serial.println(leftPos);
+    Serial.println();
+  }  
 }
 
-void commandMotorSpeed(){ 
-  char u1_in = (int)Wire.read();
-  char u2_in = (int)Wire.read();
-  Serial.print(u1_in + ", " + u2_in);
-
-  // get integers from Serial command
-  int u1 = convertInput(u1_in);
-  int u2 = convertInput(u2_in);
-
-  // convert input into acceleration for each motor [right, left]
-  int omega_dot1[] = {u1, u1};
-  int rem = u2%2;
-  int omega_dot2[] = {u2/2 + rem, -u2/2};
-  int* omega_dot = add_arrays(omega_dot1, omega_dot2);
-
-//  for(int i = 0; i < 2; i++)
-//  {
-//    Serial.println(omega_dot[i]);
-//  }
-
-  accelerateMotor(rightSpeed, omega_dot[0]);
-  accelerateMotor(leftSpeed, omega_dot[1]);
-
-  Serial.println(rightSpeed);
-  Serial.println(leftSpeed);
-}  
-
+void sendEvent()
+{
+  Wire.read();
+  buffer.longNumber = leftPos;
+  Wire.write(buffer.longBytes, 4);
+}
+  
 void writeEncoderValues(){
   Wire.read();    // throws away value
   readEncoders();
+
+  // need to convert encoder values to characters
+//  Wire.beginTransmission()
+//  Wire.write()
+//  Wire.endTransmission
 }
 
 int convertInput(char input)
@@ -111,6 +133,12 @@ int convertInput(char input)
   int value = input - '0';
   value += -3;
   return value;
+}
+
+String convertIntToStr(int val)
+{
+  String conversion = String(val);
+  return conversion;
 }
 
 int* add_arrays(int a[], int b[])
@@ -145,8 +173,8 @@ void readEncoders()
 {
   leftPos = offsetLeft*encLeft.read()/(cpr/res);
   rightPos = offsetRight*encRight.read()/(cpr/res);
-  Serial.print("Left encoder: ");
-  Serial.println(leftPos);
-  Serial.print("Right encoder: ");
-  Serial.println(rightPos);
+//  Serial.print("Left encoder: ");
+//  Serial.println(leftPos);
+//  Serial.print("Right encoder: ");
+//  Serial.println(rightPos);
 }

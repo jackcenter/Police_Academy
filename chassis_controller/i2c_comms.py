@@ -52,9 +52,13 @@ while not exit:
 
     bytesToSend = ConvertStringToBytes(r)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
-    data_bytes = bus.read_i2c_block_data(slave_address, 0, 4)
-    data_int = bytes_to_int(data_bytes) 
-    print(data_int)
+    data_bytes_r = bus.read_i2c_block_data(slave_address, 0, 4)
+    data_bytes_l = bus.read_i2c_block_data(slave_address, 1, 4)
+    data_int_r = bytes_to_int(data_bytes_r)
+    data_int_l = bytes_to_int(data_bytes_l)
+
+    print(data_int_r)
+    print(data_int_l)
 
     if r == 'q':
         exit = True
