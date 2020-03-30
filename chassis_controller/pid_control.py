@@ -24,7 +24,7 @@ def main():
     while i < 5:
         time.sleep(1)
         print("State Estimate:")
-        state = state_estimate.get_state_test()
+        state = state_estimate.get_state()
         print(state)
 
         u = controller.run_pid(u_ref, state)
