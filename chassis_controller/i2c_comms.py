@@ -56,13 +56,16 @@ while not exit:
     print(bytesToSend)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
 
-    time.sleep(.01)
+    time.sleep(0.1)
 
-    data_bytes_r = bus.read_i2c_block_data(slave_address, 0, 4)
-    data_bytes_l = bus.read_i2c_block_data(slave_address, 1, 4)
+    data_bytes_r = bus.read_i2c_block_data(slave_address, 0x00, 4)
+    time.sleep(0.1)
+    data_bytes_l = bus.read_i2c_block_data(slave_address, 0x01, 4)
     data_int_r = bytes_to_int(data_bytes_r)
     data_int_l = bytes_to_int(data_bytes_l)
 
+    print(data_bytes_r)
+    print(data_bytes_l)
     print(data_int_r)
     print(data_int_l)
 
