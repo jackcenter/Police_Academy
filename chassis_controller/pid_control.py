@@ -9,7 +9,7 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 2      # velocity
+    u1_ref = 1      # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
@@ -18,29 +18,33 @@ def main():
     kd = 0.1
 
     state_estimate = Filter(bus, slave_address)
+    time.sleep(1)
     controller = PID(kp, ki, kd, 2)
 
-    i = 0
-    while i < 5:
-        time.sleep(.1)
+    time_start = time.time()
+    time_elapsed = 0
+    while time_elapsed < 25:
         print("State Estimate:")
+        time.sleep(0.1)
         state = state_estimate.get_state()
         print(state)
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
 
-        set_range(u_int, -3, 3)
+        u_int = set_range(u_int, -3, 3)
 
         print("Command: ")
         print(u)
         print(u_int)
-        i += 1
 
-        time.sleep(.1)
+        
         bytesToSend = ConvertInputToBytes(u_int)
+        print(bytesToSend)
+        print(type(bytesToSend[0]))
+        # time.sleep(0.01)
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
-
+        time_elapsed = time.time()-time_start
 
 class PID:
     def __init__(self, kp, ki, kd, dim):
@@ -102,16 +106,17 @@ def get_state_estimate():
 
 
 def ConvertInputToBytes(src):
-    converted = [src[0] + 3, src[1] + 3]
+    converted = [(src[0] + 3).item(), (src[1] + 3).item()]
     return converted
 
 
 def set_range(array, lower, upper):
-    for i in array:
-        if i < lower:
-            i = lower
-        elif i > upper:
-            i = upper
+    new_array = np.copy(array)
+    new_array[new_array < lower] = lower
+    new_array[new_array > upper] = upper
+        
+    return new_array
+    
 
 
 if __name__ == '__main__':

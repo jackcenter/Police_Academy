@@ -53,6 +53,7 @@ while not exit:
     print(r)
 
     bytesToSend = ConvertStringToBytes(r)
+    print(bytesToSend)
     bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
 
     time.sleep(.01)
