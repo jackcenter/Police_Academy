@@ -49,7 +49,6 @@ class Filter:
         self.units = 'in'
         self.cpr = 64
 
-
     def get_state(self):
         GPIO.setmode(GPIO.BCM)
         for trig, echo in zip(self.trig_pins, self.echo_pins):
@@ -60,7 +59,7 @@ class Filter:
         self.update_encoder_values()
         omega = self.get_motor_velocities()
         self.update_ultrasonic_values()
-        state = [self.encod_k1[0], self.encod_k1[1], omega[0], omega[1]]
+        state = self.encod_k1 + omega + self.ultra_k1
 
         GPIO.cleanup()
         return state
