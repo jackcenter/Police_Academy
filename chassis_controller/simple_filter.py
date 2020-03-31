@@ -38,7 +38,8 @@ class Filter:
     def get_state(self):
         self.update_encoder_values()
         omega = self.get_motor_velocities()
-        return omega
+        state = [self.encod_k1[0], omega[0], self.encod_k1[1], omega[1]]
+        return state
 
     def get_state_test(self):
         self.update_encoder_values_test()

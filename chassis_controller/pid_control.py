@@ -94,14 +94,16 @@ class PID:
         u1_ref = ref[0]
         u2_ref = ref[1]
 
-        w_r = state[0]
-        w_l = state[1]
+        enc_r = state[0]
+        w_r = state[1]
+        enc_l = state[2]
+        w_l = state[3]
 
         u1 = (w_r + w_l)/2
-        u2 = w_r - w_l
+        # u2 = w_r - w_l
 
         e1 = u1_ref - u1
-        e2 = u2_ref - u2
+        e2 = u2_ref - (enc_r - enc_l)
         self.e = np.array([e1, e2])
         print(self.e)
 
