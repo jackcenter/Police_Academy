@@ -13,7 +13,7 @@ def main():
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
-    kp = np.array([3, 0], [0, .3])
+    kp = np.array([[3, 0], [0, .3]])
     ki = 0.03
     kd = 0.3
 
@@ -24,7 +24,7 @@ def main():
     time_start = time.time()
     time_elapsed = 0
 
-    while time_elapsed < 10:
+    while time_elapsed < 20:
         # print("State Estimate:")
         state = state_estimate.get_state()
         print(state)
@@ -44,11 +44,12 @@ def main():
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 
-    u1_ref = 0      # velocity
+    u1_ref = -1      # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
+    print("SLOW DOWN===============================")
 
-    while time_elapsed < 20:
+    while time_elapsed < 40:
         # print("State Estimate:")
         state = state_estimate.get_state()
         print("State Values")
@@ -110,20 +111,23 @@ class PID:
         print(self.e)
 
         # Proportional ====================================
-        u_p = self.kp * self.e
+        u_p = np.array([self.kp[0][0] * self.e[0], self.kp[1][1] * self.e[1]]) 
 
         # Integral ========================================
         for e in self.e:
-            if e > 1:
-                self.e_sum += e
+            if abs(e) > 1:
+                self.e_sum += e*(self.k1-self.k0)
         u_i = self.ki * self.e_sum
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
         u_d = self.kd*e_dot
+        
+        print("p, i, d: {0}, {1}, {2}".format(u_p, u_i, u_d))
 
-        u = u_p + u_i + u_d
+        # u = u_p + u_i + u_d
+        u = u_p + u_d
 
         return u
 
