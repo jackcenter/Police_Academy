@@ -81,10 +81,10 @@ void receiveEvent(int howMany)
     char u2_in = (int)Wire.read();
   
     // get integers from wire command
-    int u1 = convertInput(u1_in);
-    int u2 = convertInput(u2_in);
-//    int u1 = adjustInput(u1_in);
-//    int u2 = adjustInput(u2_in);
+//    int u1 = convertInput(u1_in);
+//    int u2 = convertInput(u2_in);
+    int u1 = adjustInput(u1_in);
+    int u2 = adjustInput(u2_in);
   
     Serial.print(" u1: ");
     Serial.println(u1);

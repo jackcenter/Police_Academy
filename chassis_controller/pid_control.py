@@ -23,7 +23,32 @@ def main():
 
     time_start = time.time()
     time_elapsed = 0
+
     while time_elapsed < 10:
+        # print("State Estimate:")
+        state = state_estimate.get_state()
+        print(state)
+
+        u = controller.run_pid(u_ref, state)
+        u_int = u.astype(int)
+
+        u_int = set_range(u_int, -3, 3)
+
+        print("Command: ")
+        # print(u)
+        print(u_int)
+        print()
+
+        bytesToSend = ConvertInputToBytes(u_int)
+        time.sleep(0.1) # delay for wire to settle
+        bus.write_i2c_block_data(slave_address, 0, bytesToSend)
+        time_elapsed = time.time()-time_start
+
+    u1_ref = 0      # velocity
+    u2_ref = 0      # heading
+    u_ref = np.array([u1_ref, u2_ref])
+
+    while time_elapsed < 20:
         # print("State Estimate:")
         state = state_estimate.get_state()
         print(state)
