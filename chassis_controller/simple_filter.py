@@ -33,6 +33,7 @@ def main():
         i += 1
     GPIO.cleanup()
 
+
 class Filter:
     def __init__(self, bus, slave_address):
         self.bus = bus
@@ -122,8 +123,6 @@ class Filter:
             array.append(sonar_measurements.get_sonar_reading(trigger, echo, self.units))
         
         self.ultra_k1 = array
-        print(self.ultra_k1)
-        
 
     @staticmethod
     def bytes_to_int(bytes):

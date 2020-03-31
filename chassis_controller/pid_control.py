@@ -9,8 +9,9 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 3     # velocity
+    u1_ref = 3      # velocity
     u2_ref = 0      # heading
+    u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref])
 
     kp = np.array([[3, 0], [0, .3]])
@@ -95,20 +96,25 @@ class PID:
 
         u1_ref = ref[0]
         u2_ref = ref[1]
+        u3_ref = ref[2]
 
-        enc_r = measurement[0]
-        enc_l = measurement[1]
+        encod_r = measurement[0]
+        encod_l = measurement[1]
         w_r = measurement[2]
         w_l = measurement[3]
+        ultra_r = measurement[4]
+        ultra_l = measurement[6]
 
         u1 = (w_r + w_l)/2
-        u2 = enc_r - enc_l
+        u2 = encod_r - encod_l
+        u3 = ultra_r - ultra_l
 
         e1 = u1_ref - u1
         e2 = u2_ref - u2
+        e3 = u3_ref - u3
+
         self.e = np.array([e1, e2])
-        print("Error Values:")
-        print(self.e)
+        print("Error Values:\n  a: {0}\n  b: {1}\n  c: {2}".format(e1, e2, e3))
 
         # Proportional ====================================
         u_p = np.array([self.kp[0][0] * self.e[0], self.kp[1][1] * self.e[1]]) 
