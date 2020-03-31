@@ -9,13 +9,13 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 1     # velocity
+    u1_ref = 2     # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
-    kp = 1
-    ki = 0.01
-    kd = 0.1
+    kp = 3
+    ki = 0.03
+    kd = 0.3
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -23,8 +23,8 @@ def main():
 
     time_start = time.time()
     time_elapsed = 0
-    while time_elapsed < 5:
-        print("State Estimate:")
+    while time_elapsed < 10:
+        # print("State Estimate:")
         state = state_estimate.get_state()
         print(state)
 
@@ -34,8 +34,9 @@ def main():
         u_int = set_range(u_int, -3, 3)
 
         print("Command: ")
-        print(u)
+        # print(u)
         print(u_int)
+        print()
 
         bytesToSend = ConvertInputToBytes(u_int)
         time.sleep(0.1) # delay for wire to settle
