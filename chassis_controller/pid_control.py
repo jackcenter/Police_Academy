@@ -13,7 +13,7 @@ def main():
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
-    kp = 3
+    kp = np.array([3, 0], [0, .3])
     ki = 0.03
     kd = 0.3
 
