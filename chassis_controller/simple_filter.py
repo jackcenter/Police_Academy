@@ -3,6 +3,8 @@ import time
 import os
 from math import pi
 
+# TODO: need to reorganize this so that the i2c line is not clogged up. Need to see if I can pass both encoder values at
+# TODO: once so that there doesn't need to be such a long delay.
 
 def main():
     # Tested to make sure values make sense
@@ -28,8 +30,8 @@ class Filter:
         self.encod_k1 = [0, 0]
         self.ultra_k0 = [0, 0, 0]
         self.ultra_k1 = [0, 0, 0]
-        self.k0 = time.time()
-        self.k1 = time.time()
+        self.k0 = [time.time(), time.time()]
+        self.k1 = self.k0
 
         self.cpr = 64
 
@@ -57,9 +59,13 @@ class Filter:
         value.
         """
         self.k0 = self.k1
-        self.k1 = time.time()
 
+        time.sleep(0.1)
+        self.k1[0] = time.time()
         data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
+
+        time.sleep(0.1)
+        self.k1[1] = time.time()
         data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
         print("encoder values: ")
         print(data_bytes_r)
