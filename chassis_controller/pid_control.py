@@ -101,10 +101,10 @@ class PID:
         w_l = state[3]
 
         u1 = (w_r + w_l)/2
-        # u2 = w_r - w_l
+        u2 = enc_r - enc_l
 
         e1 = u1_ref - u1
-        e2 = u2_ref - (enc_r - enc_l)
+        e2 = u2_ref + u2
         self.e = np.array([e1, e2])
         print("Error Values:")
         print(self.e)

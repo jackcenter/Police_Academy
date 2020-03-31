@@ -46,7 +46,7 @@ void setup() {
   rightSpeed = 0;
   rightPos = 0;
   
-  leftSpeed = 50;
+  leftSpeed = 0;
   leftPos = 0;
 
   // Start I2C Bus as Slave
