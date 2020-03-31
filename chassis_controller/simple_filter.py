@@ -30,7 +30,7 @@ class Filter:
         self.encod_k1 = [0, 0]
         self.ultra_k0 = [0, 0, 0]
         self.ultra_k1 = [0, 0, 0]
-        self.k0 = [time.time(), time.time()]
+        self.k0 = 0
         self.k1 = self.k0
 
         self.cpr = 64
@@ -58,20 +58,25 @@ class Filter:
         Requests two long integer values from the slave. i2c command 0 gets the right encoder, 1 gets the left encoder
         value.
         """
+
+        # delay for line to settle
+        time.sleep(0.1)
         self.k0 = self.k1
+        self.k1 = time.time()
 
-        time.sleep(0.1)
-        self.k1[0] = time.time()
-        data_bytes_r = self.bus.read_i2c_block_data(self.slave_address, 0, 4)
+        # Read and convert encoder values
+        data_bytes = self.bus.read_i2c_block_data(self.slave_address, 0, 8)
+        data_int_r = self.bytes_to_int(data_bytes[0:3])
+        data_int_l = self.bytes_to_int(data_bytes[4:7])
 
-        time.sleep(0.1)
-        self.k1[1] = time.time()
-        data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
-        print("encoder values: ")
-        print(data_bytes_r)
-        print(data_bytes_l)
-        data_int_r = self.bytes_to_int(data_bytes_r)
-        data_int_l = self.bytes_to_int(data_bytes_l)
+        # time.sleep(0.1)
+        # self.k1[1] = time.time()
+        # data_bytes_l = self.bus.read_i2c_block_data(self.slave_address, 1, 4)
+        # print("encoder values: ")
+        # print(data_bytes_r)
+        # print(data_bytes_l)
+        # data_int_r = self.bytes_to_int(data_bytes_r)
+        # data_int_l = self.bytes_to_int(data_bytes_l)
         print("encoder values: ")
         print(data_int_r)
         print(data_int_l)

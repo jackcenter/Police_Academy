@@ -25,7 +25,6 @@ def main():
     time_elapsed = 0
     while time_elapsed < 5:
         print("State Estimate:")
-        time.sleep(0.1)
         state = state_estimate.get_state()
         print(state)
 
@@ -39,9 +38,10 @@ def main():
         print(u_int)
 
         bytesToSend = ConvertInputToBytes(u_int)
-        time.sleep(0.1)
+        time.sleep(0.1) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
+
 
 class PID:
     def __init__(self, kp, ki, kd, dim):
