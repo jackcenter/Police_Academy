@@ -9,13 +9,13 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 2     # velocity
+    u1_ref = 3     # velocity
     u2_ref = 0      # heading
     u_ref = np.array([u1_ref, u2_ref])
 
     kp = np.array([[3, 0], [0, .3]])
-    ki = np.array([[0, 0], [0, .003]])
-    kd = np.array([[.3, 0], [0, .03]])
+    ki = np.array([[0, 0], [0, .001]])
+    kd = np.array([[.3, 0], [0, .3]])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
