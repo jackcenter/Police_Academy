@@ -78,9 +78,9 @@ class Filter:
         # print(data_bytes_l)
         # data_int_r = self.bytes_to_int(data_bytes_r)
         # data_int_l = self.bytes_to_int(data_bytes_l)
-        print("encoder values: ")
-        print(data_int_r)
-        print(data_int_l)
+        # print("encoder values: ")
+        # print(data_int_r)
+        # print(data_int_l)
 
         self.encod_k0 = self.encod_k1
         self.encod_k1 = [data_int_r, data_int_l]

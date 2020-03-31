@@ -31,8 +31,8 @@ const int res = 64;         // number of encoder counts per single turn
 
 const int offsetLeft = -1;
 const int offsetRight = 1;
-Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
-Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
+Motor motorRight = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
+Motor motorLeft = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
 
 int leftSpeed;              // PWM 0-255
 int rightSpeed;             // PWM 0-255
@@ -46,7 +46,7 @@ void setup() {
   rightSpeed = 0;
   rightPos = 0;
   
-  leftSpeed = 0;
+  leftSpeed = 50;
   leftPos = 0;
 
   // Start I2C Bus as Slave

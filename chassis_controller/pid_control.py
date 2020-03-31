@@ -51,6 +51,7 @@ def main():
     while time_elapsed < 20:
         # print("State Estimate:")
         state = state_estimate.get_state()
+        print("State Values")
         print(state)
 
         u = controller.run_pid(u_ref, state)
@@ -105,6 +106,7 @@ class PID:
         e1 = u1_ref - u1
         e2 = u2_ref - (enc_r - enc_l)
         self.e = np.array([e1, e2])
+        print("Error Values:")
         print(self.e)
 
         # Proportional ====================================
