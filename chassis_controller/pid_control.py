@@ -14,8 +14,8 @@ def main():
     u_ref = np.array([u1_ref, u2_ref])
 
     kp = np.array([[3, 0], [0, .3]])
-    ki = 0.03
-    kd = 0.3
+    ki = np.array([[0, 0], [0, .003]])
+    kd = np.array([[.3, 0], [0, .03]])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -40,7 +40,7 @@ def main():
         print()
 
         bytesToSend = ConvertInputToBytes(u_int)
-        time.sleep(0.1) # delay for wire to settle
+        time.sleep(0.2) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 
@@ -66,7 +66,7 @@ def main():
         print()
 
         bytesToSend = ConvertInputToBytes(u_int)
-        time.sleep(0.1) # delay for wire to settle
+        time.sleep(0.2) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 
@@ -105,7 +105,7 @@ class PID:
         u2 = enc_r - enc_l
 
         e1 = u1_ref - u1
-        e2 = u2_ref + u2
+        e2 = u2_ref - u2
         self.e = np.array([e1, e2])
         print("Error Values:")
         print(self.e)
@@ -115,19 +115,19 @@ class PID:
 
         # Integral ========================================
         for e in self.e:
-            if abs(e) > 1:
+            if 1 < abs(e) < 1000:
                 self.e_sum += e*(self.k1-self.k0)
-        u_i = self.ki * self.e_sum
+        u_i = np.squeeze(self.ki @ self.e_sum)
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
-        u_d = self.kd*e_dot
+        u_d = np.squeeze(self.kd @ e_dot)
         
         print("p, i, d: {0}, {1}, {2}".format(u_p, u_i, u_d))
 
-        # u = u_p + u_i + u_d
-        u = u_p + u_d
+        u = u_p + u_i + u_d
+        # u = u_p + u_d
 
         return u
 
