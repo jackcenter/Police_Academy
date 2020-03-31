@@ -1,8 +1,13 @@
-# import smbus
+import smbus
 import time
 import os
+import RPi.GPIO as GPIO
+import sys
 from math import pi
 
+sys.path.append('/home/pi/Documents/Police_Academy/sensors')
+print(sys.path)
+import sonar_measurements
 # TODO: need to reorganize this so that the i2c line is not clogged up. Need to see if I can pass both encoder values at
 # TODO: once so that there doesn't need to be such a long delay.
 
@@ -14,13 +19,19 @@ def main():
     test = Filter(1, slave_address)
 
     i = 0
-
+    sonar_measurements.main()
     while i < 5:
+        GPIO.setmode(GPIO.BCM)
+        for trig, echo in zip(test.trig_pins, test.echo_pins):
+            GPIO.setup(trig, GPIO.OUT)
+            GPIO.setup(echo, GPIO.IN)
+            GPIO.output(trig, False)
         time.sleep(1)
         omega = test.get_state_test()
+        test.update_ultrasonic_values()
         print(omega)
         i += 1
-
+    GPIO.cleanup()
 
 class Filter:
     def __init__(self, bus, slave_address):
@@ -32,15 +43,26 @@ class Filter:
         self.ultra_k1 = [0, 0, 0]
         self.k0 = 0
         self.k1 = self.k0
-
+        
+        self.trig_pins = [18, 20, 22]
+        self.echo_pins = [19, 21, 23]
+        self.units = 'in'
         self.cpr = 64
 
+
     def get_state(self):
+        GPIO.setmode(GPIO.BCM)
+        for trig, echo in zip(self.trig_pins, self.echo_pins):
+            GPIO.setup(trig, GPIO.OUT)
+            GPIO.setup(echo, GPIO.IN)
+            GPIO.output(trig, False)
+            
         self.update_encoder_values()
         omega = self.get_motor_velocities()
-        ultra = self.get_ultrasonic_values()
+        self.update_ultrasonic_values()
         state = [self.encod_k1[0], self.encod_k1[1], omega[0], omega[1]]
 
+        GPIO.cleanup()
         return state
 
     def get_state_test(self):
@@ -95,7 +117,14 @@ class Filter:
         self.encod_k1 = [x + 64 for x in self.encod_k1]
 
     def update_ultrasonic_values(self):
-        pass
+        self.ultra_k0 = self.ultra_k1
+        array = []
+        for trigger, echo in zip(self.trig_pins, self.echo_pins):
+            array.append(sonar_measurements.get_sonar_reading(trigger, echo, self.units))
+        
+        self.ultra_k1 = array
+        print(self.ultra_k1)
+        
 
     @staticmethod
     def bytes_to_int(bytes):
