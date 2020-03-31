@@ -58,14 +58,14 @@ while not exit:
 
     time.sleep(0.1)
 
-    data_bytes_r = bus.read_i2c_block_data(slave_address, 0x00, 4)
-    time.sleep(0.1)
-    data_bytes_l = bus.read_i2c_block_data(slave_address, 0x01, 4)
-    data_int_r = bytes_to_int(data_bytes_r)
-    data_int_l = bytes_to_int(data_bytes_l)
+    data_bytes = bus.read_i2c_block_data(slave_address, 0x00, 8)
+    # time.sleep(0.1)
+    # data_bytes_l = bus.read_i2c_block_data(slave_address, 0x01, 4)
+    data_int_r = bytes_to_int(data_bytes[0:3])
+    data_int_l = bytes_to_int(data_bytes[4:7])
 
-    print(data_bytes_r)
-    print(data_bytes_l)
+    print(data_bytes)
+    # print(data_bytes_l)
     print(data_int_r)
     print(data_int_l)
 
