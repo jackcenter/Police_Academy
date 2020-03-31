@@ -84,11 +84,11 @@ class PID:
         self.k0 = time.time()
         self.k1 = time.time()
 
-    def run_pid(self, ref, state):
+    def run_pid(self, ref, measurement):
         """
-        current state is just motor speeds: w_r, w_l
+        current state  motor speeds: w_r, w_l
         :param ref:
-        :param state:
+        :param measurement:
         :return:
         """
         self.k1 = time.time()
@@ -96,10 +96,10 @@ class PID:
         u1_ref = ref[0]
         u2_ref = ref[1]
 
-        enc_r = state[0]
-        w_r = state[1]
-        enc_l = state[2]
-        w_l = state[3]
+        enc_r = measurement[0]
+        enc_l = measurement[1]
+        w_r = measurement[2]
+        w_l = measurement[3]
 
         u1 = (w_r + w_l)/2
         u2 = enc_r - enc_l

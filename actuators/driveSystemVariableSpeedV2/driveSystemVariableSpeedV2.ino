@@ -29,17 +29,17 @@ const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
 const int res = 64;         // number of encoder counts per single turn
 
-const int offsetLeft = -1;
-const int offsetRight = 1;
-Motor motorRight = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
-Motor motorLeft = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
+const int offsetLeft = 1;
+const int offsetRight = -1;
+Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
+Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
 
 int leftSpeed;              // PWM 0-255
 int rightSpeed;             // PWM 0-255
 long leftPos;               // Encoder value
 long rightPos;              // Encoder value
 
-Encoder encLeft(ENC1A, ENC1B);
+Encoder encLeft(ENC1B, ENC1A);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
@@ -186,7 +186,7 @@ void accelerateMotor(int &currentSpeed, int accel)
 
 void readEncoders()
 {
-  leftPos = offsetLeft*encLeft.read()/(cpr/res);
+  leftPos = -offsetLeft*encLeft.read()/(cpr/res);
   rightPos = offsetRight*encRight.read()/(cpr/res);
 //  Serial.print("Left encoder: ");
 //  Serial.println(leftPos);

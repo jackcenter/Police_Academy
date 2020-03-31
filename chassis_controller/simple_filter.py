@@ -38,7 +38,9 @@ class Filter:
     def get_state(self):
         self.update_encoder_values()
         omega = self.get_motor_velocities()
-        state = [self.encod_k1[0], omega[0], self.encod_k1[1], omega[1]]
+        ultra = self.get_ultrasonic_values()
+        state = [self.encod_k1[0], self.encod_k1[1], omega[0], omega[1]]
+
         return state
 
     def get_state_test(self):
