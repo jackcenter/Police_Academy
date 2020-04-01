@@ -12,23 +12,11 @@ def main():
     u1_ref = 3      # velocity
     u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
-    u_ref = np.array([u1_ref, u2_ref])
+    u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    kp = np.diag([3, .3, .3])
-    ki = np.array([0, 0.01, 0.01])
-    kd = np.array([0.3, 0.3, 0.3])
-=======
-    kp = np.array([[3, 0], [0, .3]])
-    ki = np.array([[0, 0], [0, .001]])
-    kd = np.array([[.3, 0], [0, .3]])
->>>>>>> parent of 6c4d060... adjusted pid
-=======
-    kp = np.array([[3, 0], [0, .3]])
-    ki = np.array([[0, 0], [0, .001]])
-    kd = np.array([[.3, 0], [0, .3]])
->>>>>>> parent of 6c4d060... adjusted pid
+    kp = np.diag([3, .3])
+    ki = np.array([0, 0.01])
+    kd = np.array([0.3, 0.3])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -59,7 +47,8 @@ def main():
 
     u1_ref = -1      # velocity
     u2_ref = 0      # heading
-    u_ref = np.array([u1_ref, u2_ref])
+    u3_ref = 0
+    u_ref = np.array([u1_ref, u2_ref, u3_ref])
     print("SLOW DOWN===============================")
 
     while time_elapsed < 40:
@@ -125,29 +114,30 @@ class PID:
         e2 = u2_ref - u2
         e3 = u3_ref - u3
 
-        self.e = np.array([[e1, e2, e3]]).T
-        print("Error Values:\n  a: {0}\n  b: {1}\n  c: {2}".format(e1, e2, e3))
+        self.e = np.array([[e1, e2]]).T
+        print("Error Values:\n  Velocity: {0}\n  Encoders: {1}\n  Ultrason: {2}".format(e1, e2, e3))
+        print()
 
         # Proportional ====================================
-        u_p = self.kp @ self.e
+        u_p = np.squeeze(self.kp @ self.e)
 
         # Integral ========================================
         for e in self.e:
             if 1 < abs(e) < 1000:
                 self.e_sum += e*(self.k1-self.k0)
-        u_i = self.ki @ self.e_sum
+        u_i = np.squeeze(self.ki @ self.e_sum)
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
-        u_d = self.kd @ e_dot
+        u_d = np.squeeze(self.kd @ e_dot)
         
-        print("p, i, d: {0}, {1}, {2}".format(u_p.T, u_i.T, u_d.T))
+        print("PID:\n {0}\n {1}\n {2}".format(u_p.T, u_i.T, u_d.T))
 
         u = u_p + u_i + u_d
         # u = u_p + u_d
         
-        return np.squeeze(u)
+        return u
 
 
 def get_state_estimate():
