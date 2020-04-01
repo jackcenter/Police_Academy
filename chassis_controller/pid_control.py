@@ -14,9 +14,9 @@ def main():
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref])
 
-    kp = np.array([[3, 0], [0, .3]])
-    ki = np.array([[0, 0], [0, .001]])
-    kd = np.array([[.3, 0], [0, .3]])
+    kp = np.diag([3, .3, .3])
+    ki = np.array([0, 0.01, 0.01])
+    kd = np.array([0.3, 0.3, 0.3])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -113,29 +113,29 @@ class PID:
         e2 = u2_ref - u2
         e3 = u3_ref - u3
 
-        self.e = np.array([e1, e2])
+        self.e = np.array([[e1, e2, e3]]).T
         print("Error Values:\n  a: {0}\n  b: {1}\n  c: {2}".format(e1, e2, e3))
 
         # Proportional ====================================
-        u_p = np.array([self.kp[0][0] * self.e[0], self.kp[1][1] * self.e[1]]) 
+        u_p = self.kp @ self.e
 
         # Integral ========================================
         for e in self.e:
             if 1 < abs(e) < 1000:
                 self.e_sum += e*(self.k1-self.k0)
-        u_i = np.squeeze(self.ki @ self.e_sum)
+        u_i = self.ki @ self.e_sum
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
-        u_d = np.squeeze(self.kd @ e_dot)
+        u_d = self.kd @ e_dot
         
-        print("p, i, d: {0}, {1}, {2}".format(u_p, u_i, u_d))
+        print("p, i, d: {0}, {1}, {2}".format(u_p.T, u_i.T, u_d.T))
 
         u = u_p + u_i + u_d
         # u = u_p + u_d
-
-        return u
+        
+        return np.squeeze(u)
 
 
 def get_state_estimate():
