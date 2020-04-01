@@ -14,9 +14,15 @@ def main():
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref])
 
+<<<<<<< HEAD
     kp = np.diag([3, .3, .3])
     ki = np.array([0, 0.01, 0.01])
     kd = np.array([0.3, 0.3, 0.3])
+=======
+    kp = np.array([[3, 0], [0, .3]])
+    ki = np.array([[0, 0], [0, .001]])
+    kd = np.array([[.3, 0], [0, .3]])
+>>>>>>> parent of 6c4d060... adjusted pid
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
