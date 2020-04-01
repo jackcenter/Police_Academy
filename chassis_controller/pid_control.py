@@ -9,14 +9,14 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 3      # velocity
+    u1_ref = 1      # velocity
     u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
     kp = np.diag([3, .3])
-    ki = np.array([0, 0.01])
-    kd = np.array([0.3, 0.3])
+    ki = np.diag([0, 0.01])
+    kd = np.diag([0.3, 0.3])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -55,7 +55,7 @@ def main():
         # print("State Estimate:")
         state = state_estimate.get_state()
         print("State Values")
-        print(state)
+        print(" Encoders: {}, {}\n Velocity: {}, {}\n Ultrason: {}, {}, {}".format(state[0], state[1], state[2], state[3], state[4], state[5], state[6]))
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
@@ -80,7 +80,7 @@ class PID:
         self.kd = kd
 
         self.e = np.zeros(dim)
-        self.e_sum = np.zeros(dim)
+        self.e_sum = np.zeros((dim, 1))
         self.e_k0 = np.array(dim)
 
         self.k0 = time.time()
@@ -133,9 +133,13 @@ class PID:
         u_d = np.squeeze(self.kd @ e_dot)
         
         print("PID:\n {0}\n {1}\n {2}".format(u_p.T, u_i.T, u_d.T))
-
-        u = u_p + u_i + u_d
-        # u = u_p + u_d
+        print()
+#         u1 = u_p[0] + u_i[0] + u_d[0]
+#         u2 = u_p[1] + u_i[1] + u_d[1]
+#         u3 = u_p[2] + u_i[2] + u_d[2]
+        
+#         u = [u1, u2 + u3]
+        u = u_p + u_d
         
         return u
 
