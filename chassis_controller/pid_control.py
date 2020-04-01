@@ -12,7 +12,7 @@ def main():
     u1_ref = 3      # velocity
     u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
-    u_ref = np.array([u1_ref, u2_ref])
+    u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
     kp = np.diag([3, .3, .3])
     ki = np.array([0, 0.01, 0.01])
@@ -20,7 +20,7 @@ def main():
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
-    controller = PID(kp, ki, kd, 2)
+    controller = PID(kp, ki, kd, 3)
 
     time_start = time.time()
     time_elapsed = 0
@@ -47,7 +47,8 @@ def main():
 
     u1_ref = -1      # velocity
     u2_ref = 0      # heading
-    u_ref = np.array([u1_ref, u2_ref])
+    u3_ref = 0
+    u_ref = np.array([u1_ref, u2_ref, u3_ref])
     print("SLOW DOWN===============================")
 
     while time_elapsed < 40:
@@ -117,25 +118,32 @@ class PID:
         print("Error Values:\n  a: {0}\n  b: {1}\n  c: {2}".format(e1, e2, e3))
 
         # Proportional ====================================
-        u_p = self.kp @ self.e
+        u_p = np.squeeze(self.kp @ self.e)
+        print(u_p)
 
         # Integral ========================================
         for e in self.e:
             if 1 < abs(e) < 1000:
                 self.e_sum += e*(self.k1-self.k0)
-        u_i = self.ki @ self.e_sum
+        u_i = np.squeeze(self.ki @ self.e_sum)
+        print(u_i)
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
-        u_d = self.kd @ e_dot
+        u_d = np.squeeze(self.kd @ e_dot)
+        print(u_d)
         
         print("p, i, d: {0}, {1}, {2}".format(u_p.T, u_i.T, u_d.T))
 
-        u = u_p + u_i + u_d
+        u1 = u_p[0] + u_i[0] + u_d[0]
+        u2 = u_p[1] + u_i[1] + u_d[1]
+        u3 = u_p[2] + u_i[2] + u_d[2]
+        
+        u = [u1, u2 + u3]
         # u = u_p + u_d
         
-        return np.squeeze(u)
+        return u
 
 
 def get_state_estimate():
