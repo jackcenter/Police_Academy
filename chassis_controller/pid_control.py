@@ -9,18 +9,18 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 3      # velocity
+    u1_ref = 1      # velocity
     u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.array([[3, 0], [0, .3]])
-    ki = np.array([[0, 0], [0, .001]])
-    kd = np.array([[.3, 0], [0, .3]])
+    kp = np.diag([3, .3])
+    ki = np.diag([0, 0.01])
+    kd = np.diag([0.3, 0.3])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
-    controller = PID(kp, ki, kd, 3)
+    controller = PID(kp, ki, kd, 2)
 
     time_start = time.time()
     time_elapsed = 0
@@ -55,7 +55,7 @@ def main():
         # print("State Estimate:")
         state = state_estimate.get_state()
         print("State Values")
-        print(state)
+        print(" Encoders: {}, {}\n Velocity: {}, {}\n Ultrason: {}, {}, {}".format(state[0], state[1], state[2], state[3], state[4], state[5], state[6]))
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
@@ -80,7 +80,7 @@ class PID:
         self.kd = kd
 
         self.e = np.zeros(dim)
-        self.e_sum = np.zeros(dim)
+        self.e_sum = np.zeros((dim, 1))
         self.e_k0 = np.array(dim)
 
         self.k0 = time.time()
@@ -114,34 +114,32 @@ class PID:
         e2 = u2_ref - u2
         e3 = u3_ref - u3
 
-        self.e = np.array([[e1, e2, e3]]).T
-        print("Error Values:\n  a: {0}\n  b: {1}\n  c: {2}".format(e1, e2, e3))
+        self.e = np.array([[e1, e2]]).T
+        print("Error Values:\n  Velocity: {0}\n  Encoders: {1}\n  Ultrason: {2}".format(e1, e2, e3))
+        print()
 
         # Proportional ====================================
         u_p = np.squeeze(self.kp @ self.e)
-        print(u_p)
 
         # Integral ========================================
         for e in self.e:
             if 1 < abs(e) < 1000:
                 self.e_sum += e*(self.k1-self.k0)
         u_i = np.squeeze(self.ki @ self.e_sum)
-        print(u_i)
 
         # Derivative ======================================
         e_dot = (self.e - self.e_k0)/(self.k1 - self.k0)
         self.e_k0 = self.e
         u_d = np.squeeze(self.kd @ e_dot)
-        print(u_d)
         
-        print("p, i, d: {0}, {1}, {2}".format(u_p.T, u_i.T, u_d.T))
-
-        u1 = u_p[0] + u_i[0] + u_d[0]
-        u2 = u_p[1] + u_i[1] + u_d[1]
-        u3 = u_p[2] + u_i[2] + u_d[2]
+        print("PID:\n {0}\n {1}\n {2}".format(u_p.T, u_i.T, u_d.T))
+        print()
+#         u1 = u_p[0] + u_i[0] + u_d[0]
+#         u2 = u_p[1] + u_i[1] + u_d[1]
+#         u3 = u_p[2] + u_i[2] + u_d[2]
         
-        u = [u1, u2 + u3]
-        # u = u_p + u_d
+#         u = [u1, u2 + u3]
+        u = u_p + u_d
         
         return u
 
