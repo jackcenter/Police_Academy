@@ -20,22 +20,25 @@ def main():
     kd = np.diag([0.3, 40.0, .1])
     
 #     u1_ref = 0      # velocity
-#     u2_ref = 136    # heading
+#     u2_ref = -60    # heading
 #     u3_ref = 0      # ultrasonics
 #     u_ref = np.array([u1_ref, u2_ref, u3_ref])    
-#     kp = np.diag([0, .4, 0])
+#     kp = np.diag([0, 1, 0])
 #     ki = np.diag([0, 0.0, 0])
-#     kd = np.diag([0, 40, 0])
+#     kd = np.diag([0, 50, 0])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
     controller = PID(kp, ki, kd, 3)
-    test_controller = simple_pid.PID(2, 0, .1, setpoint=0)
+    test_controller1 = simple_pid.PID(3, 0, .3, setpoint=2)
+    test_controller2 = simple_pid.PID(0.4, 0, 40, setpoint=0)
+    test_controller3 = simple_pid.PID(2, 0, .1, setpoint=0)
+
 
     time_start = time.time()
     time_elapsed = 0
 
-    while time_elapsed < 20:
+    while time_elapsed < 15:
         state = state_estimate.get_state()
         print("State Values")
         print(" Encoders: {}, {}\n Velocity: {}, {}\n Ultrason: {}, {}, {}".format(state[0], state[1], state[2], state[3], state[4], state[5], state[6]))
@@ -61,11 +64,20 @@ def main():
         time_elapsed = time.time()-time_start
 
         # TEST ===========================================
-        ul_r = state[0]
-        ul_l = state[2]
-        u_test = test_controller(ul_r-ul_l)
-        print("Test = {}".format(u_test))
-        print()
+#         e_r = state[0]
+#         e_l = state[1]
+#         v_r = state[2]
+#         v_l = state[3]
+#         ul_r = state[4]
+#         ul_l = state[6]
+#         u_test1 = test_controller1(v_r-v_l)
+#         u_test2 = test_controller2(e_r-e_l)
+#         u_test3 = test_controller3(ul_r-ul_l)
+#         print("Test = ")
+#         print(u_test1)
+#         print(u_test2)
+#         print(u_test3)
+#         print()
 
     u1_ref = 0      # velocity
     u2_ref = 0      # heading
@@ -73,7 +85,7 @@ def main():
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
     print("SLOW DOWN===============================")
 
-    while time_elapsed < 40:
+    while time_elapsed < 30:
         # print("State Estimate:")
         state = state_estimate.get_state()
         print("State Values")
@@ -95,7 +107,7 @@ def main():
         print()
 
         bytesToSend = ConvertInputToBytes(cmd)
-        time.sleep(0.2) # delay for wire to settle
+        time.sleep(0.04) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 

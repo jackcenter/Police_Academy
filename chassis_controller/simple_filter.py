@@ -85,7 +85,7 @@ class Filter:
         """
 
         # delay for line to settle
-        time.sleep(0.2)
+        time.sleep(0.05)
         self.k0 = self.k1
         self.k1 = time.time()
 
