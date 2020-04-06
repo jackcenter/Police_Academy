@@ -33,15 +33,19 @@ def main():
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
+        u_omega = u_int[0]
+        u_phi = u_int[1] + u_int[2]
 
-        u_int = set_range(u_int, -5, 5)
+        u_omega = set_range(u_omega, -5, 5)
+        u_phi = set_range(u_phi, -5, 5)
+
+        cmd = [u_omega, u_phi]
 
         print("Command: ")
-        # print(u)
-        print(u_int)
+        print(cmd)
         print()
 
-        bytesToSend = ConvertInputToBytes(u_int)
+        bytesToSend = ConvertInputToBytes(cmd)
         time.sleep(0.2) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
@@ -61,15 +65,19 @@ def main():
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
+        u_omega = u_int[0]
+        u_phi = u_int[1] + u_int[2]
 
-        u_int = set_range(u_int, -5, 5)
+        u_omega = set_range(u_omega, -5, 5)
+        u_phi = set_range(u_phi, -5, 5)
+
+        cmd = [u_omega, u_phi]
 
         print("Command: ")
-        # print(u)
-        print(u_int)
+        print(cmd)
         print()
 
-        bytesToSend = ConvertInputToBytes(u_int)
+        bytesToSend = ConvertInputToBytes(cmd)
         time.sleep(0.2) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
@@ -141,7 +149,7 @@ class PID:
 #         u3 = u_p[2] + u_i[2] + u_d[2]
         
 #         u = [u1, u2 + u3]
-        u = u_p + u_d
+        u = u_p + u_i + u_d
         
         return u
 

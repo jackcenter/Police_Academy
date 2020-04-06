@@ -44,10 +44,12 @@ Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
   rightSpeed = 0;
-  rightPos = 0;
+  rightPos = 100;
+  encRight.write(100);
   
   leftSpeed = 0;
-  leftPos = 0;
+  leftPos = 100;
+  encLeft.write(100);
 
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
@@ -186,7 +188,7 @@ void accelerateMotor(int &currentSpeed, int accel)
 
 void readEncoders()
 {
-  leftPos = -offsetLeft*encLeft.read()/(cpr/res);
+  leftPos = offsetLeft*encLeft.read()/(cpr/res);
   rightPos = offsetRight*encRight.read()/(cpr/res);
 //  Serial.print("Left encoder: ");
 //  Serial.println(leftPos);
