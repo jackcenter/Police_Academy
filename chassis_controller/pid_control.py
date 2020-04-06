@@ -9,14 +9,14 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 2      # velocity
-    u2_ref = 0      # heading
+    u1_ref = 0      # velocity
+    u2_ref = 16      # heading
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, 1, 1])
+    kp = np.diag([3, .2, 2])
     ki = np.diag([0, 0.0, 0.0])
-    kd = np.diag([0.3, 10, 10])
+    kd = np.diag([0.3, .02, .1])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -46,7 +46,7 @@ def main():
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
 
-    u1_ref = -1      # velocity
+    u1_ref = 0      # velocity
     u2_ref = 0      # heading
     u3_ref = 0
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
