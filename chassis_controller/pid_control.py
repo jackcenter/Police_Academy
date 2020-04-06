@@ -10,14 +10,22 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 0      # velocity
-    u2_ref = 16      # heading
+    u1_ref = 2      # velocity
+    u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, .2, 2])
+    kp = np.diag([3, 0.4, 2])
     ki = np.diag([0, 0.0, 0.0])
-    kd = np.diag([0.3, .02, .1])
+    kd = np.diag([0.3, 40.0, .1])
+    
+#     u1_ref = 0      # velocity
+#     u2_ref = 136    # heading
+#     u3_ref = 0      # ultrasonics
+#     u_ref = np.array([u1_ref, u2_ref, u3_ref])    
+#     kp = np.diag([0, .4, 0])
+#     ki = np.diag([0, 0.0, 0])
+#     kd = np.diag([0, 40, 0])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -38,8 +46,8 @@ def main():
         u_omega = u_int[0]
         u_phi = u_int[1] + u_int[2]
 
-        u_omega = set_range(u_omega, -5, 5)
-        u_phi = set_range(u_phi, -5, 5)
+        u_omega = set_range(u_omega, -6, 6)
+        u_phi = set_range(u_phi, -6, 6)
 
         cmd = [u_omega, u_phi]
 
@@ -73,8 +81,8 @@ def main():
         u_omega = u_int[0]
         u_phi = u_int[1] + u_int[2]
 
-        u_omega = set_range(u_omega, -5, 5)
-        u_phi = set_range(u_phi, -5, 5)
+        u_omega = set_range(u_omega, -6, 6)
+        u_phi = set_range(u_phi, -6, 6)
 
         cmd = [u_omega, u_phi]
 
@@ -123,10 +131,10 @@ class PID:
 
         u1 = (w_r + w_l)/2
         u2 = encod_r - encod_l
-        u3 = ultra_r - ultra_l
+        u3 = ultra_l - ultra_r
 
         e1 = u1_ref - u1
-        e2 = u2_ref - u2
+        e2 = u2_ref - u2    # swapped to see
         e3 = u3_ref - u3
 
         self.e = np.array([[e1, e2, e3]]).T
