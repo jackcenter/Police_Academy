@@ -2,6 +2,7 @@ import smbus
 import time
 import os
 import numpy as np
+import simple_pid
 from simple_filter import Filter
 
 
@@ -21,6 +22,7 @@ def main():
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
     controller = PID(kp, ki, kd, 3)
+    test_controller = simple_pid.PID(2, 0, .1, setpoint=0)
 
     time_start = time.time()
     time_elapsed = 0
@@ -49,6 +51,9 @@ def main():
         time.sleep(0.2) # delay for wire to settle
         bus.write_i2c_block_data(slave_address, 0, bytesToSend)
         time_elapsed = time.time()-time_start
+
+        # TEST ===========================================
+        u_test = test_controller()
 
     u1_ref = 0      # velocity
     u2_ref = 0      # heading
