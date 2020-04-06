@@ -14,13 +14,13 @@ def main():
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, 1])
-    ki = np.diag([0, 0.0])
-    kd = np.diag([0.3, 10])
+    kp = np.diag([3, 1, 1])
+    ki = np.diag([0, 0.0, 0.0])
+    kd = np.diag([0.3, 10, 10])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
-    controller = PID(kp, ki, kd, 2)
+    controller = PID(kp, ki, kd, 3)
 
     time_start = time.time()
     time_elapsed = 0
@@ -116,7 +116,7 @@ class PID:
         e2 = u2_ref - u2
         e3 = u3_ref - u3
 
-        self.e = np.array([[e1, e3]]).T
+        self.e = np.array([[e1, e2, e3]]).T
         print("Error Values:\n  Velocity: {0}\n  Encoders: {1}\n  Ultrason: {2}".format(e1, e2, e3))
         print()
 
