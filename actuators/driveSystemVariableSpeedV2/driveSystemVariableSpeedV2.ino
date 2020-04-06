@@ -29,8 +29,8 @@ const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
 const int res = 64;         // number of encoder counts per single turn
 
-const int offsetLeft = 1;
-const int offsetRight = -1;
+const int offsetLeft = -1;
+const int offsetRight = 1;
 Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
 Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
 
@@ -45,11 +45,11 @@ Encoder encRight(ENC2A, ENC2B);
 void setup() {
   rightSpeed = 0;
   rightPos = 100;
-  encRight.write(100);
+  encRight.write(rightPos*(cpr/res));
   
   leftSpeed = 0;
   leftPos = 100;
-  encLeft.write(100);
+  encLeft.write(leftPos*(cpr/res));
 
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
@@ -142,7 +142,7 @@ void sendEvent()
 int convertInput(char input)
 {
   int value = input - '0';
-  value += -5;
+  value += -6;
   return value;
 }
 
@@ -188,8 +188,8 @@ void accelerateMotor(int &currentSpeed, int accel)
 
 void readEncoders()
 {
-  leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  rightPos = offsetRight*encRight.read()/(cpr/res);
+  leftPos = encLeft.read()/(cpr/res);
+  rightPos = encRight.read()/(cpr/res);
 //  Serial.print("Left encoder: ");
 //  Serial.println(leftPos);
 //  Serial.print("Right encoder: ");
