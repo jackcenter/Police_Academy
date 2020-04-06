@@ -14,9 +14,9 @@ def main():
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, .5])
+    kp = np.diag([3, 1])
     ki = np.diag([0, 0.0])
-    kd = np.diag([0.3, 2])
+    kd = np.diag([0.3, 10])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -62,7 +62,7 @@ def main():
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
 
-        u_int = set_range(u_int, -3, 3)
+        u_int = set_range(u_int, -5, 5)
 
         print("Command: ")
         # print(u)
