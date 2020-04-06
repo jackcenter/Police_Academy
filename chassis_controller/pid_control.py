@@ -26,9 +26,10 @@ def main():
     time_elapsed = 0
 
     while time_elapsed < 20:
-        # print("State Estimate:")
         state = state_estimate.get_state()
-        print(state)
+        print("State Values")
+        print(" Encoders: {}, {}\n Velocity: {}, {}\n Ultrason: {}, {}, {}".format(state[0], state[1], state[2], state[3], state[4], state[5], state[6]))
+        print()
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
@@ -56,6 +57,7 @@ def main():
         state = state_estimate.get_state()
         print("State Values")
         print(" Encoders: {}, {}\n Velocity: {}, {}\n Ultrason: {}, {}, {}".format(state[0], state[1], state[2], state[3], state[4], state[5], state[6]))
+        print()
 
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
