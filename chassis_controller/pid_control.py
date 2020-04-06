@@ -34,7 +34,7 @@ def main():
         u = controller.run_pid(u_ref, state)
         u_int = u.astype(int)
 
-        u_int = set_range(u_int, -3, 3)
+        u_int = set_range(u_int, -5, 5)
 
         print("Command: ")
         # print(u)

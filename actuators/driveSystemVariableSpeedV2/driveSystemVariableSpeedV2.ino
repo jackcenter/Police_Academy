@@ -140,7 +140,7 @@ void sendEvent()
 int convertInput(char input)
 {
   int value = input - '0';
-  value += -3;
+  value += -5;
   return value;
 }
 
@@ -179,8 +179,8 @@ void accelerateMotor(int &currentSpeed, int accel)
     currentSpeed = 255;
   }
 
-  else if (currentSpeed < 0){
-    currentSpeed = 0;
+  else if (currentSpeed < -255){
+    currentSpeed = -255;
   }
 }
 
