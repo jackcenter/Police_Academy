@@ -121,7 +121,7 @@ class Filter:
         array = []
         for trigger, echo in zip(self.trig_pins, self.echo_pins):
             meas = sonar_measurements.get_sonar_reading(trigger, echo, self.units)
-            if meas > 10:
+            if meas > 20:
                 meas = 4
             array.append(meas)
         
