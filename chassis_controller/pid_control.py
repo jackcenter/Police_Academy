@@ -9,14 +9,14 @@ def main():
     bus = smbus.SMBus(1)
     slave_address = 0x07        # Chassis Arduino
 
-    u1_ref = 1      # velocity
+    u1_ref = 2      # velocity
     u2_ref = 0      # heading
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, .3])
-    ki = np.diag([0, 0.01])
-    kd = np.diag([0.3, 0.3])
+    kp = np.diag([3, 1])
+    ki = np.diag([0, 0.0])
+    kd = np.diag([0.3, .1])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
@@ -114,7 +114,7 @@ class PID:
         e2 = u2_ref - u2
         e3 = u3_ref - u3
 
-        self.e = np.array([[e1, e2]]).T
+        self.e = np.array([[e1, e3]]).T
         print("Error Values:\n  Velocity: {0}\n  Encoders: {1}\n  Ultrason: {2}".format(e1, e2, e3))
         print()
 

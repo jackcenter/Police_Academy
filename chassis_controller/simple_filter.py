@@ -120,7 +120,10 @@ class Filter:
         self.ultra_k0 = self.ultra_k1
         array = []
         for trigger, echo in zip(self.trig_pins, self.echo_pins):
-            array.append(sonar_measurements.get_sonar_reading(trigger, echo, self.units))
+            meas = sonar_measurements.get_sonar_reading(trigger, echo, self.units)
+            if meas > 10:
+                meas = 4
+            array.append(meas)
         
         self.ultra_k1 = array
 
