@@ -61,7 +61,11 @@ def main():
         time_elapsed = time.time()-time_start
 
         # TEST ===========================================
-        u_test = test_controller()
+        ul_r = state[0]
+        ul_l = state[2]
+        u_test = test_controller(ul_r-ul_l)
+        print("Test = {}".format(u_test))
+        print()
 
     u1_ref = 0      # velocity
     u2_ref = 0      # heading
