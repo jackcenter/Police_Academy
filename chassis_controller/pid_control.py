@@ -14,9 +14,9 @@ def main():
     u3_ref = 0      # ultrasonics
     u_ref = np.array([u1_ref, u2_ref, u3_ref])
 
-    kp = np.diag([3, 1])
+    kp = np.diag([3, .5])
     ki = np.diag([0, 0.0])
-    kd = np.diag([0.3, .1])
+    kd = np.diag([0.3, 2])
 
     state_estimate = Filter(bus, slave_address)
     time.sleep(1)
