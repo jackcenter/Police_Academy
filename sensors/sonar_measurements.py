@@ -44,16 +44,23 @@ def get_sonar_readings(trig_pins, echo_pins, units):
     distances = list()
     
     for trigger, echo in zip(trig_pins, echo_pins):
-        print(trigger)
         send_pulse(trigger)
         pulse_duration = get_pulse_duration(echo)
-        print(pulse_duration )
         distances.append(convert_duration_to_distance(pulse_duration, units))
         # print(disatnces)
-        time.sleep(0.03)
+        time.sleep(0.05)
     
     return distances
+
+
+def get_sonar_reading(trigger, echo, units):
     
+    send_pulse(trigger)
+    pulse_duration = get_pulse_duration(echo)
+    distance = convert_duration_to_distance(pulse_duration, units)
+    
+    return distance
+
     
 def send_pulse(trig: int, duration=0.00001):
     GPIO.output(trig, True)
@@ -68,7 +75,6 @@ def get_pulse_duration(echo: int):
 
     while GPIO.input(echo) == 1:
         pulse_end = time.time()
-        print()
 
     pulse_duration = pulse_end - pulse_start
     return pulse_duration

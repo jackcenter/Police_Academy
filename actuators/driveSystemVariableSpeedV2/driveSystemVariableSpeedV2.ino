@@ -39,15 +39,17 @@ int rightSpeed;             // PWM 0-255
 long leftPos;               // Encoder value
 long rightPos;              // Encoder value
 
-Encoder encLeft(ENC1A, ENC1B);
+Encoder encLeft(ENC1B, ENC1A);
 Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
   rightSpeed = 0;
-  rightPos = 0;
+  rightPos = 100;
+  encRight.write(rightPos*(cpr/res));
   
   leftSpeed = 0;
-  leftPos = 0;
+  leftPos = 100;
+  encLeft.write(leftPos*(cpr/res));
 
   // Start I2C Bus as Slave
   Wire.begin(slave_address);
@@ -67,7 +69,8 @@ void loop() {
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-  if (numOfBytes == 1){
+
+  if (numOfBytes != 3){
     return;
   }
   
@@ -80,9 +83,11 @@ void receiveEvent(int howMany)
     char u2_in = (int)Wire.read();
   
     // get integers from wire command
+//    int u1 = convertInput(u1_in);
+//    int u2 = convertInput(u2_in);
     int u1 = adjustInput(u1_in);
     int u2 = adjustInput(u2_in);
-
+  
     Serial.print(" u1: ");
     Serial.println(u1);
     Serial.print(" u2: ");
@@ -97,7 +102,7 @@ void receiveEvent(int howMany)
   
     accelerateMotor(rightSpeed, omega_dot[0]);
     accelerateMotor(leftSpeed, omega_dot[1]);
-
+  
     Serial.print(" Right speed:    ");
     Serial.println(rightSpeed);
     Serial.print(" Left speed:     ");
@@ -107,26 +112,25 @@ void receiveEvent(int howMany)
 
 void sendEvent()
 {
-
   int numOfBytes = Wire.available();
   Serial.print("len: ");
   Serial.println(numOfBytes);
   byte side = Wire.read();
+  Serial.print("Send: ");
   Serial.println(side);
-
   if (side == 0){
-      readEncoders();
-      buffer.longNumber = rightPos;
+      buffer.longNumber = rightPos;     
       Wire.write(buffer.longBytes, 4);
-  }
-
-  else if (side == 1){
-      readEncoders();
       buffer.longNumber = leftPos;
       Wire.write(buffer.longBytes, 4);
   }
 
-  readEncoders();
+  else if (side == 1){
+      buffer.longNumber = leftPos;
+      Wire.write(buffer.longBytes, 4);
+  }
+
+
   Serial.print(" Right position: ");
   Serial.println(rightPos);
   Serial.print(" Left position:  ");
@@ -134,20 +138,11 @@ void sendEvent()
   Serial.println();
 }
   
-void writeEncoderValues(){
-  Wire.read();    // throws away value
-  readEncoders();
-
-  // need to convert encoder values to characters
-//  Wire.beginTransmission()
-//  Wire.write()
-//  Wire.endTransmission
-}
 
 int convertInput(char input)
 {
   int value = input - '0';
-  value += -3;
+  value += -6;
   return value;
 }
 
@@ -186,15 +181,15 @@ void accelerateMotor(int &currentSpeed, int accel)
     currentSpeed = 255;
   }
 
-  else if (currentSpeed < 0){
-    currentSpeed = 0;
+  else if (currentSpeed < -255){
+    currentSpeed = -255;
   }
 }
 
 void readEncoders()
 {
-  leftPos = offsetLeft*encLeft.read()/(cpr/res);
-  rightPos = offsetRight*encRight.read()/(cpr/res);
+  leftPos = encLeft.read()/(cpr/res);
+  rightPos = encRight.read()/(cpr/res);
 //  Serial.print("Left encoder: ");
 //  Serial.println(leftPos);
 //  Serial.print("Right encoder: ");
