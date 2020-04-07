@@ -319,6 +319,8 @@ r_kp = 0.1
 r_ki = 0
 r_kd = 0.01
 
+bad_guy_center = None
+
 if pitch_pid_modifier is not None:
     ppid_args_length = len(pitch_pid_modifier)
     if ppid_args_length is 4:
