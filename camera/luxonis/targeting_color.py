@@ -671,27 +671,28 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    bad_guy_x = bad_guy_center[0]
-    bad_guy_y = bad_guy_center[1]
-    
-    pitch_controller    = simple_pid.PID(p_kp, p_ki, p_kd, setpoint=yref)
-    pitch_command       = round(pitch_controller(bad_guy_y), 2)
-    p_cmd               = "{:.2f}".format(pitch_command)
-    
-    rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
-    rotate_command      = round(rotate_controller(bad_guy_x), 2)
-    r_cmd               = "{:.2f}".format(rotate_command)
-    
-    # if commands go to within some range, send command to fire
-    if pitch_command < 0.1 and rotate_command < 0.1:
-        p_cmd = "f"
-        r_cmd = "f"
-    
-    # Then send commands to arduino over i2c wire or USB 
-    if communication_on:
-        bytesToSend = ConvertStringToBytes(r_cmd + ',' + p_cmd)
-        print(bytesToSend)
-        bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
+    if bad_guy_center is not None:
+        bad_guy_x = bad_guy_center[0]
+        bad_guy_y = bad_guy_center[1]
+        
+        pitch_controller    = simple_pid.PID(p_kp, p_ki, p_kd, setpoint=yref)
+        pitch_command       = round(pitch_controller(bad_guy_y), 2)
+        p_cmd               = "{:.2f}".format(pitch_command)
+        
+        rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
+        rotate_command      = round(rotate_controller(bad_guy_x), 2)
+        r_cmd               = "{:.2f}".format(rotate_command)
+        
+        # if commands go to within some range, send command to fire
+        if pitch_command < 0.1 and rotate_command < 0.1:
+            p_cmd = "f"
+            r_cmd = "f"
+        
+        # Then send commands to arduino over i2c wire or USB 
+        if communication_on:
+            bytesToSend = ConvertStringToBytes(r_cmd + ',' + p_cmd)
+            print(bytesToSend)
+            bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
     
     
     
