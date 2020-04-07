@@ -146,7 +146,7 @@ config = {
     # To test depth use:
     #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
     #'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
-    'streams': [{'name': 'previewout', "max_fps": 9.0}, {'name': 'metaout', "max_fps": 5.0}],
+    'streams': [{'name': 'previewout', "max_fps": 5.0}, {'name': 'metaout', "max_fps": 5.0}],
     #'streams': ['metaout', 'previewout'],
     'depth':
     {
