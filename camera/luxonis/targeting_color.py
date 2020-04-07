@@ -93,17 +93,15 @@ imshow_debug = False
 if args['imshow_debug']:
     imshow_debug = True
 
-
-if args['timeout_time'] is not None:
-    timeout_time = float(args['timeout_time'])
+timeout_time = args['timeout_time']
+if timeout_time is not None:
+    timeout_time = float(timeout_time)
 else:
     timeout_time = 150.0
 
-if args['pitch_pid_modify'] is not None:
-    pitch_pid_modifier  = args['pitch_pid_modify']
+pitch_pid_modifier  = args['pitch_pid_modify']
     
-if args['rotate_pid_modify'] is not None:
-    rotate_pid_modifier = args['rotate_pid_modify']
+rotate_pid_modifier = args['rotate_pid_modify']
 
 if args['i2c_off']:
     communication_on = False
