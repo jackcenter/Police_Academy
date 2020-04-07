@@ -63,23 +63,11 @@ def main():
     range_msg.min_range = 0.78
     range_msg.max_range = 157.48
 
-    transform_broadcaster_front_ultrasonic = tf.TransformBroadcaster()
-    # transform = tf.Transform()
     
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         distance = get_sonar_readings(trig_pin, echo_pin, units)
         # print(distance)
-        
-        roll = 0
-        pitch = 0
-        yaw = math.radians(0)
-        rotation_quaternion = tf.transformations.quaternion_from_euler(roll,pitch,yaw)
-        translation_vector = (distance,0.0,0.0)
-        current_time = rospy.Time.now()
-        transform_broadcaster_front_ultrasonic.sendTransform(translation_vector,rotation_quaternion,current_time,"US_front_view","US_front")
-        # br.sendTransform (distance*25.4,0,0,tf.transformations.quaternion_from_euler(0,0,0),rospy.Time.now(),"US_front_view", "US_front")
-        # br.sendTransform ((0,0,0),tf.transformations.quaternion_from_euler(0,0,0),rospy.Time.now(),"US_front_view" "US_front")
         range_msg.header.stamp = rospy.Time.now()
         range_msg.range = distance
 
