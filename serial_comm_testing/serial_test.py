@@ -1,7 +1,7 @@
 import serial
 import time
 
-arduino_address = '/dev/ttyACMO'
+arduino_address = '/dev/ttyACM0'
 p_cmd = 100.27
 r_cmd = 14.12
 cmd_phrase = str(r_cmd) + "," + str(p_cmd) + "\n"
