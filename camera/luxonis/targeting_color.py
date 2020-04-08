@@ -309,15 +309,16 @@ pause=0
 #Setting up the targeting program:
 
 
-yref = 150
+
 p_kp = 0.1
 p_ki = 0
 p_kd = 0.01
+yref = 150
 
-xref = 150
 r_kp = 0.1
 r_ki = 0
 r_kd = 0.01
+xref = 150
 
 bad_guy_center = None
 
@@ -356,7 +357,9 @@ if rotate_pid_modifier is not None:
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
 
-
+list_of_pid_params = [p_kp, p_ki, p_kd, yref, r_kp, r_ki, r_kd, xref]
+if imshow_debug:
+    print(list_of_pid_params)
 
 ####################################################################
 
@@ -686,7 +689,7 @@ while True:
         r_cmd               = "{:.2f}".format(rotate_command)
         
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 0.1 and abs(rotate_command) < 0.1:
+        if abs(pitch_command) < 0.5 and abs(rotate_command) < 0.5:
             p_cmd = "f"
             r_cmd = "f"
         
