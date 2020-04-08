@@ -3,11 +3,18 @@ void setup() {
 }
 void loop() {
   if (Serial.available() > 0) {
+    String fire_cmd = "f";   // these could be global variables or however you want to do it
+    float rot_cmd = 0;
+    float pit_cmd = 0;
     String r_cmd = Serial.readStringUntil(',');
     String p_cmd = Serial.readStringUntil('\n');
-    Serial.print("You sent me: ");
-    Serial.print(r_cmd);
-    Serial.print("   and:   ");
-    Serial.println(p_cmd);
-  }
+    
+    if (r_cmd.equals(fire_cmd) || p_cmd.equals(fire_cmd)) {
+       // send fire command here to servo
+    } else {
+      rot_cmd = r_cmd.toFloat();
+      pit_cmd = p_cmd.toFloat();
+    }
+    }
+
 }
