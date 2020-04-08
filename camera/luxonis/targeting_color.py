@@ -311,14 +311,14 @@ pause=0
 
 
 p_kp = 0.1
-p_ki = 0
+p_ki = 0.0
 p_kd = 0.01
-yref = 150
+yref = 150.0
 
 r_kp = 0.1
-r_ki = 0
+r_ki = 0.0
 r_kd = 0.01
-xref = 150
+xref = 150.0
 
 bad_guy_center = None
 
@@ -332,9 +332,9 @@ if pitch_pid_modifier is not None:
             yref                  = float(pitch_pid_modifier[3])
         except:
             print("PITCH ARGUMENT ERROR -- INCORRECT PITCH PID ARGUMENTS SYNTAX -- RETURNING TO DEFAULT VALUES")
-            yref = 150
+            yref = 150.0
             p_kp = 0.1
-            p_ki = 0
+            p_ki = 0.0
             p_kd = 0.01        
     else:
         print("ERROR -- INCORRECT LENGTH OF PITCH PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(ppid_args_length))
@@ -350,9 +350,9 @@ if rotate_pid_modifier is not None:
             xref                  = float(rotate_pid_modifier[3])
         except:
             print("ROTATE ARGUMENT ERROR -- INCORRECT ROTATE PID ARGUMENTS SYNTAX -- RETURNING TO DEFAULT VALUES")
-            xref = 150
+            xref = 150.0
             r_kp = 0.1
-            r_ki = 0
+            r_ki = 0.0
             r_kd = 0.01        
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
