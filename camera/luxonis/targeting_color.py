@@ -686,7 +686,7 @@ while True:
         r_cmd               = "{:.2f}".format(rotate_command)
         
         # if commands go to within some range, send command to fire
-        if pitch_command < 0.1 and rotate_command < 0.1:
+        if abs(pitch_command) < 0.1 and abs(rotate_command) < 0.1:
             p_cmd = "f"
             r_cmd = "f"
         
@@ -721,6 +721,9 @@ while True:
         break
     
     if t_curr - time_start > timeout_time:
+        print('########################################################')
+        print('TIMED OUT')
+        print('########################################################')
         break
 
 del p  # in order to stop the pipeline object should be deleted, otherwise device will continue working. This is required if you are going to add code after the main loop, otherwise you can ommit it.
