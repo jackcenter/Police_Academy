@@ -14,4 +14,5 @@ if __name__ == '__main__':
         if ser_bus.in_waiting > 0:
             arduino_response = ser_bus.readline().decode('utf-8').rstrip()
             print(arduino_response)
-        time.sleep(0.1)
+            print(time.time())
+        time.sleep(0.01)
