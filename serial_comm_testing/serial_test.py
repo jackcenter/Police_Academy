@@ -3,7 +3,7 @@ import time
 
 arduino_address = '/dev/ttyACM0'
 p_cmd = 100.27
-r_cmd = 14.12
+r_cmd = 140.12
 cmd_phrase = str(r_cmd) + "," + str(p_cmd) + "\n"
 
 if __name__ == '__main__':
@@ -14,4 +14,4 @@ if __name__ == '__main__':
         if ser_bus.in_waiting > 0:
             arduino_response = ser_bus.readline().decode('utf-8').rstrip()
             print(arduino_response)
-        time.sleep(1)
+        time.sleep(0.1)
