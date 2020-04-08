@@ -690,6 +690,11 @@ while True:
             p_cmd = "f"
             r_cmd = "f"
         
+        if imshow_debug:
+            print("pitch command = " + p_cmd)
+            print("rotation command = " + r_cmd)
+        
+        
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
             bytesToSend = ConvertStringToBytes(r_cmd + ',' + p_cmd)
