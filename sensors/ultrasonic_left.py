@@ -9,9 +9,9 @@ import tf
 
 import RPi.GPIO as GPIO
 
-pub = rospy.Publisher('ultrasonic_left',Range,queue_size=10)
+# pub = rospy.Publisher('ultrasonic_left',Range,queue_size=10)
 
-rospy.init_node('ultrasonic_left',anonymous = True)
+# rospy.init_node('ultrasonic_left',anonymous = True)
 
 def get_sonar_readings(trig_pins, echo_pins, units):
 
@@ -50,23 +50,23 @@ def convert_duration_to_distance(duration,units='in'):
 def main():
 
     trig_pin, echo_pin, units = setup()
-    range_msg = Range()
-    range_msg.header.frame_id = "ultrasonic_left"
-    range_msg.radiation_type = 0
-    range_msg.field_of_view = 0.1 #Fake value
-    range_msg.min_range = 0.78
-    range_msg.max_range = 157.48
+    # range_msg = Range()
+    # range_msg.header.frame_id = "ultrasonic_left"
+    # range_msg.radiation_type = 0
+    # range_msg.field_of_view = 0.1 #Fake value
+    # range_msg.min_range = 0.78
+    # range_msg.max_range = 157.48
 
     
-    rate = rospy.Rate(1)
-    while not rospy.is_shutdown():
-        distance = get_sonar_readings(trig_pin, echo_pin, units)
+    # rate = rospy.Rate(1)
+    # while not rospy.is_shutdown():
+    distance = get_sonar_readings(trig_pin, echo_pin, units)
 
-        range_msg.header.stamp = rospy.Time.now()
-        range_msg.range = distance
+        # range_msg.header.stamp = rospy.Time.now()
+        # range_msg.range = distance
 
-        pub.publish(range_msg)
-        rate.sleep()
+        # pub.publish(range_msg)
+        # rate.sleep()
 
 
 def setup():
