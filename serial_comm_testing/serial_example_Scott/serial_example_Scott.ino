@@ -1,5 +1,12 @@
 void setup() {
   Serial.begin(9600);
+
+
+  // we had it up here 
+  // and there was an interrupt
+  // serial interrupt
+
+  
 }
 void loop() {
     // these could be global variables or however you want to do it
