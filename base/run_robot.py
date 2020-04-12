@@ -55,15 +55,20 @@ def get_command_file(filename):
 
 
 class Command:
-    def __init__(self, step, mode, x, y, theta):
+    def __init__(self, step, mode, x, y, theta, w_right, w_left):
         self.step = step
         self.mode = mode
         self.x = x
         self.y = y
+        self.w_right = w_right
+        self.w_left = w_left
         self.theta = theta
 
     def get_mode(self):
         return self.mode
+
+    def get_reference_list(self):
+        return
 
     @staticmethod
     def create_from_dict(lookup: dict):
@@ -79,6 +84,8 @@ class Command:
             str(lookup['mode']),
             float(lookup['x']),
             float(lookup['y']),
+            float(lookup['w_right']),
+            float(lookup['w_left']),
             float(lookup['theta']),
         )
 

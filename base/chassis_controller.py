@@ -10,12 +10,13 @@ def main():
 
 
 def run_motion_plan(cmd):
-    # TODO: have this change depending on the ref
     ref = [10, 0, 0, 2, 2]
-
+    current_state = [0, 0, 0, 0, 0]
+    # TODO: have this change depending on the ref
     coefficients_filename = 'coefficients.txt'
     controller = create_controller(coefficients_filename, ref)
-    print(controller.__dict__)
+    u = controller.run(current_state)
+    print(u)
 
 
 def create_controller(coefficients_filename, ref):
@@ -65,11 +66,11 @@ class ChassisPID:
         self.state_names = state_names
 
         self.ref = []
-        self.coefficients_list = [self.k_x1, self.k_x2, self.k_x3, self.k_x4, self.k_x5]
+        coefficients_list = [self.k_x1, self.k_x2, self.k_x3, self.k_x4, self.k_x5]
 
         # TODO: create a number of simple_pid objects based on the k values
         self.controller_dict = {}
-        for k in self.coefficients_list:
+        for k in coefficients_list:
             controller = simple_pid.PID(k['kp'], k['ki'], k['kd'])
             self.controller_dict.update({k['state']: controller})
 
@@ -79,8 +80,36 @@ class ChassisPID:
         for state, r in zip(self.state_names, self.ref):
             self.controller_dict[state].setpoint = r
 
-    def run(self):
-        pass
+    def run(self, current_state):
+        """
+        returns the cumulative PID input for the current state
+        :param current_state: TODO: figure out data type coming in
+        :return: list of commands for u_omega and u_psi
+        """
+        u_dict = {}
+        for x, state_name in zip(current_state, self.state_names):
+            controller = self.controller_dict[state_name]
+            u = controller(x)
+            u_dict.update({state_name: u})
+
+        u_dict = self.apply_exceptions(u_dict)
+        # TODO: convert to translation and turn commands.
+        return u_dict
+
+    @staticmethod
+    def apply_exceptions(u_dict):
+        """
+        adjusts inputs base on heuristics
+        :param u_dict: dictionary of the inputs from the controllers
+        :return: updated input dictionary
+        """
+        if u_dict['w_right'] > 0:
+            u_dict.update({'w_right': 0})
+
+        if u_dict['w_left'] > 0:
+            u_dict.update({'w_left': 0})
+
+        return u_dict
 
     @staticmethod
     def create_from_PID_list(PID_list: list):
