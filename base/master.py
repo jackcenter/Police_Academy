@@ -20,6 +20,9 @@ from PyQt5.QtGui import *
 # import simple_pid 
 # from pid_control import * 
 
+# Jack's Stuff
+base_folder = os.path.dirname(__file__)
+
 
 #Global Variable
 Dn = 101.6 #Distance in mm between wheels
