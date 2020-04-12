@@ -1,0 +1,7 @@
+step, mode, x, y, theta
+0, MotionPlanning, 0, 0, 0
+1, MotionPlanning, 10, 0, 0
+2, MotionPlanning, 0, 0, 90
+3, MotionPlanning, 10, 0, 0
+4, MotionPlanning, 0, 0, 180
+5, Search&Destroy, 0, 0, 0
