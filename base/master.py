@@ -27,6 +27,9 @@ from PyQt5.QtGui import *
 # import simple_pid 
 # from pid_control import * 
 
+# Jack's Stuff
+base_folder = os.path.dirname(__file__)
+
 
 
 # JACK's STUFF 
