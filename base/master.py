@@ -1,5 +1,12 @@
 #!/usr/bin/python3.3
 
+#RULES FOR Using this code
+# 1) Dont mess with QT class
+# 2) Comment the code if you are using the any Global variables and if they can have the same name as local variables 
+# 3) 
+
+
+
 import sys
 import numpy as np 
 
@@ -20,6 +27,13 @@ from PyQt5.QtGui import *
 # import simple_pid 
 # from pid_control import * 
 
+
+
+# JACK's STUFF 
+
+# Scott Stuff
+
+# Chadd Stuff
 
 #Global Variable
 Dn = 101.6 #Distance in mm between wheels
@@ -209,9 +223,10 @@ class RobotMonitorWidget(QWidget):
 
 
     def US_Left_onclick(self):
-        trig_pin, echo_pin, units = setup_left()
-        distance = get_sonar_readings(trig_pin, echo_pin, units)
-        print(distance)
+        print("CLICKED")
+        # trig_pin, echo_pin, units = setup_left()
+        # distance = get_sonar_readings(trig_pin, echo_pin, units)
+        # print(distance)
 
     def US_Left_onclick_status(self):
         trig_pin, echo_pin, units = setup_left()
@@ -350,6 +365,8 @@ def setup_right():
     GPIO.output(trig_pin, False)
 
     return trig_pin, echo_pin, units
+
+
 
 
 
