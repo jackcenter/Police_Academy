@@ -64,7 +64,7 @@ def get_encoder_values(bus, slave_address):
 def bytes_to_int(data):
     result = 0
     # bytes.reverse()
-    return int.from_bytes(data, byteorder='big')
+    return int.from_bytes(data, byteorder='little', signed=True)
     # for b in bytes:
     #     result = result * 256 + int(b)
     # return result
