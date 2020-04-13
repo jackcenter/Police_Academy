@@ -28,7 +28,7 @@ from PyQt5.QtGui import *
 # from pid_control import * 
 
 # Jack's Stuff
-from encoders import get_encoder_value
+from encoders import get_encoder_values
 from ultrasonics import get_ultrasonic_reading
 
 base_folder = os.path.dirname(__file__)
@@ -36,6 +36,8 @@ us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
 us_echo_pins = {'left': 23, 'front': 21, 'right': 19}
 encoders = {'left': 'l', 'right': 'r'}
 
+bus = smbus.SMBus(1)
+slave_address = 0x07
 # Scott Stuff
 
 # Chadd Stuff
@@ -265,14 +267,16 @@ class RobotMonitorWidget(QWidget):
             print("Invalid Ultrasonic Reading")
 
     def enc_Left_onclick(self):
+        value = get_encoder_values(bus, slave_address, 'left')
+        print(value)
 
-        print("On Click")
 
     def enc_Left_onclick_status(self):
         print("On Click Status")
 
     def enc_Right_onclick(self):
-        print("On Click")
+        value = get_encoder_values(bus, slave_address, 'left')
+        print(value)
 
     def enc_Right_onclick_status(self):
         print("On Click Status")

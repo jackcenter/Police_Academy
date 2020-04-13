@@ -21,6 +21,7 @@ def run_test():
     left_value, right_value = get_encoder_values(bus, slave_address)
     print("Left Encoder Reading:  {}".format(left_value))
     print("Right Encoder Reading: {}".format(right_value))
+    print()
 
     leftEncoder = Encoder('left', 100, bus, slave_address)
     rightEncoder = Encoder('right', 100, bus, slave_address)
