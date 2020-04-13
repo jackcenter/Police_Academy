@@ -79,8 +79,12 @@ def get_pulse_duration(echo: int):
         if pulse_end - time_start > 0.1:
             return None
 
-    pulse_duration = pulse_end - pulse_start
-    return pulse_duration
+    try:
+        pulse_duration = pulse_end - pulse_start
+        return pulse_duration
+    except UnboundLocalError:
+        print("ERROR: missed that pulse")
+        return 400.0
 
 
 def convert_duration_to_distance(duration: float, units='in'):

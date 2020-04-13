@@ -30,7 +30,6 @@ def run_motion_plan(cmd, simple_filter):
         time.sleep(.2)
         current_state = simple_filter.get_state_array()
         simple_filter.print_state()
-
         u = controller.run(current_state)
         print(u)
 
@@ -90,6 +89,7 @@ class ChassisPID:
         self.ref = []
         coefficients_list = [self.k_x1, self.k_x2, self.k_x3, self.k_x4, self.k_x5]
 
+        # TODO: create a number of simple_pid objects based on the k values
         self.controller_dict = {}
         for k in coefficients_list:
             controller = simple_pid.PID(k['kp'], k['ki'], k['kd'])

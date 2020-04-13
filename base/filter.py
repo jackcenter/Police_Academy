@@ -83,6 +83,6 @@ class Filter:
 
     def print_state(self):
         vals = self.current_state
-        print("Current State:\n  x =     {}\n y =     {}\n theta = {}\n w_l   = {}\n w_r   = {}".format(
+        print("Current State:\n  x     = {}\n  y     = {}\n  theta = {}\n  w_l   = {}\n  w_r   = {}".format(
               vals[0], vals[1], vals[2], vals[3], vals[4]))
         print()

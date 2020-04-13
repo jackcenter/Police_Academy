@@ -62,7 +62,7 @@ class Encoder:
 
         self.previous_position = self.position
 
-        if value:
+        if value != None:
             self.position = value
 
         else:
@@ -146,9 +146,15 @@ class DriveTrain:
 
 
 def get_encoder_values(bus, slave_address, location=None):
-    data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
-    data_int_r = bytes_to_int(data_bytes[0:3])
-    data_int_l = bytes_to_int(data_bytes[4:7])
+    try:
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
+        data_int_r = bytes_to_int(data_bytes[0:3])
+        data_int_l = bytes_to_int(data_bytes[4:7])
+
+    except OSError:
+        print("ERROR: bus didn't respond")
+        data_int_r = 0
+        data_int_l = 0
 
     if location == 'left':
         return data_int_l
