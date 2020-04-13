@@ -26,12 +26,15 @@ def run_test():
     rightEncoder = Encoder('right', 100, bus, slave_address)
     driveTrain = DriveTrain(leftEncoder, rightEncoder, bus, slave_address)
 
+    time.sleep(0.1)
     leftEncoder.update()
     leftEncoder.print_value()
 
+    time.sleep(0.1)
     rightEncoder.update()
     rightEncoder.print_value()
 
+    time.sleep(0.1)
     driveTrain.update()
     leftEncoder.print_value()
     rightEncoder.print_value()
@@ -82,8 +85,10 @@ class Encoder:
         self.parent = parent
 
     def print_value(self):
-        print("Position: ".format(self.position))
-        print("Velocity: ".format(self.veloicty))
+        print("Encoder Location: {}".format(self.location))
+        print(" Position: {}".format(self.position))
+        print(" Velocity: {}".format(round(self.velocity, 2)))
+        print()
 
     def compute_velocity(self):
         e_dot = (self.position - self.previous_position)/(self.k1 - self.k0)
