@@ -1,6 +1,5 @@
 #include <Encoder.h>
 #include <SparkFun_TB6612.h>
-#include <Wire.h>
 
 union Buffer
 {
@@ -21,13 +20,13 @@ union Buffer
 #define ENC2B 13
 #define STBY 8
 
-byte slave_address = 7;
-Buffer buffer;
+String inputString = "";         // a String to hold incoming data
+bool stringComplete = false;     // whether the string is complete
 
 const double radius = 2;    // radius of the wheel in inches
 const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
-const int res = 64;         // number of encoder counts per single turn
+const int res = 84;         // number of encoder counts per single turn
 
 const int offsetLeft = -1;
 const int offsetRight = 1;
@@ -44,26 +43,33 @@ Encoder encRight(ENC2A, ENC2B);
 
 void setup() {
   rightSpeed = 0;
-  rightPos = 100;
+  rightPos = 0;
   encRight.write(rightPos*(cpr/res));
   
   leftSpeed = 0;
-  leftPos = 100;
+  leftPos = 0;
   encLeft.write(leftPos*(cpr/res));
-
-  // Start I2C Bus as Slave
-  Wire.begin(slave_address);
-  Wire.onReceive(receiveEvent);
-  Wire.onRequest(sendEvent);
   
   Serial.begin(9600);
-  Serial.println("Encoder Test:");
 }
 
 void loop() {
   motorLeft.drive(leftSpeed);
   motorRight.drive(rightSpeed);
   readEncoders();
+}
+
+void serialEvent(){
+    while (Serial.available()) {
+      char inChar = (char)Serial.read();
+      inputString += inChar;
+  
+      if (inChar == '\n') {
+        stringComplete = true;
+
+    
+    }
+  }
 }
 
 void receiveEvent(int howMany) 
