@@ -13,7 +13,10 @@ def print_header():
 
 
 def run_test():
-    print(get_ultrasonic_reading(18, 19, 'in'))
+    print("Left:   {}".format(get_ultrasonic_reading(22, 23, 'in')))
+    print("Right:  {}".format(get_ultrasonic_reading(18, 19, 'in')))
+    print("Front:  {}".format(get_ultrasonic_reading(20, 21, 'in')))
+    
 
 
 class Ultrasonic:
@@ -87,5 +90,6 @@ def convert_duration_to_distance(duration: float, units='in'):
     distance = duration * unit_conversion
     return distance
 
-if __name__ == '__main_':
+
+if __name__ == '__main__':
     main()
