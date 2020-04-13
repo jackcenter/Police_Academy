@@ -2,6 +2,20 @@ import RPi.GPIO as GPIO
 import time
 
 
+def main():
+    print_header()
+    run_test()
+    return 0
+
+
+def print_header():
+    print("Ultrasonic sensor module")
+
+
+def run_test():
+    print(get_ultrasonic_reading(18, 19, 'in'))
+
+
 class Ultrasonic:
     def __init__(self, location, trig_pin, echo_pin, units='in'):
         self.position = location
@@ -72,3 +86,6 @@ def convert_duration_to_distance(duration: float, units='in'):
     unit_conversion = unit_dict.get(units)
     distance = duration * unit_conversion
     return distance
+
+if __name__ == '__main_':
+    main()
