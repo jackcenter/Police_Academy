@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
-import serial
+import smbus
 import time
+
+
+def main():
+    print_header()
+    run_test()
+    return 0
+
+
+def print_header():
+    print("Encoder sensor module")
+
+
+def run_test():
+    bus = smbus.SMBus(1)
+    slave_address = 0x07
+
+    left_value, right_value = get_encoder_values(bus, slave_address)
+    print("Left Encoder Reading:  {}".format(left_value))
+    print("Right Encoder Reading: {}".format(right_value))
 
 
 class Encoder:
@@ -34,15 +53,21 @@ class Encoder:
         return self.velocity
 
 
-def get_encoder_value(location: str, serial_address: str):
-    cmd = location + '\n'
-    serial_bus = serial.Serial(serial_address, 9600, timeout=1)
-    serial_bus.flush()
+def get_encoder_values(bus, slave_address):
+    data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
+    data_int_r = bytes_to_int(data_bytes[0:3])
+    data_int_l = bytes_to_int(data_bytes[4:7])
 
-    serial_bus.write(cmd.encode('utf-8'))
+    return data_int_l, data_int_r
 
-    if serial_bus.in_waiting > 0:
-        line = serial_bus.readline().decode('utf-8').rstrip()
-        return line
 
-    return 1
+def bytes_to_int(bytes):
+    result = 0
+    bytes.reverse()
+    for b in bytes:
+        result = result * 256 + int(b)
+    return result
+
+
+if __name__ == "__main__":
+    main()
