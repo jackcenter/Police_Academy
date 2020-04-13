@@ -14,7 +14,7 @@ from ultrasonics import Ultrasonic
 
 def main():
     filter = setup()
-    run("command_1.txt", filter)
+    run("commands_1.txt", filter)
 
 
 def setup():

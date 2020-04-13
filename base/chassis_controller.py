@@ -27,6 +27,7 @@ def run_motion_plan(cmd, simple_filter):
 
     start = time.time()
     while start - time.time() < 20:
+        time.sleep(.2)
         current_state = simple_filter.get_state_array()
         print(current_state)
         u = controller.run(current_state)
