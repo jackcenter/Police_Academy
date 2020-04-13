@@ -22,8 +22,8 @@ from PyQt5.QtGui import *
 
 
 #UNCOMMENT THE FOLLOWING ON RASPBERRY PI 
-# import smbus 
-# import RPi.GPIO as GPIO  
+import smbus 
+import RPi.GPIO as GPIO  
 # import simple_pid 
 # from pid_control import * 
 
@@ -275,7 +275,7 @@ class RobotMonitorWidget(QWidget):
         print("On Click Status")
 
     def enc_Right_onclick(self):
-        value = get_encoder_values(bus, slave_address, 'left')
+        value = get_encoder_values(bus, slave_address, 'right')
         print(value)
 
     def enc_Right_onclick_status(self):
