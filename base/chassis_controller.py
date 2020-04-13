@@ -41,7 +41,7 @@ def run_motion_plan(cmd, simple_filter):
 
 def print_dict_pretty(title, item):
     print(title)
-    for key, val in item:
+    for key, val in item.items():
         print("  {} = {}".format(key, val))
     print()
 
