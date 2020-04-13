@@ -3,14 +3,38 @@
 import csv
 import os
 
+import numpy as np
+import smbus
+
 from chassis_controller import run_motion_plan
+from encoders import DriveTrain, Encoder
+from filter import Filter
+from ultrasonics import Ultrasonic
 
 
 def main():
-    run("command_1.txt", None)
+    filter = setup()
+    run("command_1.txt", filter)
 
 
-def run(commands_filename, robot):
+def setup():
+    bus = smbus.SMBus(1)
+    slave_address = 0x07
+
+    enc_left = Encoder('left', 100, bus, slave_address)
+    enc_right = Encoder('right', 100, bus, slave_address)
+    drive_train = DriveTrain(enc_left, enc_right, bus, slave_address)
+
+    ult_left = Ultrasonic('left', 22, 23)
+    ult_front = Ultrasonic('front', 20, 21)
+    ult_right = Ultrasonic('right', 18, 19)
+
+    filter = Filter(drive_train, ult_left, ult_front, ult_right)
+
+    return filter
+
+
+def run(commands_filename, filter):
     command_list = read_commands(commands_filename)
     print([x.__dict__ for x in command_list])
 
@@ -19,7 +43,7 @@ def run(commands_filename, robot):
     # TODO: LOOP cycle through all commands
     for cmd in command_list:
         if cmd.get_mode() == 'MotionPlanning':
-            run_motion_plan(cmd, robot)
+            run_motion_plan(cmd, filter)
 
         elif cmd.get_mode() == 'Search&Destroy':
             # TODO: fit the shooting stuff in here
@@ -72,6 +96,9 @@ class Command:
 
     def get_reference_list(self):
         return [self.x, self.y, self.theta, self.w_right, self.w_left]
+
+    def get_reference_array(self):
+        return np.array([self.x, self.y, self.theta, self.w_right, self.w_left])
 
     @staticmethod
     def create_from_dict(lookup: dict):

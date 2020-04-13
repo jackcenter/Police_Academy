@@ -97,7 +97,7 @@ class Encoder:
 
 
 class DriveTrain:
-    def __init__(self, enc_left, enc_right, bus, slave_address):
+    def __init__(self, enc_left: Encoder, enc_right: Encoder, bus, slave_address):
         self.enc_left = enc_left
         self.enc_right = enc_right
         self.bus = bus
@@ -106,10 +106,40 @@ class DriveTrain:
         enc_left.set_parent(self)
         enc_right.set_parent(self)
 
+        if self.enc_left.cpr != self.enc_right.cpr:
+            print("Error: encoder counts per revolution are mismatched")
+
+        self.cpr = self.enc_left.cpr
+
     def update(self):
         left_value, right_value = get_encoder_values(self.bus, self.slave_address)
         self.enc_left.update(left_value)
         self.enc_right.update(right_value)
+
+    def get_distance(self):
+        return (self.enc_left.get_position() + self.enc_right.get_position())/2
+
+    def get_rotation(self):
+        return self.enc_right.get_position() - self.enc_left.get_position()
+
+    def get_velocities(self):
+        """
+
+        :return: tuple of motor angular velocities
+        """
+        return self.enc_left.get_velocity(), self.enc_right.get_velocity()
+
+    def get_velocity(self):
+        """
+
+        :return: velocity of the chassis
+        """
+        # TODO: pull variables from a settings file or something
+        r = 1.9
+
+        omega_average = (self.enc_left.get_velocity() + self.enc_right.get_velocity())/2
+        velocity = r * omega_average
+        return velocity
 
 
 def get_encoder_values(bus, slave_address, location=None):

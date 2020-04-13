@@ -1,7 +1,10 @@
 #!/usr/bin/python3.8
 
-import os
 import csv
+import os
+import time
+
+import numpy as np
 import simple_pid
 
 
@@ -9,19 +12,25 @@ def main():
     pass
 
 
-def run_motion_plan(cmd):
+def run_motion_plan(cmd, simple_filter):
     """
     TODO: need to pass robot to this function to get current state
     :param cmd: Command object containing the reference value for each state
+    :param simple_filter: object that contains the sensors
     :return:
     """
-    current_state = [0, 0, 0, 0, 0]
-    ref = cmd.get_reference_list()
+    simple_filter.set_state = [0, 0, 0, 0, 0]
+    ref = cmd.get_reference_array()
     # TODO: have this change depending on the ref
     coefficients_filename = 'coefficients.txt'
     controller = create_controller(coefficients_filename, ref)
-    u = controller.run(current_state)
-    print(u)
+
+    start = time.time()
+    while start - time.time() < 20:
+        current_state = simple_filter.get_state_array()
+        print(current_state)
+        u = controller.run(current_state)
+        print(u)
 
 
 def create_controller(coefficients_filename, ref):
@@ -96,7 +105,7 @@ class ChassisPID:
         for state, r in zip(self.state_names, self.ref):
             self.controller_dict[state].setpoint = r
 
-    def run(self, current_state: list):
+    def run(self, current_state: np.ndarray):
         """
         returns the cumulative PID input for the current state
         :param current_state: TODO: figure out data type coming in

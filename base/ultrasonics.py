@@ -18,7 +18,6 @@ def run_test():
     print("Front:  {}".format(get_ultrasonic_reading(20, 21, 'in')))
     
 
-
 class Ultrasonic:
     def __init__(self, location, trig_pin, echo_pin, units='in'):
         self.position = location
