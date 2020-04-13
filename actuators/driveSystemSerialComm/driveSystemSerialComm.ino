@@ -67,6 +67,10 @@ void serialEvent(){
       if (inChar == '\n') {
         stringComplete = true;
     }
+    if (inputString = "publish"){    
+      Serial.println("order received");
+    }
+
     Serial.println(inputString);
   }
 }

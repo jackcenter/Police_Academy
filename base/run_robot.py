@@ -7,7 +7,10 @@ from chassis_controller import run_motion_plan
 
 
 def main():
-    commands_filename = 'commands_1.txt'
+    run("command_1.txt", None)
+
+
+def run(commands_filename, robot):
     command_list = read_commands(commands_filename)
     print([x.__dict__ for x in command_list])
 
@@ -16,7 +19,7 @@ def main():
     # TODO: LOOP cycle through all commands
     for cmd in command_list:
         if cmd.get_mode() == 'MotionPlanning':
-            run_motion_plan(cmd)
+            run_motion_plan(cmd, robot)
 
         elif cmd.get_mode() == 'Search&Destroy':
             # TODO: fit the shooting stuff in here

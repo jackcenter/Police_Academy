@@ -28,11 +28,13 @@ from PyQt5.QtGui import *
 # from pid_control import * 
 
 # Jack's Stuff
+from encoders import get_encoder_value
+from ultrasonics import get_ultrasonic_reading
+
 base_folder = os.path.dirname(__file__)
-
-
-
-# JACK's STUFF 
+us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
+us_echo_pins = {'left': 23, 'front': 21, 'right': 19}
+encoders = {'left': 'l', 'right': 'r'}
 
 # Scott Stuff
 
@@ -226,10 +228,9 @@ class RobotMonitorWidget(QWidget):
 
 
     def US_Left_onclick(self):
-        print("CLICKED")
-        # trig_pin, echo_pin, units = setup_left()
-        # distance = get_sonar_readings(trig_pin, echo_pin, units)
-        # print(distance)
+
+        distance = get_ultrasonic_reading(us_trig_pins['left'], us_echo_pins['left'], 'in')
+        print("Left Ultrasonic Reading:  ".format(distance))
 
     def US_Left_onclick_status(self):
         trig_pin, echo_pin, units = setup_left()
@@ -240,9 +241,8 @@ class RobotMonitorWidget(QWidget):
             print("Invalid Ultrasonic Reading")
 
     def US_Right_onclick(self):
-        trig_pin, echo_pin, units = setup_right()
-        distance = get_sonar_readings(trig_pin, echo_pin, units)
-        print(distance)
+        distance = get_ultrasonic_reading(us_trig_pins['right'], us_echo_pins['right'], 'in')
+        print("Right Ultrasonic Reading:  ".format(distance))
 
     def US_Right_onclick_status(self):
         trig_pin, echo_pin, units = setup_right()
@@ -253,9 +253,8 @@ class RobotMonitorWidget(QWidget):
             print("Invalid Ultrasonic Reading")
 
     def US_Front_onclick(self):
-        trig_pin, echo_pin, units = setup_front()
-        distance = get_sonar_readings(trig_pin, echo_pin, units)
-        print(distance)
+        distance = get_ultrasonic_reading(us_trig_pins['front'], us_echo_pins['front'], 'in')
+        print("Front Ultrasonic Reading: ".format(distance))
 
     def US_Front_onclick_status(self):
         trig_pin, echo_pin, units = setup_front()
@@ -266,6 +265,7 @@ class RobotMonitorWidget(QWidget):
             print("Invalid Ultrasonic Reading")
 
     def enc_Left_onclick(self):
+
         print("On Click")
 
     def enc_Left_onclick_status(self):
