@@ -60,15 +60,15 @@ class Command:
         self.mode = mode
         self.x = x
         self.y = y
+        self.theta = theta
         self.w_right = w_right
         self.w_left = w_left
-        self.theta = theta
 
     def get_mode(self):
         return self.mode
 
     def get_reference_list(self):
-        return
+        return [self.x, self.y, self.theta, self.w_right, self.w_left]
 
     @staticmethod
     def create_from_dict(lookup: dict):

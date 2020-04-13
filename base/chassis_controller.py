@@ -10,8 +10,13 @@ def main():
 
 
 def run_motion_plan(cmd):
-    ref = [10, 0, 0, 2, 2]
+    """
+    TODO: need to pass robot to this function to get current state
+    :param cmd: Command object containing the reference value for each state
+    :return:
+    """
     current_state = [0, 0, 0, 0, 0]
+    ref = cmd.get_reference_list()
     # TODO: have this change depending on the ref
     coefficients_filename = 'coefficients.txt'
     controller = create_controller(coefficients_filename, ref)
@@ -20,6 +25,12 @@ def run_motion_plan(cmd):
 
 
 def create_controller(coefficients_filename, ref):
+    """
+
+    :param coefficients_filename: string with full path to PID coefficients
+    :param ref: values the controller is commanded to
+    :return: controller object containing five PID controllers, one for each state
+    """
     coefficients_list = read_coefficients(coefficients_filename)
     controller = ChassisPID.create_from_PID_list(coefficients_list)
     controller.update_reference(ref)
@@ -74,13 +85,18 @@ class ChassisPID:
             controller = simple_pid.PID(k['kp'], k['ki'], k['kd'])
             self.controller_dict.update({k['state']: controller})
 
-    def update_reference(self, ref):
+    def update_reference(self, ref: list):
+        """
+        changes the reference values in the PID controllers
+        :param ref: list of reference values
+        :return: none
+        """
         self.ref = ref
 
         for state, r in zip(self.state_names, self.ref):
             self.controller_dict[state].setpoint = r
 
-    def run(self, current_state):
+    def run(self, current_state: list):
         """
         returns the cumulative PID input for the current state
         :param current_state: TODO: figure out data type coming in
