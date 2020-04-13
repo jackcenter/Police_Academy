@@ -27,12 +27,24 @@ def run_motion_plan(cmd, simple_filter):
 
     start = time.time()
     while start - time.time() < 20:
-        time.sleep(.2)
+        time.sleep(.1)
         current_state = simple_filter.get_state_array()
         simple_filter.print_state()
 
         u = controller.run(current_state)
-        print(u)
+
+        u_omega = u['x'] + u['w_left'] + u['w_right']
+        u_psi = u['y'] + u['theta']
+
+        print_dict_pretty("Input Components", u)
+        print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
+
+
+def print_dict_pretty(title, item):
+    print(title)
+    for key, val in item:
+        print("  {} = {}".format(key, val))
+    print()
 
 
 def create_controller(coefficients_filename, ref):
