@@ -39,16 +39,16 @@ int rightSpeed;             // PWM 0-255
 long leftPos;               // Encoder value
 long rightPos;              // Encoder value
 
-Encoder encLeft(ENC1B, ENC1A);
-Encoder encRight(ENC2A, ENC2B);
+Encoder encLeft(ENC2A, ENC2B);
+Encoder encRight(ENC1A, ENC1B);
 
 void setup() {
   rightSpeed = 0;
-  rightPos = 100;
+  rightPos = 0;
   encRight.write(rightPos*(cpr/res));
   
   leftSpeed = 0;
-  leftPos = 100;
+  leftPos = 0;
   encLeft.write(leftPos*(cpr/res));
 
   // Start I2C Bus as Slave
@@ -189,7 +189,7 @@ void accelerateMotor(int &currentSpeed, int accel)
 void readEncoders()
 {
   leftPos = encLeft.read()/(cpr/res);
-  rightPos = encRight.read()/(cpr/res);
+  rightPos = -encRight.read()/(cpr/res);
 //  Serial.print("Left encoder: ");
 //  Serial.println(leftPos);
 //  Serial.print("Right encoder: ");
