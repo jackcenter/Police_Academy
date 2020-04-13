@@ -17,7 +17,8 @@ class Filter:
         self.ult_right = ult_right
         self.sensor_list = [self.drive_train, self.ult_left, self.ult_front, self.ult_right]
 
-        self.initial_state = [0, 0, 0, 0, 0]
+        self.initial_state = np.array([0, 0, 0, 0, 0])
+        self.current_state = np.array([0, 0, 0, 0, 0])
         self.distance_conversion = 2*pi*1.9/self.drive_train.cpr
         self.rotation_conversion = 8.5/(2*1.9)
 
@@ -28,7 +29,9 @@ class Filter:
         theta = self.get_rotation()
         w_l, w_r = self.get_velocities()
 
-        return np.array([x, y, theta, w_l, w_r])
+        self.current_state = np.array([x, y, theta, w_l, w_r])
+
+        return self.current_state
 
     def update(self):
         for sensor in self.sensor_list:
@@ -77,3 +80,9 @@ class Filter:
 
     def set_state(self, state):
         self.initial_state = state
+
+    def print_state(self):
+        vals = self.current_state
+        print("Current State:\n  x =     {}\n y =     {}\n theta = {}\n w_l   = {}\n w_r   = {}".format(
+              vals[0], vals[1], vals[2], vals[3], vals[4]))
+        print()
