@@ -22,8 +22,8 @@ from PyQt5.QtGui import *
 
 
 #UNCOMMENT THE FOLLOWING ON RASPBERRY PI 
-import smbus 
-import RPi.GPIO as GPIO  
+# import smbus
+# import RPi.GPIO as GPIO
 # import simple_pid 
 # from pid_control import * 
 
@@ -36,7 +36,8 @@ us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
 us_echo_pins = {'left': 23, 'front': 21, 'right': 19}
 encoders = {'left': 'l', 'right': 'r'}
 
-bus = smbus.SMBus(1)
+# UNCOMENT ON PI
+# bus = smbus.SMBus(1)
 slave_address = 0x07
 # Scott Stuff
 
