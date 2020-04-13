@@ -230,7 +230,7 @@ class RobotMonitorWidget(QWidget):
     def US_Left_onclick(self):
 
         distance = get_ultrasonic_reading(us_trig_pins['left'], us_echo_pins['left'], 'in')
-        print("Left Ultrasonic Reading:  ".format(distance))
+        print("Left Ultrasonic Reading:  {}".format(distance))
 
     def US_Left_onclick_status(self):
         trig_pin, echo_pin, units = setup_left()
@@ -242,7 +242,7 @@ class RobotMonitorWidget(QWidget):
 
     def US_Right_onclick(self):
         distance = get_ultrasonic_reading(us_trig_pins['right'], us_echo_pins['right'], 'in')
-        print("Right Ultrasonic Reading:  ".format(distance))
+        print("Right Ultrasonic Reading: {}".format(distance))
 
     def US_Right_onclick_status(self):
         trig_pin, echo_pin, units = setup_right()
@@ -254,7 +254,7 @@ class RobotMonitorWidget(QWidget):
 
     def US_Front_onclick(self):
         distance = get_ultrasonic_reading(us_trig_pins['front'], us_echo_pins['front'], 'in')
-        print("Front Ultrasonic Reading: ".format(distance))
+        print("Front Ultrasonic Reading: {}".format(distance))
 
     def US_Front_onclick_status(self):
         trig_pin, echo_pin, units = setup_front()
