@@ -66,7 +66,10 @@ class Encoder:
             self.position = value
 
         else:
-            self.position = get_encoder_values(self.bus, self.slave_address, self.location)
+            try:
+                self.position = get_encoder_values(self.bus, self.slave_address, self.location)
+            except OSError:
+                print("ERROR: lost the bus")
 
         self.compute_velocity()
 
