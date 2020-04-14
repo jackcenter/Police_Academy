@@ -45,7 +45,7 @@ def run_motion_plan(cmd, simple_filter):
 
         t = time.time()
 
-        print("================== Next Command ======================")
+    print("================== Next Command ======================")
 
     return 0
 
