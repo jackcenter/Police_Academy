@@ -27,7 +27,8 @@ def run_motion_plan(cmd, simple_filter):
 
     start = time.time()
     t = start
-    while t - start < 20:
+    while t - start < 5:
+        # TODO: add an actual stop process, not time
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
         cmd.print_ref()

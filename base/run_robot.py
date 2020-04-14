@@ -122,9 +122,9 @@ class Command:
             str(lookup['mode']),
             float(lookup['x']),
             float(lookup['y']),
+            float(lookup['theta']),
             float(lookup['w_right']),
             float(lookup['w_left']),
-            float(lookup['theta']),
         )
 
 
