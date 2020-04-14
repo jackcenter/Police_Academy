@@ -29,10 +29,10 @@ const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
 const int res = 64;         // number of encoder counts per single turn
 
-const int offsetLeft = -1;
-const int offsetRight = 1;
-Motor motorLeft = Motor(AIN1, AIN2, PWMA, offsetLeft, STBY);
-Motor motorRight = Motor(BIN1, BIN2, PWMB, offsetRight, STBY);
+const int offsetLeft = 1;
+const int offsetRight = -1;
+Motor motorRight = Motor(AIN1, AIN2, PWMA, offsetRight, STBY);
+Motor motorLeft = Motor(BIN1, BIN2, PWMB, offsetLeft, STBY);
 
 int leftSpeed;              // PWM 0-255
 int rightSpeed;             // PWM 0-255
