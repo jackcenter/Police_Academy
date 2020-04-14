@@ -51,7 +51,7 @@ def send_command(command, bus, slave_address):
 
 def print_dict_pretty(title, item):
     print(title)
-    for key, val in item:
+    for key, val in item.items():
         print("  {} = {}".format(key, val))
     print()
 
