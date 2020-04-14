@@ -13,8 +13,8 @@ from ultrasonics import Ultrasonic
 
 
 def main():
-    filter = setup()
-    run("commands_1.txt", filter)
+    simple_filter = setup()
+    run("commands_1.txt", simple_filter)
 
 
 def setup():
@@ -29,21 +29,23 @@ def setup():
     ult_front = Ultrasonic('front', 20, 21)
     ult_right = Ultrasonic('right', 18, 19)
 
-    filter = Filter(drive_train, ult_left, ult_front, ult_right)
+    simple_filter = Filter(drive_train, ult_left, ult_front, ult_right, bus, slave_address)
 
-    return filter
+    return simple_filter
 
 
-def run(commands_filename, filter):
+def run(commands_filename, simple_filter):
     command_list = read_commands(commands_filename)
     print([x.__dict__ for x in command_list])
 
-    # TODO: set initial pose from first command
+    # set initial pose from first command
+    initial_pose_cmd = command_list.pop(0)
+    simple_filter.set_state(initial_pose_cmd.get_reference_array())
 
-    # TODO: LOOP cycle through all commands
+    # LOOP cycle through all commands
     for cmd in command_list:
         if cmd.get_mode() == 'MotionPlanning':
-            run_motion_plan(cmd, filter)
+            run_motion_plan(cmd, simple_filter)
 
         elif cmd.get_mode() == 'Search&Destroy':
             # TODO: fit the shooting stuff in here

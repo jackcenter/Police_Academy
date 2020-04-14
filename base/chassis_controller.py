@@ -26,7 +26,7 @@ def run_motion_plan(cmd, simple_filter):
     controller = create_controller(coefficients_filename, ref)
 
     start = time.time()
-    while start - time.time() < 20:
+    while time.time() - start < 20:
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
         simple_filter.print_state()
@@ -37,6 +37,16 @@ def run_motion_plan(cmd, simple_filter):
 
         print_dict_pretty("Input Components", u)
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
+
+        command = [u_omega, u_psi]
+        send_command(command, simple_filter.bus, simple_filter.slave_address)
+
+
+def send_command(command, bus, slave_address):
+    pass
+    # TODO: set command
+    # bus.write_i2c_block_data(slave_address, 0, command)
+
 
 
 def print_dict_pretty(title, item):

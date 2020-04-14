@@ -9,12 +9,14 @@ from ultrasonics import Ultrasonic
 
 class Filter:
     def __init__(self, drive_train: DriveTrain, ult_left: Ultrasonic, ult_front: Ultrasonic,
-                 ult_right: Ultrasonic):
+                 ult_right: Ultrasonic, bus, slave_address):
 
         self.drive_train = drive_train
         self.ult_left = ult_left
         self.ult_front = ult_front
         self.ult_right = ult_right
+        self.bus = bus
+        self.slave_address = slave_address
         self.sensor_list = [self.drive_train, self.ult_left, self.ult_front, self.ult_right]
 
         self.initial_state = np.array([0, 0, 0, 0, 0])
