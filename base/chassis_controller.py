@@ -54,8 +54,8 @@ def run_motion_plan(cmd, simple_filter):
 def send_command(command, bus, slave_address):
     pass
     # TODO: set command
-    # bus.write_i2c_block_data(slave_address, 0, command)
-
+    converted = [(command[0]).item(), (command[1]).item()]
+    bus.write_i2c_block_data(slave_address, 0, converted)
 
 
 def print_dict_pretty(title, item):
