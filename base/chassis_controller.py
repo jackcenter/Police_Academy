@@ -38,12 +38,12 @@ def run_motion_plan(cmd, simple_filter):
         u_omega = u['x'] + u['w_left'] + u['w_right']
         u_psi = u['y'] + u['theta']
 
-        print_dict_pretty("Input Components", u)
-        print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
-
         command = [u_omega, u_psi]
-        send_command(command, simple_filter.bus, simple_filter.slave_address)
+        converted_command = send_command(command, simple_filter.bus, simple_filter.slave_address)
 
+        print_dict_pretty("Input Components:", u)
+        print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
+        print_dict_pretty("Inputs Sent:", converted_command)
         t = time.time()
 
     print("================== Next Command ======================")
@@ -54,8 +54,18 @@ def run_motion_plan(cmd, simple_filter):
 def send_command(command, bus, slave_address):
     pass
     # TODO: set command
-    converted = [(command[0]).item(), (command[1]).item()]
+    command = set_range(command, -3, 3)
+    converted = [int(command[0]), (int(command[1]))]
     bus.write_i2c_block_data(slave_address, 0, converted)
+    return {'U_omega': converted[0], 'U_psi': converted[1]}
+
+
+def set_range(array, lower, upper):
+    new_array = np.copy(array)
+    new_array[new_array < lower] = lower
+    new_array[new_array > upper] = upper
+
+    return new_array
 
 
 def print_dict_pretty(title, item):
