@@ -102,6 +102,12 @@ class Command:
     def get_reference_array(self):
         return np.array([self.x, self.y, self.theta, self.w_right, self.w_left])
 
+    def print_ref(self):
+        vals = self.get_reference_array()
+        print("Reference State:\n  x     = {}\n  y     = {}\n  theta = {}\n  w_l   = {}\n  w_r   = {}".format(
+              vals[0], vals[1], vals[2], vals[3], vals[4]))
+        print()
+
     @staticmethod
     def create_from_dict(lookup: dict):
         """

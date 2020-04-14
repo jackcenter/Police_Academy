@@ -26,9 +26,11 @@ def run_motion_plan(cmd, simple_filter):
     controller = create_controller(coefficients_filename, ref)
 
     start = time.time()
-    while time.time() - start < 20:
+    t = start
+    while t - start < 20:
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
+        cmd.print_ref()
         simple_filter.print_state()
         u = controller.run(current_state)
 
@@ -40,6 +42,12 @@ def run_motion_plan(cmd, simple_filter):
 
         command = [u_omega, u_psi]
         send_command(command, simple_filter.bus, simple_filter.slave_address)
+
+        t = time.time()
+
+        print("================== Next Command ======================")
+
+    return 0
 
 
 def send_command(command, bus, slave_address):
