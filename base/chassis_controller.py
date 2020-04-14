@@ -27,7 +27,7 @@ def run_motion_plan(cmd, simple_filter):
 
     start = time.time()
     t = start
-    while t - start < 5:
+    while t - start < 20:
         # TODO: add an actual stop process, not time
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
@@ -170,10 +170,10 @@ class ChassisPID:
         :param u_dict: dictionary of the inputs from the controllers
         :return: updated input dictionary
         """
-        if u_dict['w_right'] > 0:
+        if abs(u_dict['w_right']) > 2:
             u_dict.update({'w_right': 0})
 
-        if u_dict['w_left'] > 0:
+        if abs(u_dict['w_left']) > 2:
             u_dict.update({'w_left': 0})
 
         return u_dict
