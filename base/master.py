@@ -6,7 +6,6 @@
 # 3) 
 
 
-
 import sys
 import numpy as np 
 
@@ -39,6 +38,8 @@ encoders = {'left': 'l', 'right': 'r'}
 # UNCOMENT ON PI
 # bus = smbus.SMBus(1)
 slave_address = 0x07
+
+
 # Scott Stuff
 
 # Chadd Stuff
@@ -73,9 +74,14 @@ class RobotMonitorWidget(QWidget):
         #left
         boxLayout = QHBoxLayout()
         groupBox = QGroupBox('Left Ultrasonic')
+
+        self.textbox_US_left = QLineEdit()
+        self.textbox_US_left.resize(40,40)
         self.US_Left = QPushButton('Calculate')
         self.US_Left.clicked.connect(self.US_Left_onclick) 
+        boxLayout.addWidget(self.textbox_US_left)
         boxLayout.addWidget(self.US_Left)
+
         self.US_Left_status = QPushButton('Status')
         self.US_Left_status.clicked.connect(self.US_Left_onclick_status) 
         boxLayout.addWidget(self.US_Left_status)    
@@ -86,8 +92,11 @@ class RobotMonitorWidget(QWidget):
         #right
         boxLayout = QHBoxLayout()
         groupBox = QGroupBox('Right Ultrasonic')
+        self.textbox_US_right = QLineEdit()
+        self.textbox_US_right.resize(40,40)
         self.US_Right = QPushButton('Calculate')
-        self.US_Right.clicked.connect(self.US_Right_onclick) 
+        self.US_Right.clicked.connect(self.US_Right_onclick)
+        boxLayout.addWidget(self.textbox_US_right) 
         boxLayout.addWidget(self.US_Right)
         self.US_Right_status = QPushButton('Status')
         self.US_Right_status.clicked.connect(self.US_Right_onclick_status) 
@@ -99,9 +108,14 @@ class RobotMonitorWidget(QWidget):
         #Front
         boxLayout = QHBoxLayout()
         groupBox = QGroupBox('Front Ultrasonic')
+
+        self.textbox_US_front = QLineEdit()
+        self.textbox_US_front.resize(40,40)
         self.US_Front = QPushButton('Calculate')
-        self.US_Front.clicked.connect(self.US_Front_onclick) 
+        self.US_Front.clicked.connect(self.US_Front_onclick)
+        boxLayout.addWidget(self.textbox_US_front)  
         boxLayout.addWidget(self.US_Front)
+
         self.US_Front_status = QPushButton('Status')
         self.US_Front_status.clicked.connect(self.US_Right_onclick_status) 
         boxLayout.addWidget(self.US_Front_status)
@@ -121,21 +135,33 @@ class RobotMonitorWidget(QWidget):
         #left
         boxLayout = QHBoxLayout()
         groupBox = QGroupBox('Left Motor')
+
+        self.textbox_enc_Left = QLineEdit()
+        self.textbox_enc_Left.resize(40,40)
         self.enc_Left = QPushButton('Encoder')
-        self.enc_Left.clicked.connect(self.enc_Left_onclick) 
+        self.enc_Left.clicked.connect(self.enc_Left_onclick)
+        boxLayout.addWidget(self.textbox_enc_Left)  
         boxLayout.addWidget(self.enc_Left)
+
+
         self.enc_Left_status = QPushButton('Status')
         self.enc_Left_status.clicked.connect(self.enc_Left_onclick_status) 
         boxLayout.addWidget(self.enc_Left_status)    
+
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         MotorGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
 
         #right
         boxLayout = QHBoxLayout()
         groupBox = QGroupBox('Right Motor')
+
+        self.textbox_enc_Right = QLineEdit()
+        self.textbox_enc_Right.resize(40,40)
         self.enc_Right = QPushButton('Enocoder')
-        self.enc_Right.clicked.connect(self.enc_Right_onclick) 
+        self.enc_Right.clicked.connect(self.enc_Right_onclick)
+        boxLayout.addWidget(self.textbox_enc_Right)  
         boxLayout.addWidget(self.enc_Right)
+
         self.enc_Right_status = QPushButton('Status')
         self.enc_Right_status.clicked.connect(self.enc_Right_onclick_status) 
         boxLayout.addWidget(self.enc_Right_status)
@@ -155,11 +181,18 @@ class RobotMonitorWidget(QWidget):
         #Stepper Motor
         boxLayout = QVBoxLayout()
         groupBox = QGroupBox('Stepper Motor')
+        self.textbox_stepper = QLineEdit()
+        self.textbox_stepper.resize(40,40)
         self.enc_stepper = QPushButton('Encoder Count')
-        self.enc_stepper.clicked.connect(self.enc_stepper_onclick) 
+        self.enc_stepper.clicked.connect(self.enc_stepper_onclick)
+        boxLayout.addWidget(self.textbox_stepper) 
         boxLayout.addWidget(self.enc_stepper)
+
+        # self.textbox_stepper_status = QLineEdit()
+        # self.textbox_stepper_status.resize(40,40)
         self.enc_stepper_status = QPushButton('Status')
-        self.enc_stepper_status.clicked.connect(self.enc_stepper_onclick_status) 
+        self.enc_stepper_status.clicked.connect(self.enc_stepper_onclick_status)
+        # boxLayout.addWidget(self.textbox_stepper_status) 
         boxLayout.addWidget(self.enc_stepper_status)    
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
@@ -167,15 +200,80 @@ class RobotMonitorWidget(QWidget):
         #Servo Motor
         boxLayout = QVBoxLayout()
         groupBox = QGroupBox('Servo')
+
+        self.textbox_servo = QLineEdit()
+        self.textbox_servo.resize(40,40)
         self.enc_servo = QPushButton('Servo Count')
-        self.enc_servo.clicked.connect(self.enc_servo_onclick) 
+        self.enc_servo.clicked.connect(self.enc_servo_onclick)
+        boxLayout.addWidget(self.textbox_servo) 
         boxLayout.addWidget(self.enc_servo)
+
+        # self.textbox_servo_status = QLineEdit()
+        # self.textbox_servo_status.resize(40,40)
         self.enc_servo_status = QPushButton('Status')
-        self.enc_servo_status.clicked.connect(self.enc_servo_onclick_status) 
+        self.enc_servo_status.clicked.connect(self.enc_servo_onclick_status)
+        # boxLayout.addWidget(self.textbox_servo_status)  
         boxLayout.addWidget(self.enc_servo_status)
-        
+
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
+
+        #PID Control - Rotation 
+        boxLayout = QVBoxLayout()
+        groupBox = QGroupBox('PID-Rotation')
+
+        textbox = QLineEdit()
+        textbox.resize(40,40)
+        self.set_P = QPushButton('Set P')
+        self.set_P.clicked.connect(self.set_P_onclick) 
+        boxLayout.addWidget(textbox)
+        boxLayout.addWidget(self.set_P)
+
+        textbox2 = QLineEdit()
+        textbox2.resize(40,40)
+        self.set_I = QPushButton('Set I')
+        self.set_I.clicked.connect(self.set_I_onclick) 
+        boxLayout.addWidget(textbox2)
+        boxLayout.addWidget(self.set_I)
+
+        textbox3 = QLineEdit()
+        textbox3.resize(40,40)
+        self.set_D = QPushButton('Set D')
+        self.set_D.clicked.connect(self.set_D_onclick) 
+        boxLayout.addWidget(textbox3)
+        boxLayout.addWidget(self.set_D)
+
+        groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
+        TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
+
+        #PID Control - Movement 
+        boxLayout = QVBoxLayout()
+        groupBox = QGroupBox('PID-Movement')
+
+        textbox = QLineEdit()
+        textbox.resize(40,40)
+        self.set_P_move = QPushButton('Set P')
+        self.set_P_move.clicked.connect(self.set_P_move_onclick) 
+        boxLayout.addWidget(textbox)
+        boxLayout.addWidget(self.set_P_move)
+
+        textbox2 = QLineEdit()
+        textbox2.resize(40,40)
+        self.set_I_move = QPushButton('Set I')
+        self.set_I.clicked.connect(self.set_I_move_onclick) 
+        boxLayout.addWidget(textbox2)
+        boxLayout.addWidget(self.set_I_move)
+
+        textbox3 = QLineEdit()
+        textbox3.resize(40,40)
+        self.set_D_move = QPushButton('Set D')
+        self.set_D_move.clicked.connect(self.set_D_move_onclick) 
+        boxLayout.addWidget(textbox3)
+        boxLayout.addWidget(self.set_D_move)
+
+        groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
+        TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
+        
         
         #End of Turret Widget
         TurretGroup.setLayout(TurretGroupLayout)
@@ -233,66 +331,80 @@ class RobotMonitorWidget(QWidget):
     def US_Left_onclick(self):
 
         distance = get_ultrasonic_reading(us_trig_pins['left'], us_echo_pins['left'], 'in')
+        self.textbox_US_left.setText(str(distance))
         print("Left Ultrasonic Reading:  {}".format(distance))
 
     def US_Left_onclick_status(self):
         trig_pin, echo_pin, units = setup_left()
         distance = get_sonar_readings(trig_pin, echo_pin, units)
         if(distance > 0.0):
+            self.US_Left_status.setStyleSheet("background-color: green")
             print(True)
         else:
+            self.US_Left_status.setStyleSheet("background-color: red")
             print("Invalid Ultrasonic Reading")
 
     def US_Right_onclick(self):
         distance = get_ultrasonic_reading(us_trig_pins['right'], us_echo_pins['right'], 'in')
+        self.textbox_US_right.setText(str(distance))
         print("Right Ultrasonic Reading: {}".format(distance))
 
     def US_Right_onclick_status(self):
         trig_pin, echo_pin, units = setup_right()
         distance = get_sonar_readings(trig_pin, echo_pin, units)
         if(distance > 0.0):
+            self.US_Right_status.setStyleSheet("background-color: green")
             print(True)
         else:
+            self.US_Right_status.setStyleSheet("background-color: red")
             print("Invalid Ultrasonic Reading")
 
     def US_Front_onclick(self):
         distance = get_ultrasonic_reading(us_trig_pins['front'], us_echo_pins['front'], 'in')
+        self.textbox_US_front.setText(str(distance))
         print("Front Ultrasonic Reading: {}".format(distance))
 
     def US_Front_onclick_status(self):
         trig_pin, echo_pin, units = setup_front()
         distance = get_sonar_readings(trig_pin, echo_pin, units)
         if(distance > 0.0):
+            self.US_Front_status.setStyleSheet("background-color: green")
             print(True)
         else:
+            self.US_Front_status.setStyleSheet("background-color: red")
             print("Invalid Ultrasonic Reading")
 
     def enc_Left_onclick(self):
         value = get_encoder_values(bus, slave_address, 'left')
+        self.textbox_enc_Left.setText(str(value))
         print(value)
 
 
     def enc_Left_onclick_status(self):
-        print("On Click Status")
+        self.enc_Left_status.setStyleSheet("background-color: green")
 
     def enc_Right_onclick(self):
         value = get_encoder_values(bus, slave_address, 'right')
+        self.textbox_enc_Right.setText(str(value))
         print(value)
 
     def enc_Right_onclick_status(self):
-        print("On Click Status")
+        self.enc_Right_status.setStyleSheet("background-color: green")
 
     def enc_stepper_onclick(self):
-        print("On Click")
+        self.textbox_stepper.setText("sehgkjsebfksjd")
 
     def enc_stepper_onclick_status(self):
-        print("On Click Status")
+        self.enc_stepper_status.setStyleSheet("background-color: red")
 
     def enc_servo_onclick(self):
-        print("On Click")
+        self.textbox_servo.setText("Clicked")
 
     def enc_servo_onclick_status(self):
-        print("On Click Status")
+        self.enc_servo_status.setStyleSheet("background-color: green")
+        # self.textbox_servo_status.setText("Smart")
+        # time.sleep(2000)
+        # self.textbox_servo_status.setText("")
 
     def odome_onclick(self):
         print("gefefe")
@@ -301,6 +413,24 @@ class RobotMonitorWidget(QWidget):
         print("gefefe")
 
     def pose_onclick(self):
+        print("gefefe")
+    
+    def set_P_onclick(self):
+        print("gefefe")
+
+    def set_I_onclick(self):
+        print("gefefe")
+    
+    def set_D_onclick(self):
+        print("gefefe")
+
+    def set_P_move_onclick(self):
+        print("gefefe")
+
+    def set_I_move_onclick(self):
+        print("gefefe")
+    
+    def set_D_move_onclick(self):
         print("gefefe")
 
     def btnQuit_onclick(self):
