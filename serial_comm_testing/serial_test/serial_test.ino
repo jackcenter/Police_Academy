@@ -16,5 +16,11 @@ void loop() {
       pit_cmd = p_cmd.toFloat();
     }
     }
+  // go to home, reverse steps ? 
+  // go home .. 
 
+      rot_cmd = [on/off (1 or 0), direction (0 or 1), #steps (if 0, = while), 1/velocity (int gap between high and low pulse #us)]
+      pit_cmd = [on/off (1 or 0), direction (0 or 1), #step (if 0, = while), 1/velocity (int gap between high and low pulse #us)]
+
+  
 }
