@@ -7,6 +7,8 @@ SP2020
 Variation on the luxonis test.py code.  Uses color filtering and calls a PID
 controller from simple_pid to send appropriate commands to the turret stepper
 motors for pitch and rotation.
+
+
 '''
 import smbus
 import sys
@@ -26,15 +28,12 @@ from depthai_helpers import utils
 
 
 '''
-Functions -- do they all have to be inside the class?  Can I use functions that
-I define outside the class?  Can Arpit use functions outside that class?
+TODO
 
-Should I make the class?  Arpit don't you already have something like that 
-defined in robot.py?
-
-What's the difference between objectname.function and function?  
-
-Time to do this ... ?
+make default action if it doesn't see anything
+make i2c communication section
+fix commands for scott
+get in touch with Arpit about gui
 '''
 
 ############################### COLOR FILTERING ##########################
@@ -96,24 +95,45 @@ def parse_args():
 
 
 
-########################### START CLASS DEF ########################3
+########################### START CLASS DEF ########################
 #args = vars(parse_args())
 
 class Targeting:
-    def __init__(self, imshow_debug = False, timeout_time = 120.0, pitch_pid_modifier = None, 
+    def __init__(self):
+        
+        self.imshow_debug           = False
+        self.timeout_time           = 120
+        self.pitch_pid_modifier     = None
+        self.rotate_pid_modifier    = None
+        self.communication_on       = True
+        self.trackbars_on           = False
+        self.red                    = True
+        self.activated              = False
+        self.pitch_value            = None 
+        self.rotate_value           = None
+        
+    def activate(imshow_debug = False, timeout_time = 120.0, pitch_pid_modifier = None, 
                  rotate_pid_modifier = None, communication_on = True, trackbars_on = False, 
-                 red = True, activated = False):
+                 red = True):
         
-        self.imshow_debug = imshow_debug
-        self.timeout_time = timeout_time
-        self.pitch_pid_modifier = pitch_pid_modifier
-        self.rotate_pid_modifier = rotate_pid_modifier
-        self.communication_on = communication_on
-        self.trackbars_on = trackbars_on
-        self.red = red
-        self.activated = activated
+        self.imshow_debug           = imshow_debug
+        self.timeout_time           = timeout_time
+        self.pitch_pid_modifier     = pitch_pid_modifier
+        self.rotate_pid_modifier    = rotate_pid_modifier
+        self.communication_on       = communication_on
+        self.trackbars_on           = trackbars_on
+        self.red                    = red
+        '''
+        These are the options that should be in the GUI (defaults are created both in function and in the constructor)
+            imshow_debug = True     this makes it print out all the debug outputs and turns on the images to display on the pi
+            timeout_time = float    this sets the time after activation at which it times out and turns off if it doesn't do anything
+            pitch_pid_modifier = 4 element list of the form [kp, ki, kd, setpoint]
+            rotate_pid_modifier = 4 element list of the form [kp, ki, kd, setpoint]
+            communication_on = True this turns on i2c communication with the arduino
+            trackbars_on = True     this turns on the trackbars and the images for adjusting color (automatically turns on imshow debug as well)
+            red = True              this makes it go after red targets -- False makes it go after green targets
+        '''
         
-    def activate():
         #if args['config_overwrite']:
         #    args['config_overwrite'] = json.loads(args['config_overwrite'])
         
@@ -726,6 +746,16 @@ class Targeting:
                 if abs(pitch_command) < 0.5 and abs(rotate_command) < 0.5:
                     p_cmd = "f"
                     r_cmd = "f"
+                    
+                ############## FIX COMMANDS TODO FOR SCOTT ################
+                ##############   MAKE I2C WORK ENCODERS    ################
+                    
+                    
+                
+                
+                self.pitch_value  = p_cmd
+                self.rotate_value = r_cmd                
+                
                 
                 if self.imshow_debug:
                     print("pitch command = " + p_cmd)
