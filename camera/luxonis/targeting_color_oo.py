@@ -101,7 +101,8 @@ def parse_args():
 
 class Targeting:
     def __init__(self, imshow_debug = False, timeout_time = 120.0, pitch_pid_modifier = None, 
-                 rotate_pid_modifier = None, communication_on = True, trackbars_on = False, red = True):
+                 rotate_pid_modifier = None, communication_on = True, trackbars_on = False, 
+                 red = True, activated = False):
         
         self.imshow_debug = imshow_debug
         self.timeout_time = timeout_time
@@ -110,6 +111,7 @@ class Targeting:
         self.communication_on = communication_on
         self.trackbars_on = trackbars_on
         self.red = red
+        self.activated = activated
         
     def activate():
         #if args['config_overwrite']:
@@ -135,7 +137,7 @@ class Targeting:
         #    communication_on = False
         #else:
         #    communication_on = True
-    
+        self.activated = True
         
         if self.trackbars_on == True
             self.imshow_debug = True
@@ -766,4 +768,5 @@ class Targeting:
         cv2.destroyAllWindows()
         
         print('py: DONE.')
+        self.activated = False
                                                                                               
