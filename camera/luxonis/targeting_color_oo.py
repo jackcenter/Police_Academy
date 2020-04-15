@@ -159,7 +159,7 @@ class Targeting:
         #    communication_on = True
         self.activated = True
         
-        if self.trackbars_on == True
+        if self.trackbars_on
             self.imshow_debug = True
 
         
