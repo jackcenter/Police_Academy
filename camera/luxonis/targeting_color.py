@@ -25,6 +25,18 @@ import consts.resource_paths
 from depthai_helpers import utils
 
 
+'''
+Functions -- do they all have to be inside the class?  Can I use functions that
+I define outside the class?  Can Arpit use functions outside that class?
+
+Should I make the class?  Arpit don't you already have something like that 
+defined in robot.py?
+
+What's the difference between objectname.function and function?  
+
+Time to do this ... ?
+'''
+
 ############################### COLOR FILTERING ##########################
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
