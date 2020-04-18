@@ -21,7 +21,7 @@ class Filter:
 
         self.initial_state = np.array([0, 0, 0, 0, 0])
         self.current_state = np.array([0, 0, 0, 0, 0])
-        self.distance_conversion = 2*pi*1.9/self.drive_train.cpr
+        self.distance_conversion = 4.9*pi*1.9/self.drive_train.cpr
         self.rotation_conversion = 8.5/(2*1.9)
 
     def get_state_array(self):
