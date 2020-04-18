@@ -781,6 +781,8 @@ while True:
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
     if math.isnan(bad_guy_center[0]) and math.isnan(bad_guy_center[1]):
+        print(bad_guy_center)
+        print(math.isnan(bad_guy_center[0]))
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
