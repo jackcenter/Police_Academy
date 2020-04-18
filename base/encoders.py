@@ -119,7 +119,6 @@ class DriveTrain:
         left_value, right_value = get_encoder_values(self.bus, self.slave_address)
         self.enc_left.update(left_value)
         self.enc_right.update(right_value)
-        print("Enc deep: {}, {}".format(left_value, right_value))
 
     def get_distance(self):
         return (self.enc_left.get_position() + self.enc_right.get_position())/2

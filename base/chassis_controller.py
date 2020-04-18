@@ -38,8 +38,6 @@ def run_motion_plan(cmd, simple_filter):
 
         error = get_state_error(ref, current_state)
         maneuver_complete = check_maneuver_status(error)
-        print(error)
-        print(maneuver_complete)
         
         u = controller.run(current_state)
 
@@ -51,7 +49,7 @@ def run_motion_plan(cmd, simple_filter):
 
         print_dict_pretty("Input Components:", u)
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
-        print_dict_pretty("Inputs Sent:", converted_command)
+        # print_dict_pretty("Inputs Sent:", converted_command)
 
     print("================ Maneuver Complete ===================")
     print("================== Next Command ======================")
