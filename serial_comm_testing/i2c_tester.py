@@ -9,12 +9,10 @@ import smbus
 # i2c tester 
 
 def send_command(bus, slave_address, command):
-    try:
-        bus.write_i2c_block_data(slave_address, 0, command)
-        return 
-    except: 
-        print("Something bad happened!")
-        return 
+    bus.write_i2c_block_data(slave_address, 0, command)
+    return 
+#removed try except catcher here
+
 
 
 def read_data(bus, slave_address, data_size):
