@@ -9,6 +9,7 @@ controller from simple_pid to send appropriate commands to the turret stepper
 motors for pitch and rotation.
 '''
 import smbus
+import math
 import sys
 from time import time
 from time import sleep
@@ -779,7 +780,7 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if bad_guy_center is not None:
+    if math.isnan(bad_guy_center[0]) and math.isnan(bad_guy_center[1]):
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
@@ -803,7 +804,7 @@ while True:
             print("total command = " + str(total_cmd))
         
         
-# total commmand string   = 'rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
+# total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
             total_cmd_bytes = [a.to_bytes(2, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
