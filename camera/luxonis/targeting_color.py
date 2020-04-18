@@ -59,12 +59,8 @@ def bytes_to_int(data):
 
 
 def send_command(bus, slave_address, command):
-    try:
-        bus.write_i2c_block_data(slave_address, 0, command)
-        return 
-    except: 
-        print("Something bad happened!")
-        return 
+    bus.write_i2c_block_data(slave_address, 0, command)
+    return 
 
 
 def read_data(bus, slave_address, data_size):
@@ -83,7 +79,7 @@ def maprange(a, b, s):
 
 
 def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
-    r_delay_range = (200, 20)
+    r_delay_range = (200, 50)
     p_delay_range = (200, 50)
     if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
         r_delay = r_delay_range[1]
@@ -804,13 +800,12 @@ while True:
 # total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
-            total_cmd_bytes = [a.to_bytes(2, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
-            send_command(bus, slave_address, total_cmd_bytes)
+            send_command(bus, slave_address, tot_cmd)
             received_data = read_data(bus, slave_address, arduino_data_size)
             if received_data is not None:
                 str_received_data = [a.decode("utf-8") for a in received_data]
                 print(str_received_data)
-            
+                        
     
     
 #            try:
