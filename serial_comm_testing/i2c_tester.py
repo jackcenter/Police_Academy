@@ -28,7 +28,6 @@ def read_data(bus, slave_address, data_size):
 
 
 
-
 slave_address = 0x08
 arduino_data_size = 16
 bus = smbus.SMBus(1)
@@ -37,13 +36,13 @@ bus = smbus.SMBus(1)
 
 tot_cmd = [0, 1, 1, 0, 20000, 1, 1, 0, 20000]
 print(tot_cmd)
-total_cmd_bytes = [a.to_bytes(2, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
-print(total_cmd_bytes)
-send_command(bus, slave_address, total_cmd_bytes)
+#total_cmd_bytes = [a.to_bytes(2, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
+#print(total_cmd_bytes)
+send_command(bus, slave_address, tot_cmd)
 received_data = read_data(bus, slave_address, arduino_data_size)
 if received_data is not None:
     str_received_data = [a.decode("utf-8") for a in received_data]
     print(str_received_data)
     
-    
+
     
