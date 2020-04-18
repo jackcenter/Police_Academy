@@ -1,7 +1,6 @@
 step, mode, x, y, theta, w_right, w_left
-0, MotionPlanning, 0, 0, 0, 2, 2
-1, MotionPlanning, 36, 0, 0, 2, 2
-2, MotionPlanning, 36, 0, -90, 1, 1
-3, MotionPlanning, 60, 0, -90, 2, 2
-4, MotionPlanning, 60, 0, 90, 1, 1
-5, MotionPlanning, 84, 0, 90, 2, 2
+0, MotionPlanning, 0, 0, 0, 1.5, 1.5
+1, MotionPlanning, 0, 0, -90, 1, 1
+2, MotionPlanning, 24, 0, -90, 1.5, 1.5
+3, MotionPlanning, 0, 0, -90, 1.5, 1.5
+4, MotionPlanning, 0, 0, 0, 1, 1

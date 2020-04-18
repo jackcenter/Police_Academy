@@ -90,7 +90,7 @@ def get_state_error(r, x):
 
 def check_maneuver_status(e):
     # TODO: add to config file
-    threshold = np.array([1, 1, 3, .25, .25])
+    threshold = np.array([1, 100, 5, .25, .25])
     maneuver_complete = (np.abs(e) < threshold).all()
     return maneuver_complete
 
