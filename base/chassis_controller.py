@@ -36,8 +36,10 @@ def run_motion_plan(cmd, simple_filter):
         cmd.print_ref()
         simple_filter.print_state()
 
-        error = ref - current_state
+        error = get_state_error(ref, current_state)
         maneuver_complete = check_maneuver_status(error)
+        print(error)
+        print(maneuver_complete)
         
         u = controller.run(current_state)
 
@@ -76,6 +78,14 @@ def send_brake_command(bus, slave_address):
         bus.write_i2c_block_data(slave_address, 1, [1])
     except OSError:
         print("ERROR: missed the brake!")
+
+
+def get_state_error(r, x):
+    r[3] = 0
+    r[4] = 0
+    
+    e = r - x
+    return e
 
 
 def check_maneuver_status(e):
