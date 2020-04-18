@@ -46,10 +46,9 @@ def run_motion_plan(cmd, simple_filter):
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
         print_dict_pretty("Inputs Sent:", converted_command)
         t = time.time()
-
-    send_brake_command(simple_filter.bus, simple_filter.slave_address)
+    
     print("================== Next Command ======================")
-
+    send_brake_command(simple_filter.bus, simple_filter.slave_address)
     return 0
 
 
@@ -68,9 +67,9 @@ def send_command(command, bus, slave_address):
 
 def send_brake_command(bus, slave_address):
     try:
-        bus.write_i2c_block_data(slave_address, 1, 1)
+        bus.write_i2c_block_data(slave_address, 1, [1])
     except OSError:
-        print("ERROR: bus didn't respond")
+        print("ERROR: missed the brake!")
 
 
 def set_range(array, lower, upper):
