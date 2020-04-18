@@ -147,9 +147,8 @@ class DriveTrain:
         return velocity
 
 
-def get_encoder_values(bus1, slave_address, location=None):
+def get_encoder_values(bus, slave_address, location=None):
     try:
-        bus = smbus.SMBus(1)
         data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
         data_int_r = bytes_to_int(data_bytes[0:3])
         data_int_l = bytes_to_int(data_bytes[4:7])
