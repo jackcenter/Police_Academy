@@ -84,7 +84,7 @@ void loop() {
     // rotation command string = on/off(1 or 0), direction(1 or 0), #steps(if 0, = while), 1/velocity(int delay in us),
     // pitch command string    = on/off(1 or 0), direction (1 or 0), #steps(if 0, = while), 1/velocity(int delay in us) '\n'
 
-    // total commmand string   = 'rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
+    // total commmand string   = 'fir_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
 
   
 }
