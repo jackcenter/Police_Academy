@@ -792,7 +792,7 @@ while True:
         
         f_cmd = 0
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 0.5 and abs(rotate_command) < 0.5:
+        if abs(pitch_command) < 2 and abs(rotate_command) < 2:
             f_cmd = 1
 
         total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
