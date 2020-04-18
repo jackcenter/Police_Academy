@@ -26,7 +26,7 @@ from targeting_color_oo import Targeting
 
 lux = Targeting()
 
-lux.activate(imshow_debug = True, communication_on = False)
+lux.activate(imshow_debug=True, communication_on=False)
 
 
 

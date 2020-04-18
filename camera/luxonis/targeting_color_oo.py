@@ -31,9 +31,17 @@ from depthai_helpers import utils
 TODO
 
 make default action if it doesn't see anything
+    fix how it ends if shooting was successful
+        phase 1 = shoot then stop
+        phase 2 = count # of pixels that are red or something
+
+x,y pos of bad guys
+p_cmd and r_cmd
+
 make i2c communication section
 fix commands for scott
 get in touch with Arpit about gui
+TEST
 '''
 
 ############################### COLOR FILTERING ##########################
@@ -95,8 +103,11 @@ def parse_args():
 
 
 
-########################### START CLASS DEF ########################
+########################### START CLASS DEF ###############################
 #args = vars(parse_args())
+
+# possibly create functions that set each one of these    
+
 
 class Targeting:
     def __init__(self):
@@ -108,6 +119,7 @@ class Targeting:
         self.communication_on       = True
         self.trackbars_on           = False
         self.red                    = True
+        
         self.activated              = False
         self.pitch_value            = None 
         self.rotate_value           = None
@@ -123,6 +135,7 @@ class Targeting:
         self.communication_on       = communication_on
         self.trackbars_on           = trackbars_on
         self.red                    = red
+        
         '''
         These are the options that should be in the GUI (defaults are created both in function and in the constructor)
             imshow_debug = True     this makes it print out all the debug outputs and turns on the images to display on the pi
