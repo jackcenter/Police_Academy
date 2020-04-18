@@ -231,7 +231,6 @@ class RobotMonitorWidget(QWidget):
 
 
     def US_Left_onclick(self):
-
         distance = get_ultrasonic_reading(us_trig_pins['left'], us_echo_pins['left'], 'in')
         print("Left Ultrasonic Reading:  {}".format(distance))
 

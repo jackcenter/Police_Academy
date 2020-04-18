@@ -27,7 +27,7 @@ Buffer buffer;
 const double radius = 2;    // radius of the wheel in inches
 const double axel = 10;     // distance between wheels
 const int cpr = 8400;       // ecoder spec
-const int res = 64;         // number of encoder counts per single turn
+const int res = 100;         // number of encoder counts per single turn
 
 const int offsetLeft = 1;
 const int offsetRight = -1;
@@ -56,14 +56,16 @@ void setup() {
   Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
   
-  Serial.begin(9600);
-  Serial.println("Encoder Test:");
+//  Serial.begin(9600);
+//  Serial.println("Encoder Test:");
 }
 
 void loop() {
   motorLeft.drive(leftSpeed);
   motorRight.drive(rightSpeed);
   readEncoders();
+//  Serial.println(leftPos);
+//  delay(100);
 }
 
 void receiveEvent(int howMany) 
@@ -74,8 +76,8 @@ void receiveEvent(int howMany)
     return;
   }
   
-  Serial.print("Command, len: ");
-  Serial.println(numOfBytes);
+//  Serial.print("Command, len: ");
+//  Serial.println(numOfBytes);
   Wire.read();            // throws away first byte
 
   if (numOfBytes == 3){
@@ -91,12 +93,12 @@ void receiveEvent(int howMany)
     int u1 = u1_in;
     int u2 = u2_in;
     
-    Serial.print(" u1: ");
-    Serial.println(u1);
-    Serial.print(" u2: ");
-    Serial.println(u2);
-    Serial.println();
-  
+//    Serial.print(" u1: ");
+//    Serial.println(u1);
+//    Serial.print(" u2: ");
+//    Serial.println(u2);
+//    Serial.println();
+//  
     // convert input into acceleration for each motor [right, left]
     int omega_dot1[] = {u1, u1};
     int rem = u2%2;
@@ -106,21 +108,21 @@ void receiveEvent(int howMany)
     accelerateMotor(rightSpeed, omega_dot[0]);
     accelerateMotor(leftSpeed, omega_dot[1]);
   
-    Serial.print(" Right speed:    ");
-    Serial.println(rightSpeed);
-    Serial.print(" Left speed:     ");
-    Serial.println(leftSpeed);
+//    Serial.print(" Right speed:    ");
+//    Serial.println(rightSpeed);
+//    Serial.print(" Left speed:     ");
+//    Serial.println(leftSpeed);
   }  
 }
 
 void sendEvent()
 {
   int numOfBytes = Wire.available();
-  Serial.print("len: ");
-  Serial.println(numOfBytes);
+//  Serial.print("len: ");
+//  Serial.println(numOfBytes);
   byte side = Wire.read();
-  Serial.print("Send: ");
-  Serial.println(side);
+//  Serial.print("Send: ");
+//  Serial.println(side);
   if (side == 0){
       buffer.longNumber = rightPos;     
       Wire.write(buffer.longBytes, 4);
@@ -134,11 +136,11 @@ void sendEvent()
   }
 
 
-  Serial.print(" Right position: ");
-  Serial.println(rightPos);
-  Serial.print(" Left position:  ");
-  Serial.println(leftPos);
-  Serial.println();
+//  Serial.print(" Right position: ");
+//  Serial.println(rightPos);
+//  Serial.print(" Left position:  ");
+//  Serial.println(leftPos);
+//  Serial.println();
 }
   
 
