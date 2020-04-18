@@ -1,6 +1,6 @@
-step, mode, x, y, theta, w_right, w_left
-0, MotionPlanning, 0, 0, 0, 1.5, 1.5
-1, MotionPlanning, 0, 0, -90, 1, 1
-2, MotionPlanning, 24, 0, -90, 1.5, 1.5
-3, MotionPlanning, 0, 0, -90, 1.5, 1.5
-4, MotionPlanning, 0, 0, 0, 1, 1
+step, mode, action, x, y, theta, w_right, w_left
+0, MotionPlanning, init, 0, 0, 0, 1.5, 1.5
+1, MotionPlanning, turn, 0, 0, -90, 1, 1
+2, MotionPlanning, forward, 24, 0, -90, 1.5, 1.5
+3, MotionPlanning, backward, 0, 0, -90, 1.5, 1.5
+4, MotionPlanning, turn, 0, 0, 0, 1, 1

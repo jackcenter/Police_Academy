@@ -23,12 +23,12 @@ def run_motion_plan(cmd, simple_filter):
     # TODO: I don't think this does anything after first command
     ref = cmd.get_reference_array()
     # TODO: have this change depending on the ref
-    maneuver_complete = False
-    coefficients_filename = 'coefficients.txt'
+    action = cmd.get_action()
+
+    coefficients_filename = get_coefficients_filename(action)
     controller = create_controller(coefficients_filename, ref)
 
-    start = time.time()
-    t = start
+    maneuver_complete = False
     while not maneuver_complete:
         # TODO: add an actual stop process, not time
         time.sleep(.1)
@@ -52,12 +52,26 @@ def run_motion_plan(cmd, simple_filter):
         print_dict_pretty("Input Components:", u)
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
         print_dict_pretty("Inputs Sent:", converted_command)
-        t = time.time()
 
     print("================ Maneuver Complete ===================")
     print("================== Next Command ======================")
     send_brake_command(simple_filter.bus, simple_filter.slave_address)
+    time.sleep(2)
     return 0
+
+
+def get_coefficients_filename(action: str):
+    # TODO: add to config
+    if action == "forward":
+        filename = "forward.txt"
+
+    elif action == "backward":
+        filename = "backward.txt"
+
+    elif action == "turn":
+        filename = "turn.txt"
+
+    return filename
 
 
 def send_command(command, bus, slave_address):
