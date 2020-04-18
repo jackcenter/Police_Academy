@@ -34,8 +34,8 @@ bus = smbus.SMBus(1)
 
 tot_cmd = [0, 1, 1, 0, 200, 1, 1, 0, 200]
 print(tot_cmd)
-total_cmd_bytes = [a.to_bytes(1, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
-print(total_cmd_bytes)
+#total_cmd_bytes = [a.to_bytes(1, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
+#print(total_cmd_bytes)
 send_command(bus, slave_address, tot_cmd)
 received_data = read_data(bus, slave_address, arduino_data_size)
 if received_data is not None:
