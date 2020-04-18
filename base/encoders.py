@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import smbus
 from math import pi
 import smbus
 import time
@@ -118,6 +119,7 @@ class DriveTrain:
         left_value, right_value = get_encoder_values(self.bus, self.slave_address)
         self.enc_left.update(left_value)
         self.enc_right.update(right_value)
+        print("Enc deep: {}, {}".format(left_value, right_value))
 
     def get_distance(self):
         return (self.enc_left.get_position() + self.enc_right.get_position())/2
@@ -150,7 +152,7 @@ def get_encoder_values(bus, slave_address, location=None):
         data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
         data_int_r = bytes_to_int(data_bytes[0:3])
         data_int_l = bytes_to_int(data_bytes[4:7])
-
+        print(data_int_l)
     except OSError:
         print("ERROR: bus didn't respond")
         data_int_r = 0

@@ -67,8 +67,6 @@ class Turret:
 
 def odom(robot):
     def __init__(self, world_size = ):
-        
-        
 
         frame_id = "odom"
         child_frame_id = "base_link"

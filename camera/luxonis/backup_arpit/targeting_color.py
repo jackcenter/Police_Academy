@@ -1,3 +1,6 @@
+# Original Code : Chadd
+# Edited : Arpit 
+
 '''
 Chadd Miller
 MCEN5115
@@ -8,8 +11,9 @@ Variation on the luxonis test.py code.  Uses color filtering and calls a PID
 controller from simple_pid to send appropriate commands to the turret stepper
 motors for pitch and rotation.
 '''
+
+
 import smbus
-import math
 import sys
 from time import time
 from time import sleep
@@ -27,7 +31,18 @@ from depthai_helpers import utils
 
 
 
-############################### COLOR FILTERING ##########################
+#Global Variables
+pitch_pid_modifier = None
+rotate_pid_modifier = None
+t_start = time()
+time_start = time()
+frame_count = {}
+frame_count_prev = {}
+bus = None
+slave_address = 0x08
+i2c_cmd = 0x01
+
+# Global Functions -> Color Filtering 
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
@@ -45,8 +60,7 @@ def limit(inputVal,limits):
 
     return output
 
-########################## i2c comms #####################################
-    
+# i2c comms
 def ConvertStringToBytes(src):
     converted = []
     for b in src:
@@ -54,352 +68,289 @@ def ConvertStringToBytes(src):
     return converted
 
 
-def bytes_to_int(data):
-    return int.from_bytes(data, byteorder='little', signed=True)
 
+class Camera:
+    def __init__(self, parent = None):
+        global slave_address 
+        global i2c_cmd 
+        self.args = None
+        self.imshow_debug = False
+        self.timeout_time = None
+        self.communication_on = None
+        self.trackbars_on = False
+        self.cmd_file = consts.resource_paths.device_cmd_fpath
+        self.labels = []
+        self.stream_names = None
+        self.p = None
+        # Do not modify the default values in the config Dict below directly. Instead, use the `-co` argument when running this script.
+        self.config = {
+            'streams': [{'name': 'previewout', "max_fps": 2.0}, {'name': 'metaout', "max_fps": 2.0}],\
+            'depth':
+            {
+                'calibration_file': consts.resource_paths.calib_fpath,
+                # 'type': 'median',
+                'padding_factor': 0.3
+            },
+            'ai':
+            {
+                'blob_file': consts.resource_paths.blob_fpath,
+                'blob_file_config': consts.resource_paths.blob_config_fpath,
+                'calc_dist_to_bb': True
+            },
+            'board_config':
+            {
+                'swap_left_and_right_cameras': True, # True for 1097 (RPi Compute) and 1098OBC (USB w/onboard cameras)
+                'left_fov_deg': 69.0, # Same on 1097 and 1098OBC
+                #'left_to_right_distance_cm': 9.0, # Distance between stereo cameras
+                'left_to_right_distance_cm': 7.5, # Distance between 1098OBC cameras
+                'left_to_rgb_distance_cm': 2.0 # Currently unused
+            }
+        }
 
-def send_command(bus, slave_address, command):
-    try:
-        bus.write_i2c_block_data(slave_address, 0, command)
-        return 
-    except: 
-        print("Something bad happened!")
-        return 
+        self.entries_prev = []
+        # I2C address of Arduino Slave
+        slave_address = 0x08
+        # I think this is the register we're trying to read out of/into?
+        i2c_cmd = 0x01
 
+        self.black_image = None
+        self.thrs = None
 
-def read_data(bus, slave_address, data_size):
-    try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, data_size)
-        return data_bytes
+        # set default slider values
+        self.thresholdValue = 15
+        self.r1LowHue    = 0
+        self.r1LowSat    = 145
+        self.r1LowVal    = 145
+        self.r1UpHue     = 10
+        self.r1UpSat     = 255
+        self.r1UpVal     = 255
+        self.r2LowHue    = 170
+        self.r2LowSat    = 160
+        self.r2LowVal    = 135
+        self.r2UpHue     = 179
+        self.r2UpSat     = 255
+        self.r2UpVal     = 255
+        self.gLowHue     = 30
+        self.gLowSat     = 50
+        self.gLowVal     = 60
+        # self.gLowSat = 120
+        # self.gLowVal = 70
+        self.gUpHue      = 85
+        self.gUpSat      = 245
+        self.gUpVal      = 255
 
-    except OSError:
-        print("ERROR: bus didn't respond")
-        return None
+        self.filt=None
+        self.exitNow=None
+        self.pause=None
 
-
-def maprange(a, b, s):
-	(a1, a2), (b1, b2) = a, b
-	return  b1 + ((s - a1) * (b2 - b1) / (a2 - a1))
-
-
-def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
-    r_delay_range = (20000, 2000)
-    p_delay_range = (20000, 5000)
-    if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
-        r_delay = r_delay_range[1]
-    else:
-        r_delay = round(maprange(r_cmd_range, r_delay_range, r_cmd)) 
-    
-    if p_cmd > p_cmd_range[1] or p_cmd < p_cmd_range[0]:
-        p_delay = p_delay_range[1]
-    else:
-        p_delay = round(maprange(p_cmd_range, p_delay_range, p_cmd))
         
-    return (r_delay, p_delay)
+    def parse_args(self):
+        epilog_text = '''
+        Displays video streams captured by DepthAI.
 
+        Example usage:
 
-def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps = 0, p_steps = 0):
-    # 1 = on or yes, 0 = off or no.  If steps are 0, this means we won't be using it.
-    # for direction, 0 = left, 1 = right
-    # delays are in microseconds, ranging from rotation fastest = 2000, rotation slowest = 20000
-    # delays for pitch range from fastest = 5000 to slowest = 20000 us
-    # total command string should be entirely integers
-    
-    if r_vel != 0:
-        r_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
-        r_delay = delays[0]
-    else:
-        r_on = 0
-        r_delay = 0
-    
-    if p_vel != 0:
-        p_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
-        p_delay = delays[1]
-    else:
-        p_on = 0
-        p_delay = 0
+        # Pass thru pipeline config options
+
+        ## USB3 w/onboard cameras board config:
+        python3 test.py -co '{"board_config": {"left_to_right_distance_cm": 7.5}}'
+
+        ## Show the depth stream:
+        python3 test.py -co '{"streams": [{"name": "depth_sipp", "max_fps": 12.0}]}'
+        '''
+        parser = ArgumentParser(epilog=epilog_text,formatter_class=argparse.RawDescriptionHelpFormatter)
+        parser.add_argument("-to", "--timeout_time", default=None, action='store', help="Sets timeout time.")
+        parser.add_argument("-ct", "--create_trackbars", default=None, action='store_true', help="Creates trackbars for color adjustment.")
+        parser.add_argument("-ppid", "--pitch_pid_modify", default=None, action='append', help="Modifies the pitch PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid x_pixel_setpoint")
+        parser.add_argument("-rpid", "--rotate_pid_modify", default=None, action='append', help="Modifies the rotation PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid y_pixel_setpoint")
+        parser.add_argument("-io", "--i2c_off", default=None, action='store_true', help="Specifying this argument turns off the i2c communication.")
+        parser.add_argument("-imd", "--imshow_debug", default=None, action='store_true', help="Displays camera windows for viewing and displays print statements for debugging.")
+        parser.add_argument("-co", "--config_overwrite", default=None,
+                            type=str, required=False,
+                            help="JSON-formatted pipeline config object. This will be override defaults used in this script.")
+        parser.add_argument("-debug", "--dev_debug", default=None, action='store_true', help="Used by board developers for debugging.")
+        options = parser.parse_args()
+
+        return options
+
+    def tmout(self)
         
+        timeout_time = args['timeout_time']
+        if timeout_time is not None:
+            return float(timeout_time)
+        else:
+            return 150.0
+
+    def arg_setup(self):
+        args = vars(self.parse_args())
+
+        if args['config_overwrite']:
+            args['config_overwrite'] = json.loads(args['config_overwrite'])
+
+        print("Using Arguments=",self.args)
+    
+    def setup():
+
+        global pitch_pid_modifier
+        global rotate_pid_modifier
+        global t_start = time()
+        global time_start = time()
+        global frame_count = {}
+        global frame_count_prev = {}
+        global bus 
+        global slave_address 
+        global i2c_cmd
+
+        self.arg_setup()
+
+        # imshow_debug = False
+        if self.args['imshow_debug']:
+            self.imshow_debug = True
+
+        self.timeout_time = self.tmout() 
+
+        pitch_pid_modifier  = self.args['pitch_pid_modify']
+    
+        rotate_pid_modifier = self.args['rotate_pid_modify']
+
+        if self.args['i2c_off']:
+            self.communication_on = False
+        else:
+            self.communication_on = True
+
+        trackbars_on = False
+        if self.args['create_trackbars']:
+            self.trackbars_on = True
+            trackbars_on = True
+            self.imshow_debug = True
+
+        # cmd_file = consts.resource_paths.device_cmd_fpath
+        if self.args['dev_debug']:
+            self.cmd_file = ''
+            print('depthai will not load cmd file into device.')
+
+        with open(consts.resource_paths.blob_labels_fpath) as fp:
+            self.labels = fp.readlines()
+            self.labels = [i.strip() for i in labels]
+
+        print('depthai.__version__ == %s' % depthai.__version__)
+        print('depthai.__dev_version__ == %s' % depthai.__dev_version__)
+
+                
+        if not depthai.init_device(self.cmd_file):
+            print("Error initializing device. Try to reset it.")
+            exit(1)
+
+
+        print('Available streams: ' + str(depthai.get_available_steams()))
+
+
+        if self.args['config_overwrite'] is not None:
+            config = utils.merge(self.args['config_overwrite'],self.config)
+            print("Merged Pipeline config with overwrite",config)
+
+        if 'depth_sipp' in config['streams'] and ('depth_color_h' in config['streams'] or 'depth_mm_h' in config['streams']):
+            print('ERROR: depth_sipp is mutually exclusive with depth_color_h')
+            exit(2)
+            # del config["streams"][config['streams'].index('depth_sipp')]
+
+        self.stream_names = [stream if isinstance(stream, str) else stream['name'] for stream in config['streams']]
+
+        # create the pipeline, here is the first connection with the device
+        self.p = depthai.create_pipeline(self.config=config)
+
+        if self.p is None:
+            print('Pipeline is not created.')
+            exit(2)
+
+
+        # t_start = time()
+        # time_start = time()
+        # frame_count = {}
+        # frame_count_prev = {}
+        for s in self.stream_names:
+            frame_count[s] = 0
+            frame_count_prev[s] = 0
+
+        self.entries_prev = []
+
+
+        ##################    I2C COMMUNICATION SETUP    ####################
+        if self.communication_on:
+            self.bus = smbus.SMBus(1)
+
+        ################## ADDED FOR COLOR DETECTION CWM ####################
+        if self.imshow_debug:
+            cv2.namedWindow('g_image')
+            cv2.namedWindow('r_image')
+
+        # if self.trackbars_on:
+        #     cv2.namedWindow('r1_sliders')
+        #     cv2.namedWindow('r2_sliders')
+        #     cv2.namedWindow('g_sliders')
         
-    if r_vel < 0:
-        r_dir = 0
-    else:
-        r_dir = 1
+        if trackbars_on:
+            cv2.namedWindow('r1_sliders')
+            cv2.namedWindow('r2_sliders')
+            cv2.namedWindow('g_sliders')
     
-    if p_vel < 0:
-        p_dir = 0
-    else:
-        p_dir = 1
-
-    
-    tot_cmd = [fire, r_on, r_dir, r_steps, r_delay, p_on, p_dir, p_steps, p_delay]
-    
-    return tot_cmd
-    
-    
-
-###########################################################################
+        # white blank image
+        self.blank_image = 255 * np.ones(shape=[10, 256, 3], dtype=np.uint8)
+        self.thrs=50
 
 
 
-def parse_args():
-    epilog_text = '''
-    Displays video streams captured by DepthAI.
 
-    Example usage:
+        #cv2.createTrackbar('Hue', 'image', 80, 179, nothing)
+        #cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
+        #cv2.createTrackbar('Val', 'image', 222, 255, nothing)
 
-    # Pass thru pipeline config options
-
-    ## USB3 w/onboard cameras board config:
-    python3 test.py -co '{"board_config": {"left_to_right_distance_cm": 7.5}}'
-
-    ## Show the depth stream:
-    python3 test.py -co '{"streams": [{"name": "depth_sipp", "max_fps": 12.0}]}'
-    '''
-    parser = ArgumentParser(epilog=epilog_text,formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("-to", "--timeout_time", default=None, action='store', help="Sets timeout time.")
-    parser.add_argument("-fps", "--frames_per_second", default=None, action='store', help="Sets fps of camera.  Keep at 12 or below.")
-    parser.add_argument("-ct", "--create_trackbars", default=None, action='store_true', help="Creates trackbars for color adjustment.")
-    parser.add_argument("-ppid", "--pitch_pid_modify", default=None, action='append', help="Modifies the pitch PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid x_pixel_setpoint")
-    parser.add_argument("-rpid", "--rotate_pid_modify", default=None, action='append', help="Modifies the rotation PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid y_pixel_setpoint")
-    parser.add_argument("-io", "--i2c_off", default=None, action='store_true', help="Specifying this argument turns off the i2c communication.")
-    parser.add_argument("-imd", "--imshow_debug", default=None, action='store_true', help="Displays camera windows for viewing and displays print statements for debugging.")
-    parser.add_argument("-co", "--config_overwrite", default=None,
-                        type=str, required=False,
-                        help="JSON-formatted pipeline config object. This will be override defaults used in this script.")
-    parser.add_argument("-debug", "--dev_debug", default=None, action='store_true', help="Used by board developers for debugging.")
-    options = parser.parse_args()
-
-    return options
-
-args = vars(parse_args())
-
-if args['config_overwrite']:
-    args['config_overwrite'] = json.loads(args['config_overwrite'])
-
-print("Using Arguments=",args)
-
-imshow_debug = False
-if args['imshow_debug']:
-    imshow_debug = True
-
-timeout_time = args['timeout_time']
-if timeout_time is not None:
-    timeout_time = float(timeout_time)
-else:
-    timeout_time = 150.0
-
-    
-fps= args['timeout_time']
-if fps is not None:
-    fps = float(timeout_time)
-else:
-    fps = 2.0
+        if trackbars_on:
+            
+            cv2.createTrackbar('filterThresh', 'r1_sliders', self.thresholdValue, 100, nothing)
+            cv2.createTrackbar('r1LowHue', 'r1_sliders', self.r1LowHue, 179, nothing)
+            cv2.createTrackbar('r1LowSat', 'r1_sliders', self.r1LowSat, 255, nothing)
+            cv2.createTrackbar('r1LowVal', 'r1_sliders', self.r1LowVal, 255, nothing)
+            cv2.createTrackbar('r1UpHue', 'r1_sliders', self.r1UpHue, 179, nothing)
+            cv2.createTrackbar('r1UpSat', 'r1_sliders', self.r1UpSat, 255, nothing)
+            cv2.createTrackbar('r1UpVal', 'r1_sliders', self.r1UpVal, 255, nothing)
+            cv2.createTrackbar('r2LowHue', 'r2_sliders', self.r2LowHue, 179, nothing)
+            cv2.createTrackbar('r2LowSat', 'r2_sliders', self.r2LowSat, 255, nothing)
+            cv2.createTrackbar('r2LowVal', 'r2_sliders', self.r2LowVal, 255, nothing)
+            cv2.createTrackbar('r2UpHue', 'r2_sliders', self.r2UpHue, 179, nothing)
+            cv2.createTrackbar('r2UpSat', 'r2_sliders', self.r2UpSat, 255, nothing)
+            cv2.createTrackbar('r2UpVal', 'r2_sliders', self.r2UpVal, 255, nothing)
+            cv2.createTrackbar('gLowHue', 'g_sliders', self.gLowHue, 179, nothing)
+            cv2.createTrackbar('gLowSat', 'g_sliders', self.gLowSat, 255, nothing)
+            cv2.createTrackbar('gLowVal', 'g_sliders', self.gLowVal, 255, nothing)
+            cv2.createTrackbar('gUpHue', 'g_sliders', self.gUpHue, 179, nothing)
+            cv2.createTrackbar('gUpSat', 'g_sliders', self.gUpSat, 255, nothing)
+            cv2.createTrackbar('gUpVal', 'g_sliders', self.gUpVal, 255, nothing)
 
 
-pitch_pid_modifier  = args['pitch_pid_modify']
-    
-rotate_pid_modifier = args['rotate_pid_modify']
+        ## red ball mask areas
+        #red_mask_1 = cv2.inRange(im_hsv, (0, 120, 70), (10, 255, 255))
+        #red_mask_2 = cv2.inRange(im_hsv, (170, 120, 70), (179, 255, 255)) 
 
-if args['i2c_off']:
-    communication_on = False
-else:
-    communication_on = True
+        #lower_red1 = np.array([0, 120, 100])
+        #upper_red1 = np.array([10, 255, 255])
+        #lower_red2 = np.array([170, 120, 100])
+        #upper_red2 = np.array([179, 255, 255])
 
+        #green mask area centered around 
+        # (80, 127, 222)
+        #green_mask = cv2.inRange(im_hsv, (55, 120, 70), (105, 255, 255)) 
+        #    lower_green = np.array([40, 10, 200])
+        #    upper_green = np.array([120, 245, 255])
 
-trackbars_on = False
-if args['create_trackbars']:
-    trackbars_on = True
-    imshow_debug = True
-
-cmd_file = consts.resource_paths.device_cmd_fpath
-if args['dev_debug']:
-    cmd_file = ''
-    print('depthai will not load cmd file into device.')
-
-labels = []
-with open(consts.resource_paths.blob_labels_fpath) as fp:
-    labels = fp.readlines()
-    labels = [i.strip() for i in labels]
+        #lower_green = np.array([55, 120, 70])
+        #upper_green = np.array([105, 255, 255])
 
 
-
-print('depthai.__version__ == %s' % depthai.__version__)
-print('depthai.__dev_version__ == %s' % depthai.__dev_version__)
-
-
-
-if not depthai.init_device(cmd_file):
-    print("Error initializing device. Try to reset it.")
-    exit(1)
-
-
-
-print('Available streams: ' + str(depthai.get_available_steams()))
-
-# Do not modify the default values in the config Dict below directly. Instead, use the `-co` argument when running this script.
-config = {
-    # Possible streams:
-    # ['left', 'right','previewout', 'metaout', 'depth_sipp', 'disparity', 'depth_color_h']
-    # If "left" is used, it must be in the first position.
-    # To test depth use:
-    #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
-    #'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
-    'streams': [{'name': 'previewout', "max_fps": fps}, {'name': 'metaout', "max_fps": 2.0}],
-    #'streams': ['metaout', 'previewout'],
-    'depth':
-    {
-        'calibration_file': consts.resource_paths.calib_fpath,
-        # 'type': 'median',
-        'padding_factor': 0.3
-    },
-    'ai':
-    {
-        'blob_file': consts.resource_paths.blob_fpath,
-        'blob_file_config': consts.resource_paths.blob_config_fpath,
-        'calc_dist_to_bb': True
-    },
-    'board_config':
-    {
-        'swap_left_and_right_cameras': True, # True for 1097 (RPi Compute) and 1098OBC (USB w/onboard cameras)
-        'left_fov_deg': 69.0, # Same on 1097 and 1098OBC
-        #'left_to_right_distance_cm': 9.0, # Distance between stereo cameras
-        'left_to_right_distance_cm': 7.5, # Distance between 1098OBC cameras
-        'left_to_rgb_distance_cm': 2.0 # Currently unused
-    }
-}
-
-if args['config_overwrite'] is not None:
-    config = utils.merge(args['config_overwrite'],config)
-    print("Merged Pipeline config with overwrite",config)
-
-if 'depth_sipp' in config['streams'] and ('depth_color_h' in config['streams'] or 'depth_mm_h' in config['streams']):
-    print('ERROR: depth_sipp is mutually exclusive with depth_color_h')
-    exit(2)
-    # del config["streams"][config['streams'].index('depth_sipp')]
-
-stream_names = [stream if isinstance(stream, str) else stream['name'] for stream in config['streams']]
-
-# create the pipeline, here is the first connection with the device
-p = depthai.create_pipeline(config=config)
-
-if p is None:
-    print('Pipeline is not created.')
-    exit(2)
-
-
-t_start = time()
-time_start = time()
-frame_count = {}
-frame_count_prev = {}
-for s in stream_names:
-    frame_count[s] = 0
-    frame_count_prev[s] = 0
-
-entries_prev = []
-
-
-##################    I2C COMMUNICATION SETUP    ####################
-if communication_on:
-    bus = smbus.SMBus(1)
-
-# I2C address of Arduino Slave
-slave_address = 0x08
-# I think this is the register we're trying to read out of/into?
-i2c_cmd = 0x01
-
-arduino_data_size = 8
-
-
-################## ADDED FOR COLOR DETECTION CWM ####################
-if imshow_debug:
-    cv2.namedWindow('g_image')
-    cv2.namedWindow('r_image')
-
-if trackbars_on:
-    cv2.namedWindow('r1_sliders')
-    cv2.namedWindow('r2_sliders')
-    cv2.namedWindow('g_sliders')
-    
-# white blank image
-blank_image = 255 * np.ones(shape=[10, 256, 3], dtype=np.uint8)
-thrs=50
-
-# set default slider values
-thresholdValue = 15
-r1LowHue    = 0
-r1LowSat    = 145
-r1LowVal    = 145
-r1UpHue     = 10
-r1UpSat     = 255
-r1UpVal     = 255
-r2LowHue    = 170
-r2LowSat    = 160
-r2LowVal    = 135
-r2UpHue     = 179
-r2UpSat     = 255
-r2UpVal     = 255
-gLowHue     = 30
-gLowSat     = 50
-gLowVal     = 60
-# gLowSat = 120
-# gLowVal = 70
-gUpHue      = 85
-gUpSat      = 245
-gUpVal      = 255
-
-
-#cv2.createTrackbar('Hue', 'image', 80, 179, nothing)
-#cv2.createTrackbar('Sat', 'image', 127, 255, nothing)
-#cv2.createTrackbar('Val', 'image', 222, 255, nothing)
-
-if trackbars_on:
-    
-    cv2.createTrackbar('filterThresh', 'r1_sliders', thresholdValue, 100, nothing)
-    cv2.createTrackbar('r1LowHue', 'r1_sliders', r1LowHue, 179, nothing)
-    cv2.createTrackbar('r1LowSat', 'r1_sliders', r1LowSat, 255, nothing)
-    cv2.createTrackbar('r1LowVal', 'r1_sliders', r1LowVal, 255, nothing)
-    cv2.createTrackbar('r1UpHue', 'r1_sliders', r1UpHue, 179, nothing)
-    cv2.createTrackbar('r1UpSat', 'r1_sliders', r1UpSat, 255, nothing)
-    cv2.createTrackbar('r1UpVal', 'r1_sliders', r1UpVal, 255, nothing)
-    cv2.createTrackbar('r2LowHue', 'r2_sliders', r2LowHue, 179, nothing)
-    cv2.createTrackbar('r2LowSat', 'r2_sliders', r2LowSat, 255, nothing)
-    cv2.createTrackbar('r2LowVal', 'r2_sliders', r2LowVal, 255, nothing)
-    cv2.createTrackbar('r2UpHue', 'r2_sliders', r2UpHue, 179, nothing)
-    cv2.createTrackbar('r2UpSat', 'r2_sliders', r2UpSat, 255, nothing)
-    cv2.createTrackbar('r2UpVal', 'r2_sliders', r2UpVal, 255, nothing)
-    cv2.createTrackbar('gLowHue', 'g_sliders', gLowHue, 179, nothing)
-    cv2.createTrackbar('gLowSat', 'g_sliders', gLowSat, 255, nothing)
-    cv2.createTrackbar('gLowVal', 'g_sliders', gLowVal, 255, nothing)
-    cv2.createTrackbar('gUpHue', 'g_sliders', gUpHue, 179, nothing)
-    cv2.createTrackbar('gUpSat', 'g_sliders', gUpSat, 255, nothing)
-    cv2.createTrackbar('gUpVal', 'g_sliders', gUpVal, 255, nothing)
-
-
-## red ball mask areas
-#red_mask_1 = cv2.inRange(im_hsv, (0, 120, 70), (10, 255, 255))
-#red_mask_2 = cv2.inRange(im_hsv, (170, 120, 70), (179, 255, 255)) 
-
-#lower_red1 = np.array([0, 120, 100])
-#upper_red1 = np.array([10, 255, 255])
-#lower_red2 = np.array([170, 120, 100])
-#upper_red2 = np.array([179, 255, 255])
-
-#green mask area centered around 
-# (80, 127, 222)
-#green_mask = cv2.inRange(im_hsv, (55, 120, 70), (105, 255, 255)) 
-#    lower_green = np.array([40, 10, 200])
-#    upper_green = np.array([120, 245, 255])
-
-#lower_green = np.array([55, 120, 70])
-#upper_green = np.array([105, 255, 255])
-
-
- #sets how much to blur
-filt=39
-exitNow=0
-pause=0
+        #sets how much to blur
+        self.filt=39
+        self.exitNow=0
+        self.pause=0
 ####################################################################
 
 
@@ -456,10 +407,6 @@ if rotate_pid_modifier is not None:
             r_kd = 0.01        
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
-
-r_cmd_range = (-r_kp*300, r_kp*300)
-p_cmd_range = (-p_kp*300, p_kp*300)
-
 
 list_of_pid_params = [p_kp, p_ki, p_kd, yref, r_kp, r_ki, r_kd, xref]
 if imshow_debug:
@@ -780,50 +727,35 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
+    if bad_guy_center is not None:
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
         pitch_controller    = simple_pid.PID(p_kp, p_ki, p_kd, setpoint=yref)
         pitch_command       = round(pitch_controller(bad_guy_y), 2)
+        p_cmd               = "{:.2f}".format(pitch_command)
         
         rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
         rotate_command      = round(rotate_controller(bad_guy_x), 2)
+        r_cmd               = "{:.2f}".format(rotate_command)
         
-        f_cmd = 0
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 2 and abs(rotate_command) < 2:
-            f_cmd = 1
-
-        total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
+        if abs(pitch_command) < 0.5 and abs(rotate_command) < 0.5:
+            p_cmd = "f"
+            r_cmd = "f"
         
         if imshow_debug:
-            print("total command = " + str(total_cmd))
+            print("pitch command = " + p_cmd)
+            print("rotation command = " + r_cmd)
         
         
-# total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
-            total_cmd_bytes = [a.to_bytes(2, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
-            send_command(bus, slave_address, total_cmd_bytes)
-            received_data = read_data(bus, slave_address, arduino_data_size)
-            if received_data is not None:
-                str_received_data = [a.decode("utf-8") for a in received_data]
-                print(str_received_data)
-            
+            bytesToSend = ConvertStringToBytes(r_cmd + ',' + p_cmd)
+            print(bytesToSend)
+            bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
     
     
-#            try:
-#                data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
-#                data_int_r = bytes_to_int(data_bytes[0:3])
-#                data_int_l = bytes_to_int(data_bytes[4:7])
-#        
-#            except OSError:
-#                print("ERROR: bus didn't respond")
-#                data_int_r = 0
-#                data_int_l = 0
-    
-        
     
     
 #########################################################################################    

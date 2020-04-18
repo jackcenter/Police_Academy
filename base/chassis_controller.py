@@ -27,12 +27,15 @@ def run_motion_plan(cmd, simple_filter):
 
     start = time.time()
     t = start
-    while t - start < 20:
+    while t - start < 10:
         # TODO: add an actual stop process, not time
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
         cmd.print_ref()
         simple_filter.print_state()
+        print("Encs: {}, {}".format(simple_filter.drive_train.enc_left.position,
+                                    simple_filter.drive_train.enc_right.position))
+        
         u = controller.run(current_state)
 
         u_omega = u['x'] + u['w_left'] + u['w_right']
@@ -56,8 +59,12 @@ def send_command(command, bus, slave_address):
     # TODO: set command
     command = set_range(command, -3, 3)
     converted = [int(command[0]), (int(command[1]))]
-    bus.write_i2c_block_data(slave_address, 0, converted)
-    return {'U_omega': converted[0], 'U_psi': converted[1]}
+    try:
+        bus.write_i2c_block_data(slave_address, 0, converted)
+        return {'U_omega': converted[0], 'U_psi': converted[1]}
+    except OSError:
+        print("ERROR: bus didn't respond")
+        return {'U_omega': 0, 'U_psi': 0}
 
 
 def set_range(array, lower, upper):
