@@ -20,19 +20,24 @@ def run_motion_plan(cmd, simple_filter):
     :return:
     """
     simple_filter.set_state = [0, 0, 0, 0, 0]
+    # TODO: I don't think this does anything after first command
     ref = cmd.get_reference_array()
     # TODO: have this change depending on the ref
+    maneuver_complete = False
     coefficients_filename = 'coefficients.txt'
     controller = create_controller(coefficients_filename, ref)
 
     start = time.time()
     t = start
-    while t - start < 10:
+    while not maneuver_complete:
         # TODO: add an actual stop process, not time
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
         cmd.print_ref()
         simple_filter.print_state()
+
+        error = ref - current_state
+        maneuver_complete = check_maneuver_status(error)
         
         u = controller.run(current_state)
 
@@ -46,7 +51,8 @@ def run_motion_plan(cmd, simple_filter):
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
         print_dict_pretty("Inputs Sent:", converted_command)
         t = time.time()
-    
+
+    print("================ Maneuver Complete ===================")
     print("================== Next Command ======================")
     send_brake_command(simple_filter.bus, simple_filter.slave_address)
     return 0
@@ -70,6 +76,13 @@ def send_brake_command(bus, slave_address):
         bus.write_i2c_block_data(slave_address, 1, [1])
     except OSError:
         print("ERROR: missed the brake!")
+
+
+def check_maneuver_status(e):
+    # TODO: add to config file
+    threshold = np.array([1, 1, 3, .25, .25])
+    maneuver_complete = (np.abs(e) < threshold).all()
+    return maneuver_complete
 
 
 def set_range(array, lower, upper):
