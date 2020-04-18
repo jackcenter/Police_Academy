@@ -158,6 +158,7 @@ def parse_args():
     '''
     parser = ArgumentParser(epilog=epilog_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-to", "--timeout_time", default=None, action='store', help="Sets timeout time.")
+    parser.add_argument("-fps", "--frames_per_second", default=None, action='store', help="Sets fps of camera.  Keep at 12 or below.")
     parser.add_argument("-ct", "--create_trackbars", default=None, action='store_true', help="Creates trackbars for color adjustment.")
     parser.add_argument("-ppid", "--pitch_pid_modify", default=None, action='append', help="Modifies the pitch PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid x_pixel_setpoint")
     parser.add_argument("-rpid", "--rotate_pid_modify", default=None, action='append', help="Modifies the rotation PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid y_pixel_setpoint")
@@ -187,6 +188,14 @@ if timeout_time is not None:
     timeout_time = float(timeout_time)
 else:
     timeout_time = 150.0
+
+    
+fps= args['timeout_time']
+if fps is not None:
+    fps = float(timeout_time)
+else:
+    fps = 2.0
+
 
 pitch_pid_modifier  = args['pitch_pid_modify']
     
@@ -225,6 +234,7 @@ if not depthai.init_device(cmd_file):
     exit(1)
 
 
+
 print('Available streams: ' + str(depthai.get_available_steams()))
 
 # Do not modify the default values in the config Dict below directly. Instead, use the `-co` argument when running this script.
@@ -235,7 +245,7 @@ config = {
     # To test depth use:
     #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
     #'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
-    'streams': [{'name': 'previewout', "max_fps": 2.0}, {'name': 'metaout', "max_fps": 2.0}],
+    'streams': [{'name': 'previewout', "max_fps": fps}, {'name': 'metaout', "max_fps": 2.0}],
     #'streams': ['metaout', 'previewout'],
     'depth':
     {
