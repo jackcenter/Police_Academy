@@ -102,42 +102,15 @@ void receiveEvent(int howMany)
 
 void sendEvent()
 {
-  int numOfBytes = Wire.available();
-  Wire.read();
-//  byte side = Wire.read();
-//  if (side == 0){
+  Wire.read();  // throws away initial command
+
   buffer.longNumber = rightPos;     
   Wire.write(buffer.longBytes, 4);
   buffer.longNumber = leftPos;
   Wire.write(buffer.longBytes, 4);
-//  }
-
-//  else if (side == 1){
-//      buffer.longNumber = leftPos;
-//      Wire.write(buffer.longBytes, 4);
-//  }
 }
+
   
-
-//int convertInput(char input)
-//{
-//  int value = input - '0';
-//  value += -6;
-//  return value;
-//}
-//
-//int adjustInput(int value)
-//{
-//  value += -3;
-//  return value;
-//}
-
-//String convertIntToStr(int val)
-//{
-//  String conversion = String(val);
-//  return conversion;
-//}
-
 int* add_arrays(int a[], int b[])
 {
   static int c[2];
@@ -149,6 +122,7 @@ int* add_arrays(int a[], int b[])
 
   return c;
 }
+
 
 void accelerateMotor(int &currentSpeed, int accel)
 {
@@ -166,12 +140,9 @@ void accelerateMotor(int &currentSpeed, int accel)
   }
 }
 
+
 void readEncoders()
 {
   leftPos = encLeft.read()/(cpr/res);
   rightPos = -encRight.read()/(cpr/res);
-//  Serial.print("Left encoder: ");
-//  Serial.println(leftPos);
-//  Serial.print("Right encoder: ");
-//  Serial.println(rightPos);
 }

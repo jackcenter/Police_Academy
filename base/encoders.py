@@ -152,7 +152,7 @@ def get_encoder_values(bus, slave_address, location=None):
         data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
         data_int_r = bytes_to_int(data_bytes[0:3])
         data_int_l = bytes_to_int(data_bytes[4:7])
-        print(data_int_l)
+
     except OSError:
         print("ERROR: bus didn't respond")
         data_int_r = 0
