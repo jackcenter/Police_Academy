@@ -55,6 +55,7 @@ void setup() {
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -66,14 +67,10 @@ void loop() {
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-
-  if (numOfBytes != 3){
-    return;
-  }
   
   int cmd = Wire.read();  
   // drive or brake (0 or 1)         
-
+  Serial.println(cmd);
   if (cmd == 0){
     char u1_in = (int)Wire.read();
     char u2_in = (int)Wire.read();
@@ -92,6 +89,7 @@ void receiveEvent(int howMany)
   }  
 
   else if (cmd == 1){
+    Serial.println("Brake!");
     Wire.read();  // throws byte away
     motorLeft.brake();
     motorRight.brake();
