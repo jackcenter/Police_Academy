@@ -83,8 +83,8 @@ def maprange(a, b, s):
 
 
 def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
-    r_delay_range = (20000, 2000)
-    p_delay_range = (20000, 5000)
+    r_delay_range = (200, 20)
+    p_delay_range = (200, 50)
     if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
         r_delay = r_delay_range[1]
     else:
