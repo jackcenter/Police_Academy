@@ -780,9 +780,7 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if math.isnan(bad_guy_center[0]) and math.isnan(bad_guy_center[1]):
-        print(bad_guy_center)
-        print(math.isnan(bad_guy_center[0]))
+    if not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
@@ -798,9 +796,6 @@ while True:
             f_cmd = 1
 
         total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
-
-#        p_cmd               = "{:.2f}".format(pitch_command)
-#        r_cmd               = "{:.2f}".format(rotate_command)
         
         if imshow_debug:
             print("total command = " + str(total_cmd))
