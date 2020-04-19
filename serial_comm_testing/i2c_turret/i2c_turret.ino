@@ -1,6 +1,28 @@
 #include <Wire.h>
 
+
+union Buffer
+{
+    long longNumber;
+    byte longBytes[4];
+};
+
 byte slave_address = 8;
+Buffer buffer;
+
+int fire;
+int rot_on;
+int rot_dir;
+int rot_steps;
+int rot_delay;
+int pit_on;
+int pit_dir;
+int pit_steps;
+int pit_delay;
+long rot_steps_from_home = -325;
+long pit_steps_from_home = 1079;
+long num_servo_pulls = 3;
+
 
 void setup() {
   // Start I2C Bus as Slave
@@ -35,46 +57,53 @@ void receiveEvent() {
     cmd_str[i] = field;
   }
   
-  Serial.print("command string = ");
-  for (int n = 0; n < 9; n++) {
-    Serial.println(cmd_str[n]);
-
-  }
-    
-  delay(50);
-
-// HERE IS WHERE WE'LL NEED TO WRITE A FUNCTION THAT SUCKS OUT THE RECIEVE EVENT 
-// COMMAND STRING AND CONVERTS IT TO USABLE VARIABLES
+//  Serial.print("command string = ");
+//  for (int n = 0; n < 9; n++) {
+//    Serial.println(cmd_str[n]);
+//
+//  }
+  fire      = cmd_str[0];
+  Serial.print("fire = ");
+  Serial.println(fire);
+  rot_on    = cmd_str[1];
+  Serial.print("rot_on = ");
+  Serial.println(rot_on);
+  rot_dir   = cmd_str[2];
+  Serial.print("rot_dir = ");
+  Serial.println(rot_dir);
+  rot_steps = cmd_str[3];
+  Serial.print("rot_steps = ");
+  Serial.println(rot_steps);
+  rot_delay = 100*cmd_str[4];
+  Serial.print("rot_delay = ");
+  Serial.println(rot_delay);
+  pit_on    = cmd_str[5];
+  Serial.print("pit_on = ");
+  Serial.println(pit_on);
+  pit_dir   = cmd_str[6];
+  Serial.print("pit_dir = ");
+  Serial.println(pit_dir);
+  pit_steps = cmd_str[7];
+  Serial.print("pit_steps = ");
+  Serial.println(pit_steps);
+  pit_delay = 100*cmd_str[8];
+  Serial.print("pit_delay = ");
+  Serial.println(pit_delay);
 }
 
 
-
-
-
-//void sendEvent()
-//{
-//  int numOfBytes = Wire.available();
-//  Serial.print("len: ");
-//  Serial.println(numOfBytes);
-//  byte side = Wire.read();
-//  Serial.print("Send: ");
-//  Serial.println(side);
-//  if (side == 0){
-//      buffer.longNumber = rightPos;     
-//      Wire.write(buffer.longBytes, 4);
-//      buffer.longNumber = leftPos;
-//      Wire.write(buffer.longBytes, 4);
-//  }
-//  
-//  else if (side == 1){
-//      buffer.longNumber = leftPos;
-//      Wire.write(buffer.longBytes, 4);
-//  }
-//  
-//  
-//  Serial.print(" Right position: ");
-//  Serial.println(rightPos);
-//  Serial.print(" Left position:  ");
-//  Serial.println(leftPos);
-//  Serial.println();
-//}
+void sendEvent()
+{
+  Serial.print("rot_steps_from_home = ");
+  Serial.println(rot_steps_from_home);
+  buffer.longNumber = rot_steps_from_home;     
+  Wire.write(buffer.longBytes, 4);
+  Serial.print("pit_steps_from_home = ");
+  Serial.println(pit_steps_from_home);
+  buffer.longNumber = pit_steps_from_home;     
+  Wire.write(buffer.longBytes, 4);  
+  Serial.print("num_servo_pulls = ");
+  Serial.println(num_servo_pulls);
+  buffer.longNumber = num_servo_pulls;
+  Wire.write(buffer.longBytes, 4);
+}

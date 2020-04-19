@@ -5,7 +5,7 @@ Created on Sat Apr 18 15:01:42 2020
 @author: chadd
 """
 import smbus
-
+import time
 # i2c tester 
 
 def send_command(bus, slave_address, command):
@@ -13,16 +13,24 @@ def send_command(bus, slave_address, command):
     return 
 #removed try except catcher here
 
+def bytes_to_int(data):
+    return int.from_bytes(data, byteorder='little', signed=True)
 
-
-def read_data(bus, slave_address, data_size):
+def get_turret_status(bus, slave_address, location=None):
     try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, data_size)
-        return data_bytes
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
+        data_int_rot = bytes_to_int(data_bytes[0:3])
+        data_int_pit = bytes_to_int(data_bytes[4:7])
+        data_int_servo = bytes_to_int(data_bytes[8:11])
 
     except OSError:
         print("ERROR: bus didn't respond")
-        return None
+        data_int_rot = 0
+        data_int_pit = 0
+        data_int_servo = 0;
+
+        return data_int_rot, data_int_pit, data_int_servo
+
 
 
 
@@ -37,10 +45,13 @@ print(tot_cmd)
 #total_cmd_bytes = [a.to_bytes(1, 'big') for a in tot_cmd]  # the size 2 in to_bytes is the size of integers up to 30000, so this should use 16 bytes
 #print(total_cmd_bytes)
 send_command(bus, slave_address, tot_cmd)
-received_data = read_data(bus, slave_address, arduino_data_size)
-if received_data is not None:
-    str_received_data = [a.decode("utf-8") for a in received_data]
-    print(str_received_data)
+
+time.sleep(0.25)
+
+
+
+
+
     
 
     
