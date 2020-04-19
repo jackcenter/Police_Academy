@@ -63,14 +63,24 @@ def send_command(bus, slave_address, command):
     return 
 
 
-def read_data(bus, slave_address, data_size):
+
+def get_turret_status(bus, slave_address, location=None):
     try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, data_size)
-        return data_bytes
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
+        data_int_rot = bytes_to_int(data_bytes[0:3])
+        data_int_pit = bytes_to_int(data_bytes[4:7])
+        data_int_servo = bytes_to_int(data_bytes[8:11])
 
     except OSError:
         print("ERROR: bus didn't respond")
-        return None
+        data_int_rot = 0
+        data_int_pit = 0
+        data_int_servo = 0;
+
+        return data_int_rot, data_int_pit, data_int_servo
+
+
+
 
 
 def maprange(a, b, s):
@@ -801,25 +811,7 @@ while True:
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
             send_command(bus, slave_address, tot_cmd)
-            received_data = read_data(bus, slave_address, arduino_data_size)
-            if received_data is not None:
-                str_received_data = [a.decode("utf-8") for a in received_data]
-                print(str_received_data)
-                        
-    
-    
-#            try:
-#                data_bytes = bus.read_i2c_block_data(slave_address, 0, 8)
-#                data_int_r = bytes_to_int(data_bytes[0:3])
-#                data_int_l = bytes_to_int(data_bytes[4:7])
-#        
-#            except OSError:
-#                print("ERROR: bus didn't respond")
-#                data_int_r = 0
-#                data_int_l = 0
-    
-        
-    
+
     
 #########################################################################################    
     
