@@ -16,28 +16,28 @@ def send_command(bus, slave_address, command):
 def bytes_to_int(data):
     return int.from_bytes(data, byteorder='little', signed=True)
 
-def get_turret_status(bus, slave_address):
-    try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
-        print("data_bytes = ")
-        print(data_bytes)
-        data_int_rot = bytes_to_int(data_bytes[0:3])
-        data_int_pit = bytes_to_int(data_bytes[4:7])
-        data_int_servo = bytes_to_int(data_bytes[8:11])
+def get_turret_status(bus, slave_address, num_bytes):
+#     try:
+    data_bytes = bus.read_i2c_block_data(slave_address, 0, num_bytes)
+    print("data_bytes = ")
+    print(data_bytes)
+    data_int_rot = bytes_to_int(data_bytes[0:3])
+    data_int_pit = bytes_to_int(data_bytes[4:7])
+    data_int_servo = bytes_to_int(data_bytes[8:11])
 
-    except OSError:
-        print("ERROR: bus didn't respond")
-        data_int_rot = 0
-        data_int_pit = 0
-        data_int_servo = 0;
+#     except OSError:
+#         print("ERROR: bus didn't respond")
+#         data_int_rot = 0
+#         data_int_pit = 0
+#         data_int_servo = 0;
 
-        return data_int_rot, data_int_pit, data_int_servo
+    return data_int_rot, data_int_pit, data_int_servo
 
 
 
 
 slave_address = 0x08
-arduino_data_size = 16
+arduino_data_size = 12
 bus = smbus.SMBus(1)
 
 
@@ -48,9 +48,9 @@ print(tot_cmd)
 #print(total_cmd_bytes)
 send_command(bus, slave_address, tot_cmd)
 
-time.sleep(0.25)
+time.sleep(1)
 
-rot_steps_from_home, pit_steps_from_home, servo_pulls = get_turret_status(bus, slave_address)
+rot_steps_from_home, pit_steps_from_home, servo_pulls = get_turret_status(bus, slave_address, arduino_data_size)
 
 print(rot_steps_from_home)
 print(pit_steps_from_home)
