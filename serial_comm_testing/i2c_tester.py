@@ -16,9 +16,11 @@ def send_command(bus, slave_address, command):
 def bytes_to_int(data):
     return int.from_bytes(data, byteorder='little', signed=True)
 
-def get_turret_status(bus, slave_address, location=None):
+def get_turret_status(bus, slave_address):
     try:
         data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
+        print("data_bytes = ")
+        print(data_bytes)
         data_int_rot = bytes_to_int(data_bytes[0:3])
         data_int_pit = bytes_to_int(data_bytes[4:7])
         data_int_servo = bytes_to_int(data_bytes[8:11])
@@ -48,7 +50,11 @@ send_command(bus, slave_address, tot_cmd)
 
 time.sleep(0.25)
 
+rot_steps_from_home, pit_steps_from_home, servo_pulls = get_turret_status(bus, slave_address)
 
+print(rot_steps_from_home)
+print(pit_steps_from_home)
+print(servo_pulls)
 
 
 
