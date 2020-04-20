@@ -206,15 +206,16 @@ class ChassisPID:
             u = controller(x)
             u_dict.update({state_name: u})
 
-        u_dict = self.apply_exceptions(u_dict)
+        u_dict = self.apply_exceptions(u_dict, current_state)
         # TODO: convert to translation and turn commands.
         return u_dict
 
     @staticmethod
-    def apply_exceptions(u_dict):
+    def apply_exceptions(u_dict, state):
         """
         adjusts inputs base on heuristics
         :param u_dict: dictionary of the inputs from the controllers
+        :param state:
         :return: updated input dictionary
         """
         # if abs(u_dict['w_right']) > 0:
