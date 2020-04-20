@@ -217,10 +217,20 @@ class ChassisPID:
         :param u_dict: dictionary of the inputs from the controllers
         :return: updated input dictionary
         """
-        if abs(u_dict['w_right']) > 0:
+        # if abs(u_dict['w_right']) > 0:
+        #     u_dict.update({'w_right': 0})
+        #
+        # if abs(u_dict['w_left']) > 0:
+        #     u_dict.update({'w_left': 0})
+
+        if u_dict['w_right'] > 0 and state[4] >= 0:
+            u_dict.update({'w_right': 0})
+        elif u_dict['w_right'] < 0 and state[4] <= 0:
             u_dict.update({'w_right': 0})
 
-        if abs(u_dict['w_left']) > 0:
+        if u_dict['w_left'] > 0 and state[3] >= 0:
+            u_dict.update({'w_left': 0})
+        elif u_dict['w_left'] < 0 and state[3] <= 0:
             u_dict.update({'w_left': 0})
 
         return u_dict
