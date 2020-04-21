@@ -55,7 +55,8 @@ def ConvertStringToBytes(src):
 
 
 def bytes_to_int(data):
-    return int.from_bytes(data, byteorder='little', signed=True)
+    return int.from_bytes(data, byteorder='big', signed=True)
+# not working yet, receiving commands aren't working yet
 
 
 def send_command(bus, slave_address, command):
@@ -89,8 +90,9 @@ def maprange(a, b, s):
 
 
 def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
-    r_delay_range = (200, 50)
-    p_delay_range = (200, 50)
+    # TODO note, recently changed this to 250, check if i2C works
+    r_delay_range = (250, 50)
+    p_delay_range = (250, 50)
     if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
         r_delay = r_delay_range[1]
     else:
@@ -111,9 +113,10 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
     # delays for pitch range from fastest = 5000 to slowest = 20000 us
     # total command string should be entirely integers
     
+    
     if r_vel != 0:
         r_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, abs(r_vel), abs(p_vel))
         r_delay = delays[0]
     else:
         r_on = 0
@@ -121,7 +124,7 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
     
     if p_vel != 0:
         p_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, abs(r_vel), abs(p_vel))
         p_delay = delays[1]
     else:
         p_on = 0
@@ -463,8 +466,8 @@ if rotate_pid_modifier is not None:
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
 
-r_cmd_range = (-r_kp*300, r_kp*300)
-p_cmd_range = (-p_kp*300, p_kp*300)
+r_cmd_range = (0, r_kp*200)
+p_cmd_range = (0, p_kp*200)
 
 
 list_of_pid_params = [p_kp, p_ki, p_kd, yref, r_kp, r_ki, r_kd, xref]
@@ -786,7 +789,7 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
+    if bad_guy_center is not None and not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
@@ -795,16 +798,26 @@ while True:
         
         rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
         rotate_command      = round(rotate_controller(bad_guy_x), 2)
+        if imshow_debug:
+            print("pitch_command = " + str(pitch_command))
+            print("rotate_command = " + str(rotate_command))
+        
         
         f_cmd = 0
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 2 and abs(rotate_command) < 2:
+        if abs(pitch_command) < 0.2 and abs(rotate_command) < 0.2:
             f_cmd = 1
 
         total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
         
         if imshow_debug:
             print("total command = " + str(total_cmd))
+            
+        if f_cmd == 1:
+            print('########################################################')
+            print("                       FIRE AWAY!                       ")
+            print('########################################################')
+            break
         
         
 # total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
