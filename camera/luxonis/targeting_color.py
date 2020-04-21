@@ -90,8 +90,9 @@ def maprange(a, b, s):
 
 
 def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
-    r_delay_range = (200, 50)
-    p_delay_range = (200, 50)
+    # TODO note, recently changed this to 250, check if i2C works
+    r_delay_range = (250, 50)
+    p_delay_range = (250, 50)
     if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
         r_delay = r_delay_range[1]
     else:
@@ -112,9 +113,12 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
     # delays for pitch range from fastest = 5000 to slowest = 20000 us
     # total command string should be entirely integers
     
+    # TODO something in this mapping function is wrong
+    # so basically it maps between -max and +max, when it should map between min and max
+    
     if r_vel != 0:
         r_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, abs(r_vel), abs(p_vel))
         r_delay = delays[0]
     else:
         r_on = 0
@@ -122,7 +126,7 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
     
     if p_vel != 0:
         p_on = 1
-        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, abs(r_vel), abs(p_vel))
         p_delay = delays[1]
     else:
         p_on = 0
@@ -464,8 +468,8 @@ if rotate_pid_modifier is not None:
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
 
-r_cmd_range = (-r_kp*300, r_kp*300)
-p_cmd_range = (-p_kp*300, p_kp*300)
+r_cmd_range = (0, r_kp*200)
+p_cmd_range = (0, p_kp*200)
 
 
 list_of_pid_params = [p_kp, p_ki, p_kd, yref, r_kp, r_ki, r_kd, xref]
