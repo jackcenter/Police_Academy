@@ -65,9 +65,11 @@ def send_command(bus, slave_address, command):
 
 
 
-def get_turret_status(bus, slave_address, location=None):
+def get_turret_status(bus, slave_address, num_bytes):
+    # this gives the number of steps from home for rotation, pitch, and the 
+    # number of servo pulls, respectively
     try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, num_bytes)
         data_int_rot = bytes_to_int(data_bytes[0:3])
         data_int_pit = bytes_to_int(data_bytes[4:7])
         data_int_servo = bytes_to_int(data_bytes[8:11])
@@ -78,7 +80,7 @@ def get_turret_status(bus, slave_address, location=None):
         data_int_pit = 0
         data_int_servo = 0;
 
-        return data_int_rot, data_int_pit, data_int_servo
+    return data_int_rot, data_int_pit, data_int_servo
 
 
 
@@ -820,7 +822,7 @@ while True:
             break
         
         
-# total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
+# total commmand string   = [fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps)/10,rot_delay(#us)/100,pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps)/10,pit_delay(#us)/100]
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
             send_command(bus, slave_address, tot_cmd)
