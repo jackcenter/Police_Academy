@@ -29,12 +29,13 @@ from PyQt5.QtGui import *
 # Jack's Stuff
 # from encoders import get_encoder_values
 # from ultrasonics import get_ultrasonic_reading
+import run_robot
 
 base_folder = os.path.dirname(__file__)
 us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
 us_echo_pins = {'left': 23, 'front': 21, 'right': 19}
 encoders = {'left': 'l', 'right': 'r'}
-
+cmd_file_name = "commands_1.txt"
 # UNCOMENT ON PI
 # bus = smbus.SMBus(1)
 slave_address = 0x07
@@ -409,7 +410,8 @@ class RobotMonitorWidget(QWidget):
         print("gefefe")
 
     def go_onclick(self):
-        print("gefefe")
+        simple_filter = run_robot.setup()
+        run_robot.run(cmd_file_name, simple_filter)
 
     def pose_onclick(self):
         print("gefefe")
