@@ -9,6 +9,7 @@ controller from simple_pid to send appropriate commands to the turret stepper
 motors for pitch and rotation.
 '''
 import smbus
+import math
 import sys
 from time import time
 from time import sleep
@@ -25,17 +26,6 @@ import consts.resource_paths
 from depthai_helpers import utils
 
 
-'''
-Functions -- do they all have to be inside the class?  Can I use functions that
-I define outside the class?  Can Arpit use functions outside that class?
-
-Should I make the class?  Arpit don't you already have something like that 
-defined in robot.py?
-
-What's the difference between objectname.function and function?  
-
-Time to do this ... ?
-'''
 
 ############################### COLOR FILTERING ##########################
 def similar(a, b):
@@ -55,12 +45,107 @@ def limit(inputVal,limits):
 
     return output
 
-# i2c comms
+########################## i2c comms #####################################
+    
 def ConvertStringToBytes(src):
     converted = []
     for b in src:
         converted.append(ord(b))
     return converted
+
+
+def bytes_to_int(data):
+    return int.from_bytes(data, byteorder='big', signed=True)
+# not working yet, receiving commands aren't working yet
+
+
+def send_command(bus, slave_address, command):
+    bus.write_i2c_block_data(slave_address, 0, command)
+    return 
+
+
+
+def get_turret_status(bus, slave_address, location=None):
+    try:
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
+        data_int_rot = bytes_to_int(data_bytes[0:3])
+        data_int_pit = bytes_to_int(data_bytes[4:7])
+        data_int_servo = bytes_to_int(data_bytes[8:11])
+
+    except OSError:
+        print("ERROR: bus didn't respond")
+        data_int_rot = 0
+        data_int_pit = 0
+        data_int_servo = 0;
+
+        return data_int_rot, data_int_pit, data_int_servo
+
+
+
+
+
+def maprange(a, b, s):
+	(a1, a2), (b1, b2) = a, b
+	return  b1 + ((s - a1) * (b2 - b1) / (a2 - a1))
+
+
+def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
+    r_delay_range = (200, 50)
+    p_delay_range = (200, 50)
+    if r_cmd > r_cmd_range[1] or r_cmd < r_cmd_range[0]:
+        r_delay = r_delay_range[1]
+    else:
+        r_delay = round(maprange(r_cmd_range, r_delay_range, r_cmd)) 
+    
+    if p_cmd > p_cmd_range[1] or p_cmd < p_cmd_range[0]:
+        p_delay = p_delay_range[1]
+    else:
+        p_delay = round(maprange(p_cmd_range, p_delay_range, p_cmd))
+        
+    return (r_delay, p_delay)
+
+
+def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps = 0, p_steps = 0):
+    # 1 = on or yes, 0 = off or no.  If steps are 0, this means we won't be using it.
+    # for direction, 0 = left, 1 = right
+    # delays are in microseconds, ranging from rotation fastest = 2000, rotation slowest = 20000
+    # delays for pitch range from fastest = 5000 to slowest = 20000 us
+    # total command string should be entirely integers
+    
+    if r_vel != 0:
+        r_on = 1
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        r_delay = delays[0]
+    else:
+        r_on = 0
+        r_delay = 0
+    
+    if p_vel != 0:
+        p_on = 1
+        delays = map_vel_to_delay(r_cmd_range, p_cmd_range, r_vel, p_vel)
+        p_delay = delays[1]
+    else:
+        p_on = 0
+        p_delay = 0
+        
+        
+    if r_vel < 0:
+        r_dir = 0
+    else:
+        r_dir = 1
+    
+    if p_vel < 0:
+        p_dir = 0
+    else:
+        p_dir = 1
+
+    
+    tot_cmd = [fire, r_on, r_dir, r_steps, r_delay, p_on, p_dir, p_steps, p_delay]
+    
+    return tot_cmd
+    
+    
+
 ###########################################################################
 
 
@@ -81,6 +166,7 @@ def parse_args():
     '''
     parser = ArgumentParser(epilog=epilog_text,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-to", "--timeout_time", default=None, action='store', help="Sets timeout time.")
+    parser.add_argument("-fps", "--frames_per_second", default=None, action='store', help="Sets fps of camera.  Keep at 12 or below.")
     parser.add_argument("-ct", "--create_trackbars", default=None, action='store_true', help="Creates trackbars for color adjustment.")
     parser.add_argument("-ppid", "--pitch_pid_modify", default=None, action='append', help="Modifies the pitch PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid x_pixel_setpoint")
     parser.add_argument("-rpid", "--rotate_pid_modify", default=None, action='append', help="Modifies the rotation PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid y_pixel_setpoint")
@@ -110,6 +196,14 @@ if timeout_time is not None:
     timeout_time = float(timeout_time)
 else:
     timeout_time = 150.0
+
+    
+fps= args['timeout_time']
+if fps is not None:
+    fps = float(timeout_time)
+else:
+    fps = 2.0
+
 
 pitch_pid_modifier  = args['pitch_pid_modify']
     
@@ -148,6 +242,7 @@ if not depthai.init_device(cmd_file):
     exit(1)
 
 
+
 print('Available streams: ' + str(depthai.get_available_steams()))
 
 # Do not modify the default values in the config Dict below directly. Instead, use the `-co` argument when running this script.
@@ -158,7 +253,7 @@ config = {
     # To test depth use:
     #'streams': [{'name': 'depth_sipp', "max_fps": 12.0}, {'name': 'previewout', "max_fps": 12.0}, ],
     #'streams': [{'name': 'previewout', "max_fps": 3.0}, {'name': 'depth_mm_h', "max_fps": 3.0}],
-    'streams': [{'name': 'previewout', "max_fps": 2.0}, {'name': 'metaout', "max_fps": 2.0}],
+    'streams': [{'name': 'previewout', "max_fps": fps}, {'name': 'metaout', "max_fps": 2.0}],
     #'streams': ['metaout', 'previewout'],
     'depth':
     {
@@ -221,7 +316,7 @@ slave_address = 0x08
 # I think this is the register we're trying to read out of/into?
 i2c_cmd = 0x01
 
-
+arduino_data_size = 8
 
 
 ################## ADDED FOR COLOR DETECTION CWM ####################
@@ -368,6 +463,10 @@ if rotate_pid_modifier is not None:
             r_kd = 0.01        
     else:
         print("ERROR -- INCORRECT LENGTH OF ROTATE PID ARGUMENTS, LENGTH SHOULD BE 4, BUT LENGTH WAS: " + str(rpid_args_length))
+
+r_cmd_range = (-r_kp*300, r_kp*300)
+p_cmd_range = (-p_kp*300, p_kp*300)
+
 
 list_of_pid_params = [p_kp, p_ki, p_kd, yref, r_kp, r_ki, r_kd, xref]
 if imshow_debug:
@@ -688,36 +787,36 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if bad_guy_center is not None:
+    if bad_guy_center is not None and not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
         pitch_controller    = simple_pid.PID(p_kp, p_ki, p_kd, setpoint=yref)
         pitch_command       = round(pitch_controller(bad_guy_y), 2)
-        p_cmd               = "{:.2f}".format(pitch_command)
         
         rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
         rotate_command      = round(rotate_controller(bad_guy_x), 2)
-        r_cmd               = "{:.2f}".format(rotate_command)
         
+        f_cmd = 0
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 0.5 and abs(rotate_command) < 0.5:
-            p_cmd = "f"
-            r_cmd = "f"
+        if abs(pitch_command) < 0.2 and abs(rotate_command) < 0.2:
+            f_cmd = 1
+
+        total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
         
         if imshow_debug:
-            print("pitch command = " + p_cmd)
-            print("rotation command = " + r_cmd)
+            print("total command = " + str(total_cmd))
+            
+        if f_cmd == 1:
+            print("FIRE AWAY")
+            break
         
         
+# total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
-            bytesToSend = ConvertStringToBytes(r_cmd + ',' + p_cmd)
-            print(bytesToSend)
-            bus.write_i2c_block_data(slave_address, i2c_cmd, bytesToSend)
-    
-    
-    
+            send_command(bus, slave_address, tot_cmd)
+
     
 #########################################################################################    
     

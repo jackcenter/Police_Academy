@@ -20,19 +20,25 @@ def run_motion_plan(cmd, simple_filter):
     :return:
     """
     simple_filter.set_state = [0, 0, 0, 0, 0]
+    # TODO: I don't think this does anything after first command
     ref = cmd.get_reference_array()
     # TODO: have this change depending on the ref
-    coefficients_filename = 'coefficients.txt'
+    action = cmd.get_action()
+
+    coefficients_filename = get_coefficients_filename(action)
     controller = create_controller(coefficients_filename, ref)
 
-    start = time.time()
-    t = start
-    while t - start < 20:
+    maneuver_complete = False
+    while not maneuver_complete:
         # TODO: add an actual stop process, not time
         time.sleep(.1)
         current_state = simple_filter.get_state_array()
         cmd.print_ref()
         simple_filter.print_state()
+
+        error = get_state_error(ref, current_state)
+        maneuver_complete = check_maneuver_status(error)
+        
         u = controller.run(current_state)
 
         u_omega = u['x'] + u['w_left'] + u['w_right']
@@ -43,12 +49,27 @@ def run_motion_plan(cmd, simple_filter):
 
         print_dict_pretty("Input Components:", u)
         print_dict_pretty("Inputs:", {"U_omega": u_omega, "U_psi": u_psi})
-        print_dict_pretty("Inputs Sent:", converted_command)
-        t = time.time()
+        # print_dict_pretty("Inputs Sent:", converted_command)
 
+    print("================ Maneuver Complete ===================")
     print("================== Next Command ======================")
-
+    send_brake_command(simple_filter.bus, simple_filter.slave_address)
+    time.sleep(2)
     return 0
+
+
+def get_coefficients_filename(action: str):
+    # TODO: add to config
+    if action == "forward":
+        filename = "forward.txt"
+
+    elif action == "backward":
+        filename = "backward.txt"
+
+    elif action == "turn":
+        filename = "turn.txt"
+
+    return filename
 
 
 def send_command(command, bus, slave_address):
@@ -56,8 +77,34 @@ def send_command(command, bus, slave_address):
     # TODO: set command
     command = set_range(command, -3, 3)
     converted = [int(command[0]), (int(command[1]))]
-    bus.write_i2c_block_data(slave_address, 0, converted)
-    return {'U_omega': converted[0], 'U_psi': converted[1]}
+    try:
+        bus.write_i2c_block_data(slave_address, 0, converted)
+        return {'U_omega': converted[0], 'U_psi': converted[1]}
+    except OSError:
+        print("ERROR: bus didn't respond")
+        return {'U_omega': 0, 'U_psi': 0}
+
+
+def send_brake_command(bus, slave_address):
+    try:
+        bus.write_i2c_block_data(slave_address, 1, [1])
+    except OSError:
+        print("ERROR: missed the brake!")
+
+
+def get_state_error(r, x):
+    r[3] = 0
+    r[4] = 0
+    
+    e = r - x
+    return e
+
+
+def check_maneuver_status(e):
+    # TODO: add to config file
+    threshold = np.array([1, 100, 5, .25, .25])
+    maneuver_complete = (np.abs(e) < threshold).all()
+    return maneuver_complete
 
 
 def set_range(array, lower, upper):
@@ -159,21 +206,32 @@ class ChassisPID:
             u = controller(x)
             u_dict.update({state_name: u})
 
-        u_dict = self.apply_exceptions(u_dict)
+        u_dict = self.apply_exceptions(u_dict, current_state)
         # TODO: convert to translation and turn commands.
         return u_dict
 
     @staticmethod
-    def apply_exceptions(u_dict):
+    def apply_exceptions(u_dict, state):
         """
         adjusts inputs base on heuristics
         :param u_dict: dictionary of the inputs from the controllers
+        :param state:
         :return: updated input dictionary
         """
-        if abs(u_dict['w_right']) > 0:
+        # if abs(u_dict['w_right']) > 0:
+        #     u_dict.update({'w_right': 0})
+        #
+        # if abs(u_dict['w_left']) > 0:
+        #     u_dict.update({'w_left': 0})
+
+        if u_dict['w_right'] > 0 and state[4] >= 0:
+            u_dict.update({'w_right': 0})
+        elif u_dict['w_right'] < 0 and state[4] <= 0:
             u_dict.update({'w_right': 0})
 
-        if abs(u_dict['w_left']) > 0:
+        if u_dict['w_left'] > 0 and state[3] >= 0:
+            u_dict.update({'w_left': 0})
+        elif u_dict['w_left'] < 0 and state[3] <= 0:
             u_dict.update({'w_left': 0})
 
         return u_dict

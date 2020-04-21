@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import smbus
 from math import pi
 import smbus
 import time

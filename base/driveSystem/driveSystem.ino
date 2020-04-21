@@ -55,6 +55,7 @@ void setup() {
   Wire.begin(slave_address);
   Wire.onReceive(receiveEvent);
   Wire.onRequest(sendEvent);
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -66,14 +67,10 @@ void loop() {
 void receiveEvent(int howMany) 
 {
   int numOfBytes = Wire.available();
-
-  if (numOfBytes != 3){
-    return;
-  }
   
   int cmd = Wire.read();  
   // drive or brake (0 or 1)         
-
+  Serial.println(cmd);
   if (cmd == 0){
     char u1_in = (int)Wire.read();
     char u2_in = (int)Wire.read();
@@ -92,6 +89,7 @@ void receiveEvent(int howMany)
   }  
 
   else if (cmd == 1){
+    Serial.println("Brake!");
     Wire.read();  // throws byte away
     motorLeft.brake();
     motorRight.brake();
@@ -102,42 +100,15 @@ void receiveEvent(int howMany)
 
 void sendEvent()
 {
-  int numOfBytes = Wire.available();
-  Wire.read();
-//  byte side = Wire.read();
-//  if (side == 0){
+  Wire.read();  // throws away initial command
+
   buffer.longNumber = rightPos;     
   Wire.write(buffer.longBytes, 4);
   buffer.longNumber = leftPos;
   Wire.write(buffer.longBytes, 4);
-//  }
-
-//  else if (side == 1){
-//      buffer.longNumber = leftPos;
-//      Wire.write(buffer.longBytes, 4);
-//  }
 }
+
   
-
-//int convertInput(char input)
-//{
-//  int value = input - '0';
-//  value += -6;
-//  return value;
-//}
-//
-//int adjustInput(int value)
-//{
-//  value += -3;
-//  return value;
-//}
-
-//String convertIntToStr(int val)
-//{
-//  String conversion = String(val);
-//  return conversion;
-//}
-
 int* add_arrays(int a[], int b[])
 {
   static int c[2];
@@ -149,6 +120,7 @@ int* add_arrays(int a[], int b[])
 
   return c;
 }
+
 
 void accelerateMotor(int &currentSpeed, int accel)
 {
@@ -166,12 +138,9 @@ void accelerateMotor(int &currentSpeed, int accel)
   }
 }
 
+
 void readEncoders()
 {
   leftPos = encLeft.read()/(cpr/res);
   rightPos = -encRight.read()/(cpr/res);
-//  Serial.print("Left encoder: ");
-//  Serial.println(leftPos);
-//  Serial.print("Right encoder: ");
-//  Serial.println(rightPos);
 }

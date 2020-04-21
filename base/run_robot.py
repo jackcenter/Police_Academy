@@ -84,9 +84,10 @@ def get_command_file(filename):
 
 
 class Command:
-    def __init__(self, step, mode, x, y, theta, w_right, w_left):
+    def __init__(self, step, mode, action, x, y, theta, w_right, w_left):
         self.step = step
         self.mode = mode
+        self.action = action
         self.x = x
         self.y = y
         self.theta = theta
@@ -95,6 +96,9 @@ class Command:
 
     def get_mode(self):
         return self.mode
+
+    def get_action(self):
+        return self.action
 
     def get_reference_list(self):
         return [self.x, self.y, self.theta, self.w_right, self.w_left]
@@ -120,6 +124,7 @@ class Command:
         return Command(
             int(lookup['step']),
             str(lookup['mode']),
+            str(lookup['action']),
             float(lookup['x']),
             float(lookup['y']),
             float(lookup['theta']),

@@ -84,13 +84,16 @@ def get_pulse_duration(echo: int):
         return pulse_duration
     except UnboundLocalError:
         print("ERROR: missed that pulse")
-        return 400.0
+        return 1
 
 
 def convert_duration_to_distance(duration: float, units='in'):
     unit_dict = {'cm': 17150, 'in': 6750}
     unit_conversion = unit_dict.get(units)
-    distance = duration * unit_conversion
+    try:
+        distance = duration * unit_conversion
+    except TypeError:
+        distance = 400
     return distance
 
 
