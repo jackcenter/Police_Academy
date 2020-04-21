@@ -17,19 +17,19 @@ def bytes_to_int(data):
     return int.from_bytes(data, byteorder='little', signed=True)
 
 def get_turret_status(bus, slave_address, num_bytes):
-#     try:
-    data_bytes = bus.read_i2c_block_data(slave_address, 0, num_bytes)
-    print("data_bytes = ")
-    print(data_bytes)
-    data_int_rot = bytes_to_int(data_bytes[0:3])
-    data_int_pit = bytes_to_int(data_bytes[4:7])
-    data_int_servo = bytes_to_int(data_bytes[8:11])
+    try:
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, num_bytes)
+        print("data_bytes = ")
+        print(data_bytes)
+        data_int_rot = bytes_to_int(data_bytes[0:3])
+        data_int_pit = bytes_to_int(data_bytes[4:7])
+        data_int_servo = bytes_to_int(data_bytes[8:11])
 
-#     except OSError:
-#         print("ERROR: bus didn't respond")
-#         data_int_rot = 0
-#         data_int_pit = 0
-#         data_int_servo = 0;
+    except OSError:
+        print("ERROR: bus didn't respond")
+        data_int_rot = 0
+        data_int_pit = 0
+        data_int_servo = 0;
 
     return data_int_rot, data_int_pit, data_int_servo
 
