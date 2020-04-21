@@ -807,7 +807,7 @@ while True:
         if imshow_debug:
             print("total command = " + str(total_cmd))
             
-        if f_cmd = 1:
+        if f_cmd == 1:
             break
         
         
