@@ -113,8 +113,6 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
     # delays for pitch range from fastest = 5000 to slowest = 20000 us
     # total command string should be entirely integers
     
-    # TODO something in this mapping function is wrong
-    # so basically it maps between -max and +max, when it should map between min and max
     
     if r_vel != 0:
         r_on = 1
@@ -816,7 +814,9 @@ while True:
             print("total command = " + str(total_cmd))
             
         if f_cmd == 1:
-            print("FIRE AWAY")
+            print('########################################################')
+            print("                       FIRE AWAY!                       ")
+            print('########################################################')
             break
         
         
