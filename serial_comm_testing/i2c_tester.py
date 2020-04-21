@@ -14,7 +14,7 @@ def send_command(bus, slave_address, command):
 #removed try except catcher here
 
 def bytes_to_int(data):
-    return int.from_bytes(data, byteorder='big', signed=True)
+    return int.from_bytes(data, byteorder='little', signed=True)
 
 def get_turret_status(bus, slave_address, num_bytes):
 #     try:
