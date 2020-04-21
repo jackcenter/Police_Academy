@@ -55,7 +55,8 @@ def ConvertStringToBytes(src):
 
 
 def bytes_to_int(data):
-    return int.from_bytes(data, byteorder='little', signed=True)
+    return int.from_bytes(data, byteorder='big', signed=True)
+# not working yet, receiving commands aren't working yet
 
 
 def send_command(bus, slave_address, command):
@@ -805,6 +806,9 @@ while True:
         
         if imshow_debug:
             print("total command = " + str(total_cmd))
+            
+        if f_cmd = 1:
+            break
         
         
 # total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
