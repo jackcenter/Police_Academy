@@ -27,8 +27,8 @@ from PyQt5.QtGui import *
 # from pid_control import * 
 
 # Jack's Stuff
-from encoders import get_encoder_values
-from ultrasonics import get_ultrasonic_reading
+# from encoders import get_encoder_values
+# from ultrasonics import get_ultrasonic_reading
 
 base_folder = os.path.dirname(__file__)
 us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
