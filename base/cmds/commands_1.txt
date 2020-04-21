@@ -14,5 +14,5 @@ step, mode,         action,   x, y, theta, w_right, w_left
 12, MotionPlanning, forward,  72, 0, 0, 2, 2
 13, Search&Destroy, red,      0, 0, 90, 0, 0
 14, MotionPlanning, turn,     72, 0, 180, 1.5, 1.5
-13, MotionPlanning, forward,  0, 0, 180, 2, 2
-14, MotionPlanning, turn,     0, 0, 0, 1.5, 1.5
+13, MotionPlanning, forward,  144, 0, 180, 2, 2
+14, MotionPlanning, turn,     144, 0, 0, 1.5, 1.5
