@@ -796,6 +796,10 @@ while True:
         
         rotate_controller   = simple_pid.PID(r_kp, r_ki, r_kd, setpoint=xref)
         rotate_command      = round(rotate_controller(bad_guy_x), 2)
+        if imshow_debug:
+            print("pitch_command = " + str(pitch_command))
+            print("rotate_command = " + str(rotate_command))
+        
         
         f_cmd = 0
         # if commands go to within some range, send command to fire
