@@ -67,6 +67,7 @@ def ConvertStringToBytes(src):
         converted.append(ord(b))
     return converted
 
+C = Camera()
 
 
 class Camera:
