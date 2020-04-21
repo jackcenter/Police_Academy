@@ -787,7 +787,7 @@ while True:
             
     # compute new ouput from the PID according to the systems current value
 #            control = pid(v)
-    if not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
+    if bad_guy_center is not None and not math.isnan(bad_guy_center[0]) and not math.isnan(bad_guy_center[1]):
         bad_guy_x = bad_guy_center[0]
         bad_guy_y = bad_guy_center[1]
         
