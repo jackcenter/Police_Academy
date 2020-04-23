@@ -148,9 +148,12 @@ pit_delay = 210
 # slowdown and fire
 for i in range(7):
     if i == 6:
-        fire = 1
         rot_on = 0
         pit_on = 0
+        tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
+        send_command(bus, slave_address, tot_cmd)
+        trash = input("About to send FIRE command, press ENTER to continue when ready!")
+        fire = 1
         
     tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
     print("sending: ")
@@ -196,18 +199,20 @@ pit_steps = 0
 pit_delay = 250
 
 
-time.sleep(10)
-
-
+#time.sleep(10)
+trash = input("About to send switch directions and speed up, press ENTER when ready to continue!")
 
 
 # speed up and fire
 for i in range(7):
     if i == 6:
-        fire = 1
         rot_on = 0
         pit_on = 0
-    
+        tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
+        send_command(bus, slave_address, tot_cmd)
+        trash = input("About to send FIRE command, press ENTER to continue when ready!")
+        fire = 1
+
     tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
     print("sending: ")
     print(tot_cmd)
