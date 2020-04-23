@@ -1,0 +1,34 @@
+(the Pi I've been using is Scott's, the uSD card in that Pi is the one I use.  Avoid the Pi without heat sinks, it's i2c is failing)
+
+i2c turret testing instructions 
+
+1. make sure both the Pi and arduino share a ground (every device on the robot should share a common ground)
+
+2. connect the SDA on the arduino to the SDA on the Pi, and do the same with the SCL line
+	try to make sure these wires are short and under control.  Ideally they'd be shielded but whatever
+
+3. Pi command line type:   sudo raspi-config
+
+4. interfacing options -- i2c -- activate and finish
+
+
+Checking that the pi detects the ardiunio:
+
+5. power the arduino so that it is running the desired file (Police_Academy/turretarduino/untested_full_turret_code)
+
+6. Pi command line type:   i2cdetect -y 1
+
+7. confirm that you see the address of the arduino in position 8
+	0x08
+
+	this officially means the pi is detecting the arduino as its slave
+
+8. run the turret testing code as you see fit! 
+
+	The file should, in theory, make the turret move in the positive rotation and pitch direction as it slows down and then fires.  Then it should wait 10 seconds or so after sending the fire command to start the next sequence which is move in the negative rotation and pitch direction, speeding up, and then firing.  If I add user input, you may need to just press enter to continue instead of the file waiting.
+
+The commands are sent to the turret over a period of 3.5s every half second.
+
+If, at any point, one of the end stop conditions are met ( rot_steps_from_home < -600 or >600 or pitch end stops pressed), the tests code breaks out of the loop it's in.  If this is the first loop, it will continue to run towards the second loop.  
+
+	
