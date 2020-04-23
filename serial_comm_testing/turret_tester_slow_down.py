@@ -13,7 +13,8 @@ File Status:
     
     The command list syntax is as follows:
     tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
-    ALL ENTRIES MUST BE BETWEEN 0 and 255
+    
+    ALL ENTRIES MUST BE INTEGERS (of int type) BETWEEN 0 and 255
     
     fire = 0 or 1
         0 means no fire
@@ -32,7 +33,7 @@ File Status:
              0 means negative rotation direction (negative velocity given by camera)
              1 means positive rotation direction (positive velocity given by camera)
              
-    rot_steps = 0 or #steps/10
+    rot_steps = 0 or #steps/10 < 255
         0 means do not control according to steps, i.e. normal ops = velocity commands
         #steps/10 means control as if push button was performed.  Turret actuates 
             10 times the number of steps entered.  Approx 800 steps = 360 degree rotation
@@ -55,7 +56,7 @@ File Status:
              0 means negative pitch direction (negative velocity given by camera)
              1 means positive pitch direction (positive velocity given by camera)
     
-    pit_steps = 0 or #steps/10
+    pit_steps = 0 or #steps/10 < 255
         0 means do not control according to steps, i.e. normal ops = velocity commands
         #steps/10 means control as if push button was performed.  Turret actuates 
             10 times the number of steps entered.  Approx ??? steps pitch
