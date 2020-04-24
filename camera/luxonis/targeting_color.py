@@ -847,12 +847,8 @@ while True:
                 print("!!!! ROTATION STOP TRIGGERED !!!!")
                 rotate_command = 0
                 
-                # TODO need to decide what to do with this, if we hit an end stop
-                # should we just try to fire and hope for the best (below) or 
-                # I could write some sort of "back up" command that tries to pause 
-                # this file and back up until pit_break and rot_break are 0?
-                # But then we might get stuck in a loop where we're just bouncing
-                # off the bottom and back
+                # TODO if it hits one end stop condition, just fix the other condition and try to fire
+                
                 
             '''
             if rot_break != 0 and pit_break !=0:
