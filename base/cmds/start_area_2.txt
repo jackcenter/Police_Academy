@@ -1,0 +1,17 @@
+step, mode,         action,   x, y, theta, w_right, w_left
+0, MotionPlanning,  init,     0, 0, 0, 0, 0
+1, MotionPlanning,  forward,  0, 0, 0, 2, 2
+2, Search&Destroy,  green,    0, 0, 90, 0, 0
+3, MotionPlanning,  forward,  113, 0, 0, 2, 2
+6, Search&Destroy,  red,      0, 0, -90, 0, 0
+7, Search&Destroy,  red,      0, 0, 90, 0, 0
+8, MotionPlanning,  backward, 56, 0, 0, -2, -2
+9, MotionPlanning,  turn,     56, 0, -90, 1.5, 1.5
+10, MotionPlanning, forward,  78, 0, -90, 2, 2
+11, Search&Destroy, red,      0, 0, -90, 0, 0
+12, MotionPlanning, backward, 41, 0, -90, -2, -2
+13, Search&Destroy, green,    0, 0, 90, 0, 0
+14, MotionPlanning, forward,  56, 0, -90, 2, 2
+15, MotionPlanning, turn,     56, 0, -180, 1.5, 1.5
+16, MotionPlanning, forward,  112, 0, -180, 2, 2
+17, MotionPlanning, turn,     112, 0, 0, 1.5, 1.5

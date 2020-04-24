@@ -65,20 +65,27 @@ def send_command(bus, slave_address, command):
 
 
 
-def get_turret_status(bus, slave_address, location=None):
+
+def get_turret_status(bus, slave_address, num_bytes):
+    #TODO recently added rot and pit break, untested addition
     try:
-        data_bytes = bus.read_i2c_block_data(slave_address, 0, 12)
-        data_int_rot = bytes_to_int(data_bytes[0:3])
-        data_int_pit = bytes_to_int(data_bytes[4:7])
-        data_int_servo = bytes_to_int(data_bytes[8:11])
+        data_bytes = bus.read_i2c_block_data(slave_address, 0, num_bytes)
+        print("data_bytes = ")
+        print(data_bytes)
+        data_int_rot    = bytes_to_int(data_bytes[0:3])
+        data_int_pit    = bytes_to_int(data_bytes[4:7])
+        data_int_servo  = bytes_to_int(data_bytes[8:11])
+        rot_break       = bytes_to_int(data_bytes[12:15])
+        pit_break       = bytes_to_int(data_bytes[16:19])
 
     except OSError:
         print("ERROR: bus didn't respond")
         data_int_rot = 0
         data_int_pit = 0
-        data_int_servo = 0;
-
-        return data_int_rot, data_int_pit, data_int_servo
+        data_int_servo = 0
+        rot_break = None
+        pit_break = None
+    return data_int_rot, data_int_pit, data_int_servo, pit_break, rot_break
 
 
 
@@ -109,10 +116,10 @@ def map_vel_to_delay(r_cmd_range, p_cmd_range, r_cmd, p_cmd):
 def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps = 0, p_steps = 0):
     # 1 = on or yes, 0 = off or no.  If steps are 0, this means we won't be using it.
     # for direction, 0 = left, 1 = right
-    # delays are in microseconds, ranging from rotation fastest = 2000, rotation slowest = 20000
-    # delays for pitch range from fastest = 5000 to slowest = 20000 us
+    # delays are in microseconds, ranging from rotation fastest = 5000, rotation slowest = 25000
+    # delays for pitch range from fastest = 5000 to slowest = 25000 us
+    # delays = actual delay/100
     # total command string should be entirely integers
-    
     
     if r_vel != 0:
         r_on = 1
@@ -120,7 +127,7 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
         r_delay = delays[0]
     else:
         r_on = 0
-        r_delay = 0
+        r_delay = 250
     
     if p_vel != 0:
         p_on = 1
@@ -128,7 +135,7 @@ def create_command_string(r_vel, p_vel, r_cmd_range, p_cmd_range, fire, r_steps 
         p_delay = delays[1]
     else:
         p_on = 0
-        p_delay = 0
+        p_delay = 250
         
         
     if r_vel < 0:
@@ -173,6 +180,7 @@ def parse_args():
     parser.add_argument("-ppid", "--pitch_pid_modify", default=None, action='append', help="Modifies the pitch PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid x_pixel_setpoint")
     parser.add_argument("-rpid", "--rotate_pid_modify", default=None, action='append', help="Modifies the rotation PID controller of the form [kp, ki, kd, setpoint] To change, enter -pid kp -pid ki -pid kd -pid y_pixel_setpoint")
     parser.add_argument("-io", "--i2c_off", default=None, action='store_true', help="Specifying this argument turns off the i2c communication.")
+    parser.add_argument("-gr", "--green_on", default=None, action='store_true', help="Specifying this argument switches the targeting from red to green.")
     parser.add_argument("-imd", "--imshow_debug", default=None, action='store_true', help="Displays camera windows for viewing and displays print statements for debugging.")
     parser.add_argument("-co", "--config_overwrite", default=None,
                         type=str, required=False,
@@ -215,6 +223,10 @@ if args['i2c_off']:
     communication_on = False
 else:
     communication_on = True
+    
+green_on = False    
+if args['green_on']:
+    green_on = True
 
 
 trackbars_on = False
@@ -318,7 +330,7 @@ slave_address = 0x08
 # I think this is the register we're trying to read out of/into?
 i2c_cmd = 0x01
 
-arduino_data_size = 8
+arduino_data_size = 20
 
 
 ################## ADDED FOR COLOR DETECTION CWM ####################
@@ -417,7 +429,13 @@ pause=0
 ####################################################################
 #Setting up the targeting program:
 
-
+pit_break = 0
+prev_pit_break = 0
+rot_break = 0
+prev_rot_break = 0
+f_cmd = 0
+prev_rotate_cmd = 0
+prev_pitch_cmd = 0
 
 p_kp = 0.1
 p_ki = 0.0
@@ -598,12 +616,16 @@ while True:
                 x_red_avg = np.mean(red_locations[1])
                 y_red_avg = np.mean(red_locations[0])
                 
-###### current position that we want to drive to the reference by moving the turret!    ######
-                bad_guy_center = (x_red_avg, y_red_avg)
-######                                                                                  ######
-                
                 x_green_avg = np.mean(green_locations[1])
                 y_green_avg = np.mean(green_locations[0])
+                
+###### current position that we want to drive to the reference by moving the turret!    ######
+                if green_on:
+                    bad_guy_center = (x_green_avg, y_green_avg)
+                else:
+                    bad_guy_center = (x_red_avg, y_red_avg)
+######                                                                                  ######                
+                
      
                 if imshow_debug:
                     ccr1=(int(redColor1[0][0][0]),int(redColor1[0][0][1]),int(redColor1[0][0][2]))
@@ -805,8 +827,48 @@ while True:
         
         f_cmd = 0
         # if commands go to within some range, send command to fire
-        if abs(pitch_command) < 0.2 and abs(rotate_command) < 0.2:
+        if abs(pitch_command) < 0.25 and abs(rotate_command) < 0.25:
             f_cmd = 1
+            pitch_command = 0
+            rotate_command = 0
+        
+        # TODO added the below section, need to check if it works
+        if communication_on:
+            _, _, _, pit_break, rot_break = get_turret_status(bus, slave_address, arduino_data_size)
+            if pit_break == None or rot_break == None: 
+                pit_break = prev_pit_break
+                rot_break = prev_rot_break
+            
+            if pit_break == 1:
+                print("!!!! PITCH END STOP TRIGGERED !!!!")
+                pitch_command = 0
+                
+            if rot_break == 1:
+                print("!!!! ROTATION STOP TRIGGERED !!!!")
+                rotate_command = 0
+                
+                # TODO need to decide what to do with this, if we hit an end stop
+                # should we just try to fire and hope for the best (below) or 
+                # I could write some sort of "back up" command that tries to pause 
+                # this file and back up until pit_break and rot_break are 0?
+                # But then we might get stuck in a loop where we're just bouncing
+                # off the bottom and back
+                
+            '''
+            if rot_break != 0 and pit_break !=0:
+                f_cmd = 1
+            '''
+        # TODO check if this works, the sleep() might break things...
+        # direction switching pause added
+        if prev_rotate_cmd < 0 and rotate_command > 0:
+            sleep(0.25)
+        if prev_rotate_cmd > 0 and rotate_command < 0:
+            sleep(0.25)
+        if prev_pitch_cmd < 0 and pitch_command > 0:
+            sleep(0.25)
+        if prev_pitch_cmd > 0 and pitch_command < 0:
+            sleep(0.25)
+        
 
         total_cmd = create_command_string(rotate_command, pitch_command, r_cmd_range, p_cmd_range, f_cmd)
         
@@ -820,15 +882,19 @@ while True:
             break
         
         
-# total commmand string   = 'fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps),rot_delay(#us),pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps),pit_delay(#us)\n'
+# total commmand string   = [fire_cmd (0 or 1), rot_on(0 or 1),rot_dir(0 or 1),rot_steps(0 or #steps)/10,rot_delay(#us)/100,pit_on(0 or 1),pit_dir(0 or 1),pit_steps(0 or #steps)/10,pit_delay(#us)/100]
         # Then send commands to arduino over i2c wire or USB 
         if communication_on:
             send_command(bus, slave_address, tot_cmd)
-
-    
+            
+        prev_pit_break  = pit_break
+        prev_rot_break  = rot_break
+        prev_pitch_cmd  = pitch_command
+        prev_rotate_cmd = rotate_command
+            
 #########################################################################################    
-    
-    
+
+#    
     
     
     t_curr = time()
@@ -847,10 +913,17 @@ while True:
         print('TIMED OUT')
         print('########################################################')
         break
+    
+    
+    
 
 del p  # in order to stop the pipeline object should be deleted, otherwise device will continue working. This is required if you are going to add code after the main loop, otherwise you can ommit it.
 
 cv2.destroyAllWindows()
+
+# TODO added this functionality check if it works
+if f_cmd == 1:
+    sleep(10)
 
 print('py: DONE.')
                                                                                       

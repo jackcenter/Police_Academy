@@ -1,4 +1,4 @@
-#!/usr/bin/python3.3
+#!/usr/bin/python3
 
 #RULES FOR Using this code
 # 1) Dont mess with QT class
@@ -26,10 +26,18 @@ import RPi.GPIO as GPIO
 import simple_pid 
 # from pid_control import * 
 
+<<<<<<< HEAD
 # Jack's Stuff
 from encoders import get_encoder_values
 from ultrasonics import get_ultrasonic_reading
 import run_robot
+=======
+# JACK's Stuff
+# from encoders import get_encoder_values
+# from ultrasonics import get_ultrasonic_reading
+# TODO UNCOMMENT THE BELOW FILE 
+# import run_robot
+>>>>>>> 28e6c816bebea7f41b36f51cf95ca0107b06f6ad
 
 base_folder = os.path.dirname(__file__)
 us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
@@ -45,18 +53,10 @@ slave_address = 0x07
 
 # Chadd Stuff
 
-#Global Variable
-Dn = 101.6 #Distance in mm between wheels
-Ce = 64 #Encoder Resolution
-n =131.25 # Gear Ratio of the motor
-cm = Dn/(n*Ce) # Conversion factor of Encoder Pulses to Linear Wheel Displacement
-b = 254 # Wheel Base
-dU_left=0.0
-dU_right =0.0
-dU =0.0 
-d_angle=0.0
-encoder_left= 0.0
-encoder_right = 0.0
+# Arpit Stuff 
+from turret_config import turret_config
+turr = turret_config()
+
 
 # PyQT class minimized for better code readability
 class RobotMonitorWidget(QWidget): 
@@ -221,56 +221,45 @@ class RobotMonitorWidget(QWidget):
 
         #PID Control - Rotation 
         boxLayout = QVBoxLayout()
-        groupBox = QGroupBox('PID-Rotation')
+        groupBox = QGroupBox('Turret Control ')
 
-        textbox = QLineEdit()
-        textbox.resize(40,40)
-        self.set_P = QPushButton('Set P')
-        self.set_P.clicked.connect(self.set_P_onclick) 
-        boxLayout.addWidget(textbox)
-        boxLayout.addWidget(self.set_P)
+        self.textbox_yaw = QLineEdit()
+        self.textbox_yaw.resize(40,40)
+        self.yaw = QPushButton('Current_Yaw_Angle')
+        self.yaw.clicked.connect(self.yaw_onclick)
+        boxLayout.addWidget(self.textbox_yaw) 
+        boxLayout.addWidget(self.yaw)
 
-        textbox2 = QLineEdit()
-        textbox2.resize(40,40)
-        self.set_I = QPushButton('Set I')
-        self.set_I.clicked.connect(self.set_I_onclick) 
-        boxLayout.addWidget(textbox2)
-        boxLayout.addWidget(self.set_I)
+        
+        self.textbox_set_yaw = QLineEdit()
+        self.textbox_set_yaw.resize(40,40)
+        self.set_yaw = QPushButton('Set_YAW_Angle')
+        self.set_yaw.clicked.connect(self.set_yaw_onclick) 
+        boxLayout.addWidget(self.textbox_set_yaw)
+        boxLayout.addWidget(self.set_yaw)
 
-        textbox3 = QLineEdit()
-        textbox3.resize(40,40)
-        self.set_D = QPushButton('Set D')
-        self.set_D.clicked.connect(self.set_D_onclick) 
-        boxLayout.addWidget(textbox3)
-        boxLayout.addWidget(self.set_D)
 
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
 
         #PID Control - Movement 
         boxLayout = QVBoxLayout()
-        groupBox = QGroupBox('PID-Movement')
+        groupBox = QGroupBox('Pivot Control')
 
-        textbox = QLineEdit()
-        textbox.resize(40,40)
-        self.set_P_move = QPushButton('Set P')
-        self.set_P_move.clicked.connect(self.set_P_move_onclick) 
-        boxLayout.addWidget(textbox)
-        boxLayout.addWidget(self.set_P_move)
+        self.textbox_pivot = QLineEdit()
+        self.textbox_pivot.resize(40,40)
+        self.pivot = QPushButton('Current_Pivot_Angle')
+        self.pivot.clicked.connect(self.pivot_onclick)
+        boxLayout.addWidget(self.textbox_pivot) 
+        boxLayout.addWidget(self.pivot)
 
-        textbox2 = QLineEdit()
-        textbox2.resize(40,40)
-        self.set_I_move = QPushButton('Set I')
-        self.set_I.clicked.connect(self.set_I_move_onclick) 
-        boxLayout.addWidget(textbox2)
-        boxLayout.addWidget(self.set_I_move)
 
-        textbox3 = QLineEdit()
-        textbox3.resize(40,40)
-        self.set_D_move = QPushButton('Set D')
-        self.set_D_move.clicked.connect(self.set_D_move_onclick) 
-        boxLayout.addWidget(textbox3)
-        boxLayout.addWidget(self.set_D_move)
+        self.textbox_set_pivot = QLineEdit()
+        self.textbox_set_pivot.resize(40,40)
+        self.set_pivot = QPushButton('Set_Pivot_Angle')
+        self.set_pivot.clicked.connect(self.set_pivot_onclick) 
+        boxLayout.addWidget(self.textbox_set_pivot)
+        boxLayout.addWidget(self.set_pivot)
 
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         TurretGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
@@ -286,12 +275,15 @@ class RobotMonitorWidget(QWidget):
         LaunchGroupLayout = QHBoxLayout()
         LaunchGroup = QGroupBox('LAUNCH')
         
-        #Odom
-        boxLayout = QHBoxLayout()
-        groupBox = QGroupBox('Odometry')
-        self.odome = QPushButton('ODOM')
-        self.odome.clicked.connect(self.odome_onclick) 
-        boxLayout.addWidget(self.odome)
+        #Turret HOME
+        boxLayout = QVBoxLayout()
+        groupBox = QGroupBox('TURRET HOME')
+        self.textbox_home = QLineEdit()
+        self.textbox_home.resize(40,40)
+        self.home = QPushButton('HOME')
+        self.home.clicked.connect(self.home_onclick)
+        boxLayout.addWidget(self.textbox_home) 
+        boxLayout.addWidget(self.home)
         groupBox.setLayout(boxLayout) 
         LaunchGroupLayout.addWidget(groupBox) 
 
@@ -305,17 +297,18 @@ class RobotMonitorWidget(QWidget):
         groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
         LaunchGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
         
-        #Pose
-        boxLayout = QHBoxLayout()
-        groupBox = QGroupBox('Pose')
-        self.pose = QPushButton('Pose Status')
-        self.pose.clicked.connect(self.pose_onclick) 
-        boxLayout.addWidget(self.pose)
-        
-        groupBox.setLayout(boxLayout) #Setting Horizontal Layout for Left Ultrasonic
-        LaunchGroupLayout.addWidget(groupBox) #Addind the Widget to Ultrsonic Group
-        
-        #End of Ultrasonic Widget
+        #Turret HOME
+        boxLayout = QVBoxLayout()
+        groupBox = QGroupBox('Pivot HOME')
+        self.textbox_pivot_home = QLineEdit()
+        self.textbox_pivot_home.resize(40,40)
+        self.pivot_home = QPushButton('Pivot Home')
+        self.pivot_home.clicked.connect(self.pivot_home_onclick)
+        boxLayout.addWidget(self.textbox_pivot_home) 
+        boxLayout.addWidget(self.pivot_home)
+        groupBox.setLayout(boxLayout) 
+        LaunchGroupLayout.addWidget(groupBox)
+
         LaunchGroup.setLayout(LaunchGroupLayout)
         layout.addWidget(LaunchGroup)
         ##########################################
@@ -400,39 +393,41 @@ class RobotMonitorWidget(QWidget):
     def enc_servo_onclick(self):
         self.textbox_servo.setText("Clicked")
 
+    def home_onclick(self):
+        self.textbox_home.setText("Clicked")
+
+    def pivot_onclick(self):
+        self.textbox_pivot.setText("Clicked")
+
+    def pivot_home_onclick(self):
+        self.textbox_pivot_home.setText("Clicked")
+
+    def yaw_onclick(self):
+        self.textbox_yaw.setText("Clicked")
+
     def enc_servo_onclick_status(self):
         self.enc_servo_status.setStyleSheet("background-color: green")
-        # self.textbox_servo_status.setText("Smart")
-        # time.sleep(2000)
-        # self.textbox_servo_status.setText("")
-
-    def odome_onclick(self):
-        print("gefefe")
 
     def go_onclick(self):
         simple_filter = run_robot.setup()
         run_robot.run(cmd_file_name, simple_filter)
 
-    def pose_onclick(self):
-        print("gefefe")
-    
-    def set_P_onclick(self):
-        print("gefefe")
 
-    def set_I_onclick(self):
-        print("gefefe")
-    
-    def set_D_onclick(self):
-        print("gefefe")
+    def set_yaw_onclick(self):
+        textboxValue = self.textbox_set_yaw.text()
+        if not str(textboxValue):
+            print("String is empty ")
+        else:
+            print("Setting the Angle to :")
+            print(textboxValue)
 
-    def set_P_move_onclick(self):
-        print("gefefe")
-
-    def set_I_move_onclick(self):
-        print("gefefe")
-    
-    def set_D_move_onclick(self):
-        print("gefefe")
+    def set_pivot_onclick(self):
+        textboxValue = self.textbox_set_pivot.text()
+        if not str(textboxValue):
+            print("String is empty ")
+        else:
+            print("Setting the Angle to :")
+            print(textboxValue)
 
     def btnQuit_onclick(self):
         self.parent().close()
