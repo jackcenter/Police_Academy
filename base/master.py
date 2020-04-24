@@ -26,18 +26,16 @@ import RPi.GPIO as GPIO
 import simple_pid 
 # from pid_control import * 
 
-<<<<<<< HEAD
 # Jack's Stuff
 from encoders import get_encoder_values
 from ultrasonics import get_ultrasonic_reading
 import run_robot
-=======
+
 # JACK's Stuff
 # from encoders import get_encoder_values
 # from ultrasonics import get_ultrasonic_reading
 # TODO UNCOMMENT THE BELOW FILE 
 # import run_robot
->>>>>>> 28e6c816bebea7f41b36f51cf95ca0107b06f6ad
 
 base_folder = os.path.dirname(__file__)
 us_trig_pins = {'left': 22, 'front': 20, 'right': 18}
@@ -54,8 +52,8 @@ slave_address = 0x07
 # Chadd Stuff
 
 # Arpit Stuff 
-from turret_config import turret_config
-turr = turret_config()
+# from turret_config import turret_config
+# turr = turret_config()
 
 
 # PyQT class minimized for better code readability
