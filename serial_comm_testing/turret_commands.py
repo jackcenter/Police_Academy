@@ -226,7 +226,7 @@ def send_rot_turn_cmd(degrees, delay_div100):
     delay_div100 = int(delay_div100)
     
     # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
-    steps_div10 = floor((80.0/360.0))*degrees
+    steps_div10 = round((80.0/360.0)*degrees)
     
     
     fire      = 0
