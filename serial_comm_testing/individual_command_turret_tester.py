@@ -15,8 +15,8 @@ from turret_commands import send_home_cmd
 from turret_commands import send_fire_cmd
 
 # TODO turn pitch steps into pitch degrees
-#trash = input("Homing on your command!")
-#send_home_cmd()
+trash = input("Homing on your command!")
+send_home_cmd()
 #trash = input("Firing on your command!")
 #send_fire_cmd()
 
