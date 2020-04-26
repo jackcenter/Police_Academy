@@ -288,7 +288,7 @@ int pit_delay;
             pit_break = 1;                                                        // added pitch break
 //            break;                                                              set pitch break variable and then check in loop
            }
-           if (PITCH_MAX_PIN == HIGH) {
+           if (PITCH_MAX_PIN_val == HIGH) {
             Serial.println("PITCH MAX SWITCH TRIGGERED. CUTOUT!! ");
             pit_break = 1;                                                        // added pitch break
 //            break;                                                              set pitch break variable and then check in loop
@@ -312,14 +312,14 @@ int pit_delay;
             Serial.println("PITCH MIN SWITCH TRIGGERED. CUTOUT!! ");
             break;
            }
-           if (PITCH_MAX_PIN == HIGH) {
+           if (PITCH_MAX_PIN_val == HIGH) {
             Serial.println("PITCH MAX SWITCH TRIGGERED. CUTOUT!! ");
             break;
            }
             digitalWrite(PITCH_STEP_PIN   , HIGH);
-            delayMicroseconds(pit_delay);//1000 was good for testing   // this should be larger right?  1000 would be weird ... ?
+            delayMicroseconds(pit_delay);   //1000 was good for testing   // this should be larger right?  1000 would be weird ... ?
             digitalWrite(PITCH_STEP_PIN   , LOW);
-          }                                                            //  this needs to be moved 
+          }                                                            
           if (pit_dir==0) {
           pit_steps_from_home-=pit_steps;
            }
@@ -374,8 +374,7 @@ void rotmove(){
          if (rot_steps_from_home > 600 || rot_steps_from_home < -600) {
           rot_break == 1;
         }
-        
-        
+           
 }
 
 //--------------------------------------------------
