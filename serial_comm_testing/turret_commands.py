@@ -243,7 +243,8 @@ def send_rot_turn_cmd(degrees, delay_div100):
     pit_dir   = 0
     pit_steps = 0
     pit_delay = delay_div100
-    
+    print("type of rot_steps = ")
+    print(type(rot_steps))
     
     tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
     print("Sent command list: ")
