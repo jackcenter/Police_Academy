@@ -223,6 +223,7 @@ def send_rot_turn_cmd(degrees, delay_div100):
     bus = smbus.SMBus(1)
     
     degrees = int(degrees)
+    delay_div100 = int(delay_div100)
     
     # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
     steps_div10 = floor((80.0/360.0))*degrees
@@ -275,6 +276,9 @@ def send_pit_turn_cmd(steps_div10, delay_div100):
     slave_address     = 0x08
     arduino_data_size = 20
     bus = smbus.SMBus(1)
+    
+    steps_div10  = int(steps_div10)
+    delay_div100 = int(delay_div100)
     
     fire      = 0
     pit_on    = 1 
