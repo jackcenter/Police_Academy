@@ -11,8 +11,12 @@ Sending individual rotation and pitch commands
 """
 from turret_commands import send_rot_turn_cmd
 from turret_commands import send_pit_turn_cmd
+from turret_commands import send_home_cmd
 
 # TODO turn pitch steps into pitch degrees
+trash = input("Homing on you command!")
+send_home_cmd()
+
 
 print("Sending rotation command: ")
 rdeg = input("Please enter the rotation amount in degrees (-270 < angle < 270): ")

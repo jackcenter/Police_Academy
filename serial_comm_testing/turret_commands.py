@@ -124,6 +124,58 @@ def get_turret_status(bus, slave_address, num_bytes):
     return data_int_rot, data_int_pit, data_int_servo, pit_break, rot_break
 
 
+def send_home_cmd():
+    slave_address     = 0x08
+    arduino_data_size = 20
+    bus = smbus.SMBus(1)
+    
+    # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
+
+    
+    
+    fire      = 0
+    rot_on    = 2
+    rot_steps = 0
+    rot_delay = 250
+    rot_dir   = 0
+        
+    pit_on    = 2
+    pit_dir   = 0
+    pit_steps = 0
+    pit_delay = 250
+    
+    
+    tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
+    print("Sent command list: ")
+    print(tot_cmd)
+    send_command(bus, slave_address, tot_cmd)
+    rot_steps_from_home, pit_steps_from_home, servo_pulls, rot_break, pit_break = get_turret_status(bus, slave_address, arduino_data_size)
+    print("Received information:")
+    print("rot_steps = "   + str(rot_steps_from_home))
+    print("pit_steps = "   + str(pit_steps_from_home))
+    print("servo_pulls = " + str(servo_pulls))
+    print("rot_break = "   + str(rot_break))
+    print("pit_break = "   + str(pit_break))
+    print("... ... ... sleeping ... ... ...")
+    time.sleep(10)
+    rot_steps_from_home, pit_steps_from_home, servo_pulls, rot_break, pit_break = get_turret_status(bus, slave_address, arduino_data_size)
+    print("Received information:")
+    print("rot_steps = "   + str(rot_steps_from_home))
+    print("pit_steps = "   + str(pit_steps_from_home))
+    print("servo_pulls = " + str(servo_pulls))
+    print("rot_break = "   + str(rot_break))
+    print("pit_break = "   + str(pit_break))
+
+
+
+
+
+
+
+
+
+
+
 
 def send_rot_turn_cmd(degrees, delay_div100):
     # break end stop switches should happen in the arduino code
