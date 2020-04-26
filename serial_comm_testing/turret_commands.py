@@ -222,6 +222,8 @@ def send_rot_turn_cmd(degrees, delay_div100):
     arduino_data_size = 20
     bus = smbus.SMBus(1)
     
+    degrees = int(degrees)
+    
     # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
     steps_div10 = floor((80.0/360.0))*degrees
     
