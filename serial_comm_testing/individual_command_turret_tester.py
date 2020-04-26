@@ -15,17 +15,17 @@ from turret_commands import send_home_cmd
 from turret_commands import send_fire_cmd
 
 # TODO turn pitch steps into pitch degrees
-# trash = input("Homing on your command!")
-# send_home_cmd()
-#trash = input("Firing on your command!")
-#send_fire_cmd()
+trash = input("Homing on your command!")
+send_home_cmd()
+# trash = input("Firing on your command!")
+# send_fire_cmd()
 
 
-print("Sending rotation command: ")
-rdeg = input("Please enter the rotation amount in degrees (-270 < angle < 270): ")
-rdelay = input("Please enter the speed/delay you would like to rotate at (50 < delay < 250).  Smaller number = faster speed:  ")
-
-send_rot_turn_cmd(rdeg, rdelay)
+# print("Sending rotation command: ")
+# rdeg = input("Please enter the rotation amount in degrees (-270 < angle < 270): ")
+# rdelay = input("Please enter the speed/delay you would like to rotate at (50 < delay < 250).  Smaller number = faster speed:  ")
+# 
+# send_rot_turn_cmd(rdeg, rdelay)
 
 
 print("Sending pitch command: ")
