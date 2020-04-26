@@ -213,8 +213,8 @@ def send_fire_cmd():
 
 
 
-
-def send_rot_turn_cmd(degrees, delay_div100):
+# TODO reinstate degrees ... ?
+def send_rot_turn_cmd(steps_div10, delay_div100):
     # break end stop switches should happen in the arduino code
     # note that the steps input are the actual steps that the arduino will perform divided by 10
     # note that the delay input is the actual microsecond delay divided by 100
@@ -222,11 +222,12 @@ def send_rot_turn_cmd(degrees, delay_div100):
     arduino_data_size = 20
     bus = smbus.SMBus(1)
     
-    degrees = int(degrees)
+#    degrees = int(degrees)
     delay_div100 = int(delay_div100)
     
     # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
-    steps_div10 = round((80.0/360.0)*degrees)
+#    steps_div10 = round((80.0/360.0)*degrees)
+    steps_div10  = int(steps_div10)
     
     
     fire      = 0
