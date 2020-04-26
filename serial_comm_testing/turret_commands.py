@@ -91,6 +91,7 @@ File Status:
 """
 import smbus
 import time
+from math import floor
 # i2c tester 
 # TODO turn pitch steps into pitch degrees
 
@@ -157,7 +158,7 @@ def send_home_cmd():
     print("rot_break = "   + str(rot_break))
     print("pit_break = "   + str(pit_break))
     print("... ... ... sleeping ... ... ...")
-    time.sleep(10)
+    time.sleep(15)
     rot_steps_from_home, pit_steps_from_home, servo_pulls, rot_break, pit_break = get_turret_status(bus, slave_address, arduino_data_size)
     print("Received information:")
     print("rot_steps = "   + str(rot_steps_from_home))
@@ -169,8 +170,44 @@ def send_home_cmd():
 
 
 
+def send_fire_cmd():
+    slave_address     = 0x08
+    arduino_data_size = 20
+    bus = smbus.SMBus(1)
 
-
+    
+    fire      = 1
+    rot_on    = 0
+    rot_steps = 0
+    rot_delay = 250
+    rot_dir   = 0
+        
+    pit_on    = 0
+    pit_dir   = 0
+    pit_steps = 0
+    pit_delay = 250
+    
+    
+    tot_cmd = [fire, rot_on, rot_dir, rot_steps, rot_delay, pit_on, pit_dir, pit_steps, pit_delay]
+    print("Sent command list: ")
+    print(tot_cmd)
+    send_command(bus, slave_address, tot_cmd)
+    rot_steps_from_home, pit_steps_from_home, servo_pulls, rot_break, pit_break = get_turret_status(bus, slave_address, arduino_data_size)
+    print("Received information:")
+    print("rot_steps = "   + str(rot_steps_from_home))
+    print("pit_steps = "   + str(pit_steps_from_home))
+    print("servo_pulls = " + str(servo_pulls))
+    print("rot_break = "   + str(rot_break))
+    print("pit_break = "   + str(pit_break))
+    print("... ... ... sleeping ... ... ...")
+    time.sleep(6)
+    rot_steps_from_home, pit_steps_from_home, servo_pulls, rot_break, pit_break = get_turret_status(bus, slave_address, arduino_data_size)
+    print("Received information:")
+    print("rot_steps = "   + str(rot_steps_from_home))
+    print("pit_steps = "   + str(pit_steps_from_home))
+    print("servo_pulls = " + str(servo_pulls))
+    print("rot_break = "   + str(rot_break))
+    print("pit_break = "   + str(pit_break))
 
 
 
@@ -186,7 +223,7 @@ def send_rot_turn_cmd(degrees, delay_div100):
     bus = smbus.SMBus(1)
     
     # 800 steps (80 steps_div10) ~ 1 full rotation 360 deg
-    steps_div10 = (80/360)*degrees
+    steps_div10 = floor((80.0/360.0))*degrees
     
     
     fire      = 0
