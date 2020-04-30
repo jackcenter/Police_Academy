@@ -14,7 +14,7 @@ from ultrasonics import Ultrasonic
 
 def main():
     simple_filter = setup()
-    run("commands_1.txt", simple_filter)
+    run("commands_3.txt", simple_filter)
 
 
 def setup():
