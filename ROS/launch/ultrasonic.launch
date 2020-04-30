@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg = "JACS" type="transformBraocaster.py" name="transformBroadcaster" />
+    <node pkg="JACS" type="ultrasonic_front.py" name="ultrasonic_front" />
+    <node pkg="JACS" type="ultrasonic_left.py" name="ultrasonic_left" />
+    <node pkg="JACS" type="ultrasonic_right.py" name="ultrasonic_right" />
+    <node pkg="JACS" type="ultrasonic_view_publisher.py" name="ultrasonic_view_publisher" />
+    <node pkg="JACS" type="laserscan.py" name="laserscan" />
+</launch>

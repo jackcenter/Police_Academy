@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <!-- MAp Server Node-->
+    <arg name="map_file" default="$(find JACS)/maps/map.yaml"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)" />
+    <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 map odom 50"/>
+
+    <!-- AMCL Node-->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen" >
+        <param name="odom_frame_id" value="odom" />
+        <param name="odom_model_type" value="diff-corrected" />
+        <param name="base_frame_id" value="base_link" />
+        <param name="global_frame_id" value="map" />
+
+        <!-- Initial Position (might be approximate-->
+        <!-- To Set this in accordance with the center of the map -->
+        <param name="initial_pose_x" value="0" />
+        <param name="initial_pose_y" value="0" />
+        <param name="initial_pose_a" value="-1.57" /> <!-- initial yaw, default is zero-->
+        
+        <!-- default is 100-->
+        <param name="min_particles" value="200" />
+        <!-- default is 500-->
+        <param name="max_particles" value="2000" />
+        <!-- translational movement filter, default is 0.2-->
+        <param name="update_min_d" value="0.05" />
+        <!-- rotational movement filter, default is pi/6-->
+        <param name="update_min_a" value="0.13" />
+
+        <!--default is 0.2, odom's rotation estimate from rotation component of robot's motion-->
+        <param name="odom_alpha1" value="0.00001" />
+        <!-- default is 0.2, odom's rotation estimate from translation component of robot's motion-->
+        <param name="odom_alpha2" value="0.001" />
+        <!-- default is 0.2, odom's translation estimate from translation component of robot's motion-->
+        <parma name="odom_alpha3" value="0.00001" />
+        <!-- default is 0.2, odom's translation estimate from rotation component of robot's motion-->
+        <param name="odom_alpha4" value="0.001" />
+
+    </node>
+
+    <!-- Move base package-->
+    <node pkg="move_base" type="move_base" name="move_base" respawn="false" output="screen">
+        <param name="base_global_planner" value="navfn/NavfnROS" />
+        <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS" />
+
+        <!-- Load parameters through yaml config file-->
+        <rosparam file="$(find JACS)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find JACS)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find JACS)/config/local_common_params.yaml" command="load"/>
+        <rosparam file="$(find JACS)/config/global_common_params.yaml" command="load"/>
+        <rosparam file="$(find JACS)/config/base_local_planner_params.yaml" command="load"/>
+    </node>
+
+</launch>
+
+        

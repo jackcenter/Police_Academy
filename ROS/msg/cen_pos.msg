@@ -1,0 +1,9 @@
+uint32 seq
+time stamp
+string frame_id
+bool locY1
+bool locY2
+bool locP
+float32[] cenY1
+float32[] cenY2
+float32[] cenP

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+   
+    <!-- <include file="/home/pi/catkin_ws/src/JACS/launch/ultrasonic.launch" /> -->
+    <node pkg = "JACS" type="publish_cmd.py" name="publish_cmd" />
+    
+</launch>

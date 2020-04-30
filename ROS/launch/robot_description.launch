@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node name="state_publisher" pkg="JACS" type ="state_publisher" >
+        <param name="use_gui" value="false" />
+    </node>
+
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="rob_st_pub" /> -->
+</launch>
